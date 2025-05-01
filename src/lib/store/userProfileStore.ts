@@ -1,4 +1,4 @@
-import { CompanyUser, User } from '@/typs/user.type'
+import type { CompanyUser, User } from '@/typs/user.type'
 import { create } from 'zustand'
 
 interface UserStore {
