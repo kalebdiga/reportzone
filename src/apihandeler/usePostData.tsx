@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
-import { useGetHeaders } from '@/hooks/use-get-headers'
-import { useMutation } from '@tanstack/react-query'
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosProgressEvent } from 'axios'
-import { signOut } from 'next-auth/react'
+
 import { toast } from 'react-toastify'
+import { useMutation } from '@tanstack/react-query'
+
+import axios, { type AxiosRequestConfig, type AxiosResponse, type AxiosProgressEvent } from 'axios'
+import { useGetHeaders } from '@/hooks/use-get-headers'
 
 type MutationOptions = {
   url: string
@@ -27,11 +28,14 @@ type MutationOptions = {
 //     return Promise.reject(error)
 //   }
 // )
+
 const useDynamicMutation = ({ type = 'Json' }: { type?: 'FormData' | 'Json' }) => {
   const header = useGetHeaders({ type })
+
   const dynamicMutation = useMutation({
     mutationFn: async (options: MutationOptions) => {
       const { url, method, body, headers, onUploadProgress, onDownloadProgress } = options
+
       try {
         const response = await axios.request({
           url: `${process.env.NEXT_PUBLIC_API_URL}${url}`,
@@ -41,25 +45,32 @@ const useDynamicMutation = ({ type = 'Json' }: { type?: 'FormData' | 'Json' }) =
           onUploadProgress,
           onDownloadProgress
         })
+
         return response.data
       } catch (error) {
         throw error
       }
     },
+
     onSuccess: (data, variables) => {
       console.log(data, variables)
+
       if (variables.onSuccess) {
         variables.onSuccess(data)
       }
     },
+
     onError: (error, variables) => {
       if (variables.onError) {
         variables.onError(error)
       }
+
       const errorMessage = (error as any)?.response?.data?.message || (error as any)?.response?.data?.error
       const isString = typeof errorMessage === 'string'
+
       toast.error(isString ? errorMessage : 'Something went wrong')
     },
+
     retry: false
   })
 

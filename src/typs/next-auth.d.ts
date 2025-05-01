@@ -1,4 +1,3 @@
-// types/next-auth.d.ts or anywhere in your project
 import NextAuth from 'next-auth'
 
 declare module 'next-auth' {

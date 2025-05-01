@@ -13,7 +13,7 @@ import { verticalLayoutClasses } from '@layouts/utils/layoutClasses'
 import { useSession } from 'next-auth/react'
 
 const NavbarContent = () => {
-  let data = useSession()
+  const data = useSession()
 
   console.log('data', data)
   return (

@@ -10,7 +10,7 @@ export type User = {
   updatedAt: string // ISO date string
   token: string
 }
-type AuthResponse = {
+export type AuthResponse = {
   token: string
   data: {
     user: {
