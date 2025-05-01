@@ -25,6 +25,7 @@ import Button from '@mui/material/Button'
 import { useSettings } from '@core/hooks/useSettings'
 import { doLogout } from '@/utils/actions'
 import { useSession } from 'next-auth/react'
+import { useUserStore } from '@/lib/store/userProfileStore'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({
@@ -46,7 +47,7 @@ const UserDropdown = () => {
   // Hooks
   const router = useRouter()
 
-  const { data } = useSession()
+  const { user, companyUsers } = useUserStore()
 
   const { settings } = useSettings()
 
@@ -70,7 +71,6 @@ const UserDropdown = () => {
     // Redirect to login page
     doLogout()
   }
-  console.log('data of user', data)
   return (
     <>
       <Badge
@@ -83,7 +83,7 @@ const UserDropdown = () => {
         <Avatar
           ref={anchorRef}
           alt='John Doe'
-          src={data?.user?.photo ?? '/images/avatars/1.png'}
+          src={''}
           onClick={handleDropdownOpen}
           className='cursor-pointer bs-[38px] is-[38px]'
         />
@@ -107,12 +107,12 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-6 gap-2' tabIndex={-1}>
-                    <Avatar alt='John Doe' src={data?.user.photo} />
+                    <Avatar alt='John Doe' src={''} />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
-                        {data?.user?.name ?? 'John Doe'}
+                        {user?.fname ?? 'John'} {user?.lname ?? 'Doe'}
                       </Typography>
-                      <Typography variant='caption'>{data?.user.email}</Typography>
+                      <Typography variant='caption'>{user?.email}</Typography>
                     </div>
                   </div>
                   <Divider className='mlb-1' />

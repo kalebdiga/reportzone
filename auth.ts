@@ -26,15 +26,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         try {
           const result = JSON.parse(credentials.data as string)
-          console.log('🔥🔥😢😢😢🔥🔥 ', result?.data?.user)
+          console.log('🔥🔥😢😢😢🔥🔥 ', result)
 
-          return {
-            id: result?.data?.user?._id,
-            name: result?.data?.user?.name,
-            email: result?.data?.user?.email,
-            accessToken: result?.token,
-            ...result?.data?.user
+          const user = {
+            id: result.userId,
+            name: 'Admin', // Assuming a default name since it's not in the data
+            email: 'admin@example.com', // Assuming a default email since it's not in the data
+            accessToken: result.token,
+            globalRole: result.globalRole,
+            companyUser: result.companyUser
           }
+
+          return user
         } catch (error) {
           console.error('🛑 Error in authorize:', error)
           return null
@@ -60,11 +63,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       // Send all user data to the session
       session.user = {
-        id: token._id,
-        name: token.name,
-        email: token.email,
-        phoneNumber: token.phoneNumber,
+        id: token.id, // Updated to match the new structure
+        name: token.name || 'Admin', // Default name if not provided
+        email: token.email || 'admin@example.com', // Default email if not provided
         accessToken: token.accessToken,
+        globalRole: token.globalRole,
+        companyUser: token.companyUser,
         ...token
       } as any
 

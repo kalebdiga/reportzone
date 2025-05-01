@@ -99,7 +99,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const onSubmit = async (values: { password: string; email: string }) => {
     try {
       await postMutation.mutateAsync({
-        url: '/users/login',
+        url: '/auth/signin',
         method: 'POST',
         body: {
           password: values.password,

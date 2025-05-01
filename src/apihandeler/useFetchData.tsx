@@ -33,7 +33,7 @@ export const useFetchData = (
     queryKey: queryKey,
 
     queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}`, { headers: headers ?? header })
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}${url}`, { headers: headers ?? header })
 
       return response.data
     },

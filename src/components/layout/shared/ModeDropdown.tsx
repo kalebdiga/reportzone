@@ -18,6 +18,7 @@ import type { Mode } from '@core/types'
 
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'
+import { useUserStore } from '@/lib/store/userProfileStore'
 
 const ModeDropdown = () => {
   // States
