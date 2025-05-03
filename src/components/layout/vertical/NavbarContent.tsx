@@ -16,24 +16,9 @@ import { useFetchData } from '@/apihandeler/useFetchData'
 import { useEffect } from 'react'
 
 const NavbarContent = () => {
-  const data = useSession()
-  const { user, companyUsers, setUserData, setCompanyUsers } = useUserStore()
+  // const data = useSession()
+  const { user } = useUserStore()
 
-  const { data: ProfileData, isLoading } = useFetchData(
-    ['profile', data?.data?.user?.accessToken],
-    `/users/profile`,
-    data?.data?.user?.accessToken ? { Authorization: `Bearer ${data?.data?.user?.accessToken}` } : {}
-  )
-  useEffect(() => {
-    if (ProfileData?.user && ProfileData?.companyUsers) {
-      setUserData(ProfileData.user)
-      setCompanyUsers(ProfileData.companyUsers)
-    }
-  }, [ProfileData, setUserData, setCompanyUsers, isLoading])
-
-  console.log('AccessToken:', `Bearer ${data?.data?.user?.accessToken}`)
-  console.log('User Store Data:', user, companyUsers)
-  console.log('data', ProfileData, data?.data?.user?.accessToken)
   return (
     <div className={classnames(verticalLayoutClasses.navbarContent, 'flex items-center justify-between gap-4 is-full')}>
       <h1 className=' text-[1rem] font-normal  hidden md:block'>
