@@ -1,5 +1,5 @@
 'use client'
-import { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { type ChangeEvent, useEffect, useRef, useState } from 'react'
 import { EllipsisVertical } from 'lucide-react'
 import {
   Table as MuiTable,
@@ -19,6 +19,7 @@ import {
 import CSV from '@/utils/CSV'
 import { string } from 'yup'
 import { getValueByPath } from '@/utils/tebleCellSelectionHandeler'
+import Nodatafound from '@/components/NoDtata'
 
 interface Header {
   key: string
@@ -40,6 +41,7 @@ interface CustomTableProps {
   pickdate?: boolean
   csv?: boolean
   csvName?: string
+  csvData?: any[]
   tableTitle?: string
   number: number
   page: number
@@ -74,7 +76,6 @@ const Table: React.FC<CustomTableProps> = ({
   filterFieldData,
   loading,
   setLoading,
-  // csvName = "Document",
   actionElements,
   dropdownVisible,
   setDropdownVisible,
@@ -90,15 +91,11 @@ const Table: React.FC<CustomTableProps> = ({
   const [csvData, setcsvData] = useState<any[]>([])
 
   const [selectAll, setSelectAll] = useState(false)
-  // const [dropdownVisible, setDropdownVisible] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null)
   const [sortConfig, setSortConfig] = useState<{
     key: string
     direction: string
   } | null>(null)
-  //   const [resultsPerPage, setResultsPerPage] = useState(10);
-
-  //   const [rows, _] = useState(data);
 
   const totalItems = number
 
@@ -111,7 +108,6 @@ const Table: React.FC<CustomTableProps> = ({
     setResultsPerPage(event.target.value as number)
     setPage(1)
   }
-  //console.log(filteredData);
 
   const handlePageChange = (_event: ChangeEvent<unknown>, value: number) => {
     setPage(value)
@@ -248,7 +244,7 @@ const Table: React.FC<CustomTableProps> = ({
       </div>
       <div className='table-container w-full  overflow-x-auto shadow-md rounded-md mb-[3%] bg-white'>
         {sortedRows()?.length === 0 ? (
-          <div>Nodatafound</div>
+          <Nodatafound />
         ) : (
           <Box component={Paper} sx={{ overflowX: 'auto' }}>
             {sortedRows()?.length === 0 ? (
@@ -287,13 +283,7 @@ const Table: React.FC<CustomTableProps> = ({
                       {csv && (
                         <TableCell padding='checkbox'>
                           <Checkbox
-                            // checked={selectedRows.some(selected => selected.id === row.id)}
-                            // onChange={() => handleRowSelect(row)}
                             checked={selectedRows.some(selected => {
-                              // console.log(
-                              //   selected.selectionId,
-                              //   row.selectionId
-                              // );
                               return getValueByPath(selected, selectionId) === getValueByPath(row, selectionId)
                             })}
                             onChange={() => handleRowSelect(row)}

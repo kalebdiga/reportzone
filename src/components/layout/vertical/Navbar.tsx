@@ -1,5 +1,5 @@
 'use client'
-// Component Imports
+
 import LayoutNavbar from '@layouts/components/vertical/Navbar'
 import NavbarContent from './NavbarContent'
 import { useSession } from 'next-auth/react'
@@ -9,19 +9,22 @@ import { useEffect } from 'react'
 
 const Navbar = () => {
   const data = useSession()
-  const { setUserData, setCompanyUsers } = useUserStore()
+  const { user, setUserData, setCompanyUsers } = useUserStore()
 
   const { data: ProfileData, isLoading } = useFetchData(
     ['profile', data?.data?.user?.accessToken],
     `/users/profile`,
     data?.data?.user?.accessToken ? { Authorization: `Bearer ${data?.data?.user?.accessToken}` } : {}
   )
+
   useEffect(() => {
     if (ProfileData?.user && ProfileData?.companyUsers) {
       setUserData(ProfileData.user)
       setCompanyUsers(ProfileData.companyUsers)
     }
+    console.log(user, 'user')
   }, [ProfileData, setUserData, setCompanyUsers, isLoading])
+
   return (
     <LayoutNavbar>
       <NavbarContent />

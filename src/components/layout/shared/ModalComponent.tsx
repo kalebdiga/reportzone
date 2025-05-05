@@ -1,13 +1,14 @@
 import Modal from '@mui/material/Modal'
-import { FormEvent, useState } from 'react'
+import { type ReactNode } from 'react'
 
 interface ModalComponentProps {
   open: boolean
   handleClose: () => void
-  children: React.ReactElement
+  children: (props: { data: any; handleClose: () => void }) => ReactNode
+  data?: any
 }
 
-const ModalComponent: React.FC<ModalComponentProps> = ({ open, handleClose, children }) => {
+const ModalComponent: React.FC<ModalComponentProps> = ({ open, handleClose, children, data }) => {
   return (
     <Modal
       aria-labelledby='modal-title'
@@ -15,9 +16,8 @@ const ModalComponent: React.FC<ModalComponentProps> = ({ open, handleClose, chil
       open={open}
       onClose={handleClose}
       className='fixed inset-0 flex items-center justify-center'
-    
     >
-      {children}
+      <div className='bg-white p-6 rounded shadow-md'>{children({ data, handleClose })}</div>
     </Modal>
   )
 }

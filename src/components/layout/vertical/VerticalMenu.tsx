@@ -19,6 +19,7 @@ import StyledVerticalNavExpandIcon from '@menu/styles/vertical/StyledVerticalNav
 // Style Imports
 import menuItemStyles from '@core/styles/vertical/menuItemStyles'
 import menuSectionStyles from '@core/styles/vertical/menuSectionStyles'
+import RoleGuard from '@/lib/role/RoleGuard'
 
 type RenderExpandIconProps = {
   open?: boolean
@@ -79,10 +80,18 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
           Logs
         </MenuItem>
 
-        <MenuItem href='/companies' icon={<i className='tabler-building' />}>
-          Companies
-        </MenuItem>
-        <MenuItem href='/employees' icon={<i className='tabler-users' />}>
+        <RoleGuard allowedRoles={['superadmin']}>
+          <MenuItem
+            href='/companies'
+            icon={<i className='tabler-building' />}
+            activeUrl='/companies'
+            exactMatch={false}
+          >
+            Companies
+          </MenuItem>
+        </RoleGuard>
+
+        <MenuItem href='/employees' icon={<i className='tabler-users' />} activeUrl='/employees' exactMatch={false}>
           Employees
         </MenuItem>
       </Menu>

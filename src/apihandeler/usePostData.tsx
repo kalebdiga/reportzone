@@ -2,50 +2,42 @@
 'use client'
 
 import { toast } from 'react-toastify'
-import { useMutation } from '@tanstack/react-query'
-
-import axios, { type AxiosRequestConfig, type AxiosResponse, type AxiosProgressEvent } from 'axios'
+import { useMutation, useQueryClient, type QueryKey } from '@tanstack/react-query'
+import axios from 'axios'
+import { type AxiosRequestConfig, type AxiosResponse, type AxiosProgressEvent } from 'axios'
 import { useGetHeaders } from '@/hooks/use-get-headers'
 
 type MutationOptions = {
   url: string
-  method: AxiosRequestConfig['method']
+  method: 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   body?: any
   headers?: AxiosRequestConfig['headers']
   onSuccess?: (data: AxiosResponse['data']) => void
   onError?: (error: any) => void
   onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
   onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void
+  invalidateKey?: QueryKey
 }
 
-// axios.interceptors.response.use(
-//   response => response,
-//   error => {
-//     if (error.response.status === 403 || error.response.status === 401) {
-//       // signOut()
-//     }
-
-//     return Promise.reject(error)
-//   }
-// )
-
 const useDynamicMutation = ({ type = 'Json' }: { type?: 'FormData' | 'Json' }) => {
-  const header = useGetHeaders({ type })
+  const queryClient = useQueryClient()
+  const defaultHeaders = useGetHeaders({ type })
 
-  const dynamicMutation = useMutation({
+  return useMutation({
     mutationFn: async (options: MutationOptions) => {
       const { url, method, body, headers, onUploadProgress, onDownloadProgress } = options
 
-      try {
-        const response = await axios.request({
-          url: `${process.env.NEXT_PUBLIC_API_URL}${url}`,
-          method,
-          headers: headers || header,
-          data: body,
-          onUploadProgress,
-          onDownloadProgress
-        })
+      const config: AxiosRequestConfig = {
+        url: `${process.env.NEXT_PUBLIC_API_URL}${url}`,
+        method,
+        headers: headers || defaultHeaders,
+        data: body,
+        onUploadProgress,
+        onDownloadProgress
+      }
 
+      try {
+        const response = await axios.request(config)
         return response.data
       } catch (error) {
         throw error
@@ -53,10 +45,12 @@ const useDynamicMutation = ({ type = 'Json' }: { type?: 'FormData' | 'Json' }) =
     },
 
     onSuccess: (data, variables) => {
-      console.log(data, variables)
-
       if (variables.onSuccess) {
         variables.onSuccess(data)
+      }
+
+      if (variables.invalidateKey) {
+        queryClient.invalidateQueries({ queryKey: variables.invalidateKey })
       }
     },
 
@@ -65,16 +59,14 @@ const useDynamicMutation = ({ type = 'Json' }: { type?: 'FormData' | 'Json' }) =
         variables.onError(error)
       }
 
-      const errorMessage = (error as any)?.response?.data?.message || (error as any)?.response?.data?.error
-      const isString = typeof errorMessage === 'string'
+      const message =
+        (error as any)?.response?.data?.message || (error as any)?.response?.data?.error || 'Something went wrong'
 
-      toast.error(isString ? errorMessage : 'Something went wrong')
+      toast.error(typeof message === 'string' ? message : 'Something went wrong')
     },
 
     retry: false
   })
-
-  return dynamicMutation
 }
 
 export default useDynamicMutation

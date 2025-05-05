@@ -18,7 +18,9 @@ import '@assets/iconify-icons/generated-icons.css'
 import { Toaster } from 'sonner'
 import { ToastContainer } from 'react-toastify'
 import QueryProvider from '@/providers/QueryProvider'
-import { SessionProvider } from 'next-auth/react'
+import { auth } from '../../auth'
+import SessionDataProviders from '@/providers/SessionDataProviders'
+import AppProvider from '@/lib/app-provider'
 
 export const metadata = {
   title: 'Vuexy - MUI Next.js Admin Dashboard Template',
@@ -33,16 +35,15 @@ const RootLayout = async (props: ChildrenType) => {
 
   const systemMode = await getSystemMode()
   const direction = 'ltr'
-
+  const session = await auth()
+  console.log(session, 'session from layout')
   return (
     <html id='__next' lang='en' dir={direction} suppressHydrationWarning>
       <body className='flex is-full min-bs-full flex-auto flex-col'>
         <InitColorSchemeScript attribute='data' defaultMode={systemMode} />
-        <Toaster position='bottom-right' visibleToasts={1} />
+        <Toaster position='top-right' visibleToasts={1} />
         <ToastContainer position='bottom-right' />
-        <SessionProvider>
-          <QueryProvider>{children}</QueryProvider>
-        </SessionProvider>
+        <AppProvider session={session}>{children}</AppProvider>
       </body>
     </html>
   )

@@ -1,4 +1,5 @@
 'use client'
+import { signIn } from 'next-auth/react'
 
 // React Imports
 import { useState } from 'react'
@@ -41,6 +42,7 @@ import FormikTextField from '@/lib/form/FormikInput'
 
 //util Imports
 import { loginSchema } from '@/schema/authschema'
+import { useUserStore } from '@/lib/store/userProfileStore'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -69,6 +71,7 @@ const MaskImg = styled('img')({
 const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
+  const { setUserData, setCompanyUsers } = useUserStore()
 
   // Vars
   const darkImg = '/images/pages/auth-mask-dark.png'
@@ -108,17 +111,29 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
         headers: {
           'Content-Type': 'application/json'
         },
-        onSuccess: data => {
-          toast.success('Verified Successfully')
-          console.log('object', data)
+        onSuccess: async data => {
+          toast.success('Login successful')
+          const callbackUrl =
+            typeof window !== 'undefined'
+              ? `${window.location.origin}/add-management`
+              : 'http://localhost:3000/add-management'
 
-          doCredentialLogin(data).then(response => {
-            if (response?.error) {
-              toast.error('Authentication failed')
-            } else {
-              router.push('/add-management')
-            }
+          const res = await signIn('login', {
+            userId: data.userId,
+            token: data.token,
+            globalRole: data.globalRole.toString(),
+            companyUser: JSON.stringify(data.companyUser),
+            redirect: false,
+            callbackUrl
           })
+
+          if (res?.ok) {
+            setTimeout(() => router.push('/add-management'), 200)
+            console.log(res, 'res')
+          } else {
+            console.log('error')
+            toast.error('Authentication failed')
+          }
         }
       })
     } catch (err) {

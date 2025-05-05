@@ -3,12 +3,12 @@ export interface User {
   fname: string
   lname: string
   email: string
-  accountStatus: string
-  emailVerified: boolean
+  accountStatus?: string
+  emailVerified?: boolean
   globalRole: boolean
-  verifiedAt: string
-  createdAt: string
-  updatedAt: string
+  verifiedAt?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface CompanyUser {
@@ -19,4 +19,9 @@ export interface CompanyUser {
   role: string
   createdAt: string
   updatedAt: string
+}
+
+export interface UserData {
+  user: User
+  companyUsers: CompanyUser[]
 }

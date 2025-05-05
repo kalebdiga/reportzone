@@ -3,8 +3,6 @@ import React, { useState } from 'react'
 import Table from './Table'
 import { Button, Switch } from '@mui/material'
 import { Plus } from 'lucide-react'
-import SendInvoiceDrawer from '../ModalComponent'
-import ModalComponent from '../ModalComponent'
 
 const MockTable = () => {
   const headers = [
@@ -67,10 +65,6 @@ const MockTable = () => {
         dropdownVisible={dropdownVisible}
         setDropdownVisible={setDropdownVisible}
       />
-
-      <ModalComponent open={sendDrawerOpen} handleClose={() => setSendDrawerOpen(false)}>
-        <div className=' size-[300px] bg-slate-900'></div>
-      </ModalComponent>
     </>
   )
 }
@@ -116,7 +110,6 @@ const StatusAction = ({ row }: any) => {
   const handleStatusChange = () => {
     const newStatus = status === 'Active' ? 'Inactive' : 'Active'
     setStatus(newStatus)
-    // alert(`Status changed to ${newStatus} for ${row.name}`)
   }
 
   return (
@@ -125,8 +118,6 @@ const StatusAction = ({ row }: any) => {
       style={{ color: status === 'Active' ? 'green' : 'red' }}
       className=' bg-transparent'
     >
-      {/* <div>{status}</div> */}
-
       <div>
         <Switch checked={status === 'Active'} onChange={handleStatusChange} color='primary' />
       </div>

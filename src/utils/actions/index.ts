@@ -8,9 +8,10 @@ export async function doLogout() {
 
 export async function doCredentialLogin(data: any) {
   try {
-    const response = await signIn('login', {
+    const response: { error?: string } = await signIn('login', {
       data: JSON.stringify(data),
-      redirect: false
+      redirect: false,
+      callbackUrl: '/add-management'
     })
 
     return response

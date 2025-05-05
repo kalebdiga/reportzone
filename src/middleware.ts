@@ -1,34 +1,31 @@
+// middleware.ts
+import { auth } from '../auth'
 import { NextResponse } from 'next/server'
-import { auth, routes } from '../auth'
 
 const protectedRoutes = ['/add-management']
 const publicRoutes = ['/login']
 
-export default auth(async (req: any) => {
-  // console.log(JSON.stringify(auth()));
+export default auth(req => {
+  const { pathname } = req.nextUrl
 
-  const path = req.nextUrl.pathname
-  const isProtectedRoute = protectedRoutes.includes(path)
-  const isPublicRoute = publicRoutes.includes(path)
-  console.log('object', !req.auth)
-  console.log('isProtectedRoute', isProtectedRoute)
-  console.log('isPublicRoute', isPublicRoute)
+  const isProtected = protectedRoutes.includes(pathname)
+  const isPublic = publicRoutes.includes(pathname)
+  const isAuthed = !!req.auth
 
-  if (isProtectedRoute && !req.auth) {
+  // If accessing protected route but not authenticated
+  if (isProtected && !isAuthed) {
     return NextResponse.redirect(new URL('/login', req.nextUrl))
   }
 
-  if (isPublicRoute && req.auth) {
-    return NextResponse.redirect(new URL(routes.home, req.nextUrl))
-  } else {
-    NextResponse.redirect(new URL('/login', req.nextUrl))
-  }
-  if (req?.auth?.expires < Date.now()) {
+  // If accessing login while authenticated
+  if (isPublic && isAuthed) {
+    return NextResponse.redirect(new URL('/add-management', req.nextUrl))
   }
 
+  // Allow all other routes
   return NextResponse.next()
 })
 
 export const config = {
-  matcher: ['/add-management', '/', '/otp/verify', '/otp', '/login']
+  matcher: ['/add-management', '/login']
 }

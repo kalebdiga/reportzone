@@ -1,12 +1,14 @@
+// app/auth.ts (or lib/auth.ts)
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import type { NextAuthConfig } from 'next-auth'
 
 export const routes = {
   signIn: '/login',
   signOut: '/auth/signout',
   error: '/auth/error',
   forgotPassword: '/forgot-password',
-  home: '/'
+  home: '/add-management'
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -17,29 +19,35 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     CredentialsProvider({
       id: 'login',
+      name: 'Custom Login',
       credentials: {
-        data: { label: 'data', type: 'text' } // declare the expected credential field
+        userId: { label: 'User ID', type: 'text' },
+        token: { label: 'Token', type: 'text' },
+        globalRole: { label: 'Global Role', type: 'text' },
+        companyUser: { label: 'Company User', type: 'text' }
       },
-      async authorize(credentials, req) {
-        if (!credentials) return null
-        console.log('🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥', JSON.stringify({ credentials }))
+      async authorize(credentials: Partial<Record<'userId' | 'token' | 'globalRole' | 'companyUser', unknown>>) {
+        const userId = credentials?.userId as string | undefined
+        const token = credentials?.token as string | undefined
+        const globalRole = credentials?.globalRole as string | boolean | undefined
+        const companyUserRaw = credentials?.companyUser as string | undefined
+
+        if (!userId || !token) return null
 
         try {
-          const result = JSON.parse(credentials.data as string)
-          console.log('🔥🔥😢😢😢🔥🔥 ', result)
-
           const user = {
-            id: result.userId,
-            name: 'Admin', // Assuming a default name since it's not in the data
-            email: 'admin@example.com', // Assuming a default email since it's not in the data
-            accessToken: result.token,
-            globalRole: result.globalRole,
-            companyUser: result.companyUser
+            id: userId, // ✅ explicitly a string
+            name: 'Admin',
+            email: 'admin@example.com',
+            accessToken: token,
+            globalRole: globalRole === 'true' || globalRole === true,
+            companyUser: companyUserRaw ? JSON.parse(companyUserRaw) : []
           }
 
-          return user
-        } catch (error) {
-          console.error('🛑 Error in authorize:', error)
+          console.log('🔥🔥🔥🔥🔥🔥🔥🔥', user)
+          return user as any // ✅ or cast to `as User` if you've extended the type
+        } catch (err) {
+          console.error('❌ Failed to parse companyUser:', err)
           return null
         }
       }
@@ -48,30 +56,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   callbacks: {
     async jwt({ token, user }) {
-      // Initial login
-
-      console.log('❤️❤️❤️❤️❤️', token)
       if (user) {
-        return {
-          ...token,
-          ...user
-        }
+        token.id = user.id
+        token.name = user.name
+        token.email = user.email
+        token.accessToken = user.accessToken
+        token.globalRole = user.globalRole
+        token.companyUser = user.companyUser
       }
       return token
     },
 
     async session({ session, token }) {
-      // Send all user data to the session
       session.user = {
-        id: token.id, // Updated to match the new structure
-        name: token.name || 'Admin', // Default name if not provided
-        email: token.email || 'admin@example.com', // Default email if not provided
-        accessToken: token.accessToken,
-        globalRole: token.globalRole,
-        companyUser: token.companyUser,
-        ...token
+        id: token.id as string,
+        name: token.name as string,
+        email: token.email as string,
+        accessToken: token.accessToken as string,
+        globalRole: token.globalRole as boolean,
+        role: token.globalRole ? 'superadmin' : (token.companyUser as any)?.[0]?.role,
+        companyUser: token.companyUser
       } as any
-
       return session
     },
 
@@ -93,4 +98,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signOut: routes.signOut,
     error: routes.error
   }
-})
+} satisfies NextAuthConfig)

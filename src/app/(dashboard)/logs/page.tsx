@@ -1,3 +1,5 @@
+import Logs from '@/views/logs/Logs'
+
 export default function Page() {
-  return <h1>Logs page!</h1>
+  return <Logs />
 }
