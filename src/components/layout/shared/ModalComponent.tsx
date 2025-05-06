@@ -1,4 +1,6 @@
+import { IconButton } from '@mui/material'
 import Modal from '@mui/material/Modal'
+import { X } from 'lucide-react'
 import { type ReactNode } from 'react'
 
 interface ModalComponentProps {
@@ -17,7 +19,16 @@ const ModalComponent: React.FC<ModalComponentProps> = ({ open, handleClose, chil
       onClose={handleClose}
       className='fixed inset-0 flex items-center justify-center'
     >
-      <div className='bg-white p-6 rounded shadow-md'>{children({ data, handleClose })}</div>
+      <div className='flex relative  bg-red-500'>
+        {handleClose && (
+          <div className='absolute top-2 right-2'>
+            <IconButton onClick={handleClose} aria-label='Close'>
+              <X size={20} />
+            </IconButton>
+          </div>
+        )}
+        <div className='bg-white  rounded shadow-md'>{children({ data, handleClose })}</div>
+      </div>
     </Modal>
   )
 }

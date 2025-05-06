@@ -76,10 +76,9 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
       if (values.role !== data?.companyUsers[0]?.role) {
         // Update role
         postMutation.mutate({
-          url: `/users/${data?.companyUsers?.[0].id}/role`,
+          url: `/users/${data?.user?.id}/role`,
           method: 'PATCH',
           body: {
-            userId: data?.user?.id,
             role: values.role
           },
           invalidateKey: ['employeeData'],
@@ -92,7 +91,7 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
       }
 
       // Redirect after successful updates
-      // router.push('/employees')
+      router.push('/employees')
     } catch (err) {
       console.error('Error updating profile or role:', err)
       toast.error('Failed to update profile or role')
@@ -102,6 +101,13 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
   return (
     <div className='flex  justify-center'>
       <div className=' relative flex justify-center items-center bs-full bg-backgroundPaper !min-is-full p-1  md:!min-is-[unset] md:p-2 md:is-[480px] md:rounded-md'>
+        {handleClose && (
+          <div className='absolute top-2 right-2'>
+            <IconButton onClick={handleClose} aria-label='Close'>
+              <X size={20} />
+            </IconButton>
+          </div>
+        )}
         <div className='flex flex-col gap-6 is-full  sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-0 sm:mbs-14 md:mbs-0 '>
           <div className='flex flex-col gap-1'>
             <Typography variant='h4'>Update Employee Profile</Typography>
@@ -113,7 +119,7 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
               lname: data?.user?.lname || '',
               email: data?.user?.email || '',
               account_status: null,
-              role: data?.companyUsers[0]?.role || ''
+              role: 'admin'
             }}
             validationSchema={profileSchema}
             onSubmit={onSubmit}

@@ -16,9 +16,8 @@ import UpdateEmployeeProfile from './UpdateEmployeeProfile'
 import UpdateEmployeePassword from './UpdateEmployeePassword'
 import { type UserData } from '@/typs/user.type'
 import CreateEmployee from './CreateEmployee'
-import Card from '@mui/material/Card'
 
-const EmployeesTable = () => {
+const AddProfileTable = () => {
   //state
   const [page, setPage] = useState(1)
   const [resultsPerPage, setResultsPerPage] = useState(5)
@@ -26,7 +25,7 @@ const EmployeesTable = () => {
   const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
   const [OpenEmplyeePassword, setOpenEmplyeePassword] = useState(false)
   const [openCreateEployee, setOpenCreateEployee] = useState(false)
-  const [singleEmployeeData, setSingleEmployeeData] = useState<UserData>(null as any)
+  const [singleaddProfileData, setSingleaddProfileData] = useState<UserData>(null as any)
 
   //hooks
 
@@ -34,37 +33,67 @@ const EmployeesTable = () => {
   const data = useSession()
 
   const headers = [
-    { key: 'name', label: 'First Name' },
-    { key: 'user.email', label: 'Email' },
-    { key: 'user.emailVerified', label: 'Verified', render: (row: any) => <VerifiedRenderHandeler row={row} /> },
-    { key: 'role', label: 'Role' },
+    { key: 'accountName', label: 'Account Name' },
+    { key: 'countryCode', label: 'Country Code' },
 
     {
-      key: 'user.accountStatus',
-      label: 'Status',
-      render: (row: any) => <ChangeEployeeStatus row={row} />
+      key: 'totalCampaigns',
+      label: 'Campaigns',
+      render: (row: any) => (
+        <div
+          onClick={() => {
+            setOpenEmplyeeProfile(true)
+            setSingleaddProfileData(row)
+          }}
+        >
+          <span className={`${row?.totalCampaigns > 0 ? ' text-blue-600' : 'text-blue-600'}`}>
+            {' '}
+            {row?.totalCampaigns}
+          </span>
+        </div>
+      )
     },
-    { key: 'date', label: 'Date' }
+    {
+      key: 'isActive',
+      label: 'Status',
+      render: (row: any) => (
+        <span style={{ color: row.isActive ? 'green' : 'red' }}>{row.isActive ? 'Active' : 'Inactive'}</span>
+      )
+    },
+
+    // { key: 'accountType', label: 'Account Type' },
+    // {
+    //   key: 'accountValidPaymentMethod',
+    //   label: 'Valid Payment Method',
+    //   render: (row: any) => (
+    //     <span style={{ color: row.accountValidPaymentMethod ? 'green' : 'red' }}>
+    //       {row.accountValidPaymentMethod ? 'Yes' : 'No'}
+    //     </span>
+    //   )
+    // },
+    { key: 'createdAt', label: 'Created At', render: (row: any) => convertToDateOnly(row.createdAt) },
+
+    // { key: 'currencyCode', label: 'Currency Code' },
+    // { key: 'dailyBudget', label: 'Daily Budget' },
+
+    { key: 'updatedAt', label: 'Updated At', render: (row: any) => convertToDateOnly(row.updatedAt) }
   ]
 
-  const { data: EmployeeData, isLoading } = useFetchData(
-    ['employeeData', data?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
-    `/users?page_size=${resultsPerPage}&page=${page}&company_id=${companyUsers[0]?.companyId}`,
-    data?.data?.user?.accessToken ? { Authorization: `Bearer ${data?.data?.user?.accessToken}` } : {}
+  const { data: addProfileData, isLoading } = useFetchData(
+    ['addProfileData', data?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
+    `/advertising/profiles`
+
+    // data?.data?.user?.accessToken ? { Authorization: `Bearer ${data?.data?.user?.accessToken}` } : {}
   )
 
-  const { data: EmployeeDataForCsv } = useFetchData(
-    ['employeeData', data?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
-    `/users?page_size=${resultsPerPage}&page=${page}&company_id=${companyUsers[0]?.companyId}`,
-    data?.data?.user?.accessToken ? { Authorization: `Bearer ${data?.data?.user?.accessToken}` } : {}
-  )
+  console.log(addProfileData, 'adddddddd')
 
-  // const { data: EmployeeData, isLoading } = useFetchData(
-  //   ['employeeData', data?.data?.user?.accessToken, companyUsers[0]?.companyId],
+  // const { data: addProfileData, isLoading } = useFetchData(
+  //   ['addProfileData', data?.data?.user?.accessToken, companyUsers[0]?.companyId],
   //   `/users?company_id=${companyUsers[0]?.companyId}`,
   //   data?.data?.user?.accessToken ? { Authorization: `Bearer ${data?.data?.user?.accessToken}` } : {}
   // )
-  const transformedData = (EmployeeData?.users || [])?.map((item: any) => ({
+  const transformedData = (addProfileData?.users || [])?.map((item: any) => ({
     ...item,
     name: item.user.fname + ' ' + item.user.lname,
     role: item.user.globalRole ? 'Super Admin' : item.companyUsers[0]?.role,
@@ -72,7 +101,7 @@ const EmployeesTable = () => {
   }))
 
   // // Filter, sort, and paginate data
-  // const transformedData = (EmployeeData?.users || [])
+  // const transformedData = (addProfileData?.users || [])
   //   .sort((a: any, b: any) => {
   //     // Custom sorting logic: prioritize 'active' over 'suspended'
   //     const statusOrder = { active: 1, suspended: 2 }
@@ -89,7 +118,7 @@ const EmployeesTable = () => {
   //   }))
   //   .slice((page - 1) * resultsPerPage, page * resultsPerPage) // Paginate data
   const handleActionClick = (row: any) => {
-    setSingleEmployeeData(row)
+    setSingleaddProfileData(row)
     setOpenEmplyeeProfile(true)
   }
   const actionElements = (row: any) => (
@@ -104,7 +133,7 @@ const EmployeesTable = () => {
         variant='tonal'
         color='warning'
         onClick={() => {
-          setOpenEmplyeePassword(true), setSingleEmployeeData(row)
+          setOpenEmplyeePassword(true), setSingleaddProfileData(row)
         }}
       >
         <div className='flex items-center gap-2 '>
@@ -123,7 +152,7 @@ const EmployeesTable = () => {
         headers={headers}
         selectionId='user.id'
         csv={true}
-        data={transformedData}
+        data={addProfileData?.profiles}
         action={true}
         addNew={
           <Button
@@ -138,7 +167,7 @@ const EmployeesTable = () => {
         }
         tableTitle='
 Employees'
-        number={EmployeeData?.meta?.totalRecords}
+        number={addProfileData?.meta?.totalRecords}
         page={page}
         setPage={setPage}
         resultsPerPage={resultsPerPage}
@@ -152,7 +181,7 @@ Employees'
       <ModalComponent
         open={OpenEmplyeeProfile}
         handleClose={() => setOpenEmplyeeProfile(false)}
-        data={singleEmployeeData}
+        data={singleaddProfileData}
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <UpdateEmployeeProfile data={data} handleClose={handleClose} />
@@ -161,7 +190,7 @@ Employees'
       <ModalComponent
         open={OpenEmplyeePassword}
         handleClose={() => setOpenEmplyeePassword(false)}
-        data={singleEmployeeData}
+        data={singleaddProfileData}
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <UpdateEmployeePassword data={data} handleClose={handleClose} />
@@ -174,7 +203,7 @@ Employees'
   )
 }
 
-export default EmployeesTable
+export default AddProfileTable
 
 const VerifiedRenderHandeler = ({ row }: any) => {
   return (

@@ -12,10 +12,12 @@ import type { VerticalNavContextProps } from '@menu/contexts/verticalNavContext'
 
 // Config Imports
 import themeConfig from '@configs/themeConfig'
+import img from './../../../../public/logo/favicon.png'
 
 // Hook Imports
 import useVerticalNav from '@menu/hooks/useVerticalNav'
 import { useSettings } from '@core/hooks/useSettings'
+import Image from 'next/image'
 
 type LogoTextProps = {
   isHovered?: VerticalNavContextProps['isHovered']
@@ -68,7 +70,7 @@ const Logo = ({ color }: { color?: CSSProperties['color'] }) => {
 
   return (
     <div className='flex items-center'>
-      {/* <VuexyLogo className='text-2xl text-primary' /> */}
+      <Image src={img} alt='logo' width={45} height={45} />
       <LogoText
         color={color}
         ref={logoTextRef}

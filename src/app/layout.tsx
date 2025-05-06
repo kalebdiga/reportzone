@@ -21,11 +21,12 @@ import QueryProvider from '@/providers/QueryProvider'
 import { auth } from '../../auth'
 import SessionDataProviders from '@/providers/SessionDataProviders'
 import AppProvider from '@/lib/app-provider'
+import Customizer from '@/@core/components/customizer'
+import Providers from '@/components/Providers'
 
 export const metadata = {
-  title: 'Vuexy - MUI Next.js Admin Dashboard Template',
-  description:
-    'Vuexy - MUI Next.js Admin Dashboard Template - is the most developer friendly & highly customizable Admin Dashboard Template based on MUI v5.'
+  title: 'Report Zone ',
+  description: ''
 }
 
 const RootLayout = async (props: ChildrenType) => {
@@ -40,10 +41,14 @@ const RootLayout = async (props: ChildrenType) => {
   return (
     <html id='__next' lang='en' dir={direction} suppressHydrationWarning>
       <body className='flex is-full min-bs-full flex-auto flex-col'>
-        <InitColorSchemeScript attribute='data' defaultMode={systemMode} />
-        <Toaster position='top-right' visibleToasts={1} />
-        <ToastContainer position='bottom-right' />
-        <AppProvider session={session}>{children}</AppProvider>
+        <Providers direction={direction}>
+          <InitColorSchemeScript attribute='data' defaultMode={systemMode} />
+          <Toaster position='top-right' visibleToasts={1} />
+          <ToastContainer position='bottom-right' limit={1} newestOnTop />
+          <AppProvider session={session}>{children}</AppProvider>
+
+          <Customizer dir={direction} />
+        </Providers>
       </body>
     </html>
   )

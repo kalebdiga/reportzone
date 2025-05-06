@@ -24,7 +24,9 @@ const handleCopy = (text: string) => {
   copy(text)
   toast.success('Email Copied to Clipboard')
 }
-const CompanyEmployeesTable = ({ id }: { id: string }) => {
+const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
+  const id = data?.id
+
   //state
 
   console.log(id, 'from employee table')
@@ -39,7 +41,7 @@ const CompanyEmployeesTable = ({ id }: { id: string }) => {
   //hooks
 
   const { companyUsers } = useUserStore()
-  const data = useSession()
+  const session = useSession()
 
   const headers = [
     { key: 'name', label: 'First Name' },
@@ -68,7 +70,7 @@ const CompanyEmployeesTable = ({ id }: { id: string }) => {
   ]
 
   const { data: EmployeeData, isLoading } = useFetchData(
-    ['CompanyEmployees', data?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
+    ['CompanyEmployees', session?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
     `/users?page_size=${resultsPerPage}&page=${page}&company_id=${id}`
   )
   const { data: Company } = useFetchData([], `/companies/${id}`)
@@ -125,76 +127,80 @@ const CompanyEmployeesTable = ({ id }: { id: string }) => {
     </div>
   )
   if (isLoading) {
-    return <TableSkeleton />
+    return (
+      <div className=' is-[800px]'>
+        <TableSkeleton />
+      </div>
+    )
   }
   return (
     <>
-      <div className='w-[100%] bg-backgroundPaper text-textPrimary  mt-[2%] '>
-        <div className='w-[100%] flex items-center justify-start pt-[2%]   gap-[12px]'>
-          <Link href={'/companies'}>
-            <div className=' border-[1px] border-textPrimary rounded-[8px] h-[32px] w-[32px] flex justify-center items-center   '>
-              <ArrowLeft />
-            </div>{' '}
-          </Link>
-
-          <Typography variant='h1' className=' hidden md:block text-[1.1rem]'>
-            Back
-          </Typography>
+      <div className='flex relative justify-center flex-col items-center bs-full bg-backgroundPaper !min-is-full  md:!min-is-[unset]md:is-[800px] md:rounded'>
+        {handleClose && (
+          <div className=' flex justify-end items-center w-full py-[1%]'>
+            <div className='  '>
+              <IconButton onClick={handleClose} aria-label='Close'>
+                <X size={20} />
+              </IconButton>
+            </div>
+          </div>
+        )}
+        <div className=' w-f'>
+          <Table
+            headers={headers}
+            selectionId='user.id'
+            csv={true}
+            data={transformedData}
+            action={true}
+            addNew={
+              <Button
+                variant='contained'
+                onClick={() => {
+                  setOpenCreateEployee(true)
+                }}
+              >
+                <Plus />
+                <span className=' max-md:hidden'>Add New</span>
+              </Button>
+            }
+            tableTitle={`${Company?.name}/Employees`}
+            number={EmployeeData?.meta?.totalRecords}
+            page={page}
+            setPage={setPage}
+            resultsPerPage={resultsPerPage}
+            setResultsPerPage={setResultsPerPage}
+            loading={false}
+            setLoading={() => {}}
+            actionElements={actionElements}
+            dropdownVisible={dropdownVisible}
+            setDropdownVisible={setDropdownVisible}
+          />
         </div>
-      </div>
 
-      <Table
-        headers={headers}
-        selectionId='user.id'
-        csv={true}
-        data={transformedData}
-        action={true}
-        addNew={
-          <Button
-            variant='contained'
-            onClick={() => {
-              setOpenCreateEployee(true)
-            }}
-          >
-            <Plus />
-            <span className=' max-md:hidden'>Add New</span>
-          </Button>
-        }
-        tableTitle={`${Company?.name}/Employees`}
-        number={EmployeeData?.meta?.totalRecords}
-        page={page}
-        setPage={setPage}
-        resultsPerPage={resultsPerPage}
-        setResultsPerPage={setResultsPerPage}
-        loading={false}
-        setLoading={() => {}}
-        actionElements={actionElements}
-        dropdownVisible={dropdownVisible}
-        setDropdownVisible={setDropdownVisible}
-      />
-      <ModalComponent
-        open={OpenEmplyeeProfile}
-        handleClose={() => setOpenEmplyeeProfile(false)}
-        data={singleEmployeeData}
-      >
-        {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
-          <UpdateEmployeeProfile data={data} handleClose={handleClose} />
-        )}
-      </ModalComponent>
-      <ModalComponent
-        open={OpenEmplyeePassword}
-        handleClose={() => setOpenEmplyeePassword(false)}
-        data={singleEmployeeData}
-      >
-        {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
-          <UpdateEmployeePassword data={data} handleClose={handleClose} />
-        )}
-      </ModalComponent>
-      <ModalComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)} data={id}>
-        {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
-          <CreateEmployee handleClose={handleClose} id={data} />
-        )}
-      </ModalComponent>
+        <ModalComponent
+          open={OpenEmplyeeProfile}
+          handleClose={() => setOpenEmplyeeProfile(false)}
+          data={singleEmployeeData}
+        >
+          {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
+            <UpdateEmployeeProfile data={data} handleClose={handleClose} />
+          )}
+        </ModalComponent>
+        <ModalComponent
+          open={OpenEmplyeePassword}
+          handleClose={() => setOpenEmplyeePassword(false)}
+          data={singleEmployeeData}
+        >
+          {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
+            <UpdateEmployeePassword data={data} handleClose={handleClose} />
+          )}
+        </ModalComponent>
+        <ModalComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)} data={id}>
+          {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
+            <CreateEmployee handleClose={handleClose} id={data} />
+          )}
+        </ModalComponent>
+      </div>
     </>
   )
 }

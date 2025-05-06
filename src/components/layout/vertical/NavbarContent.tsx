@@ -17,12 +17,13 @@ import { useEffect } from 'react'
 
 const NavbarContent = () => {
   // const data = useSession()
-  const { user } = useUserStore()
-
+  const { user, companyUsers } = useUserStore()
+  const { data: Company } = useFetchData([], `/companies/${companyUsers?.[0]?.companyId}`)
+  console.log(Company, 'company')
   return (
     <div className={classnames(verticalLayoutClasses.navbarContent, 'flex items-center justify-between gap-4 is-full')}>
       <h1 className=' text-[1rem] font-normal  hidden md:block'>
-        welcome {user?.fname} {user?.lname}
+        welcome {user?.fname} {user?.lname}/{Company?.name}
       </h1>
       <div className='flex items-center justify-between gap-4 max-md:hidden'>
         <div className='flex items-center gap-4'>

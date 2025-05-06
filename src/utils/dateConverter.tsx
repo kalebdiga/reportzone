@@ -7,16 +7,22 @@ export function convertToReadableDate(isoString: string | number | Date) {
 
 // Converts an ISO string to a date-only string in the format "YYYY-MM-DD".
 // Example: "2025-05-03T12:00:00.000Z" -> "2025-05-03"
-export const convertToDateOnly = (isoString: string) => {
-  if (!isoString) return 'Invalid Date' // Prevent errors on null/undefined
+export const convertToDateOnly = (isoString: string, includeTime = false) => {
+  const date = new Date(isoString)
 
-  try {
-    const validISO = isoString.split('.')[0] + 'Z' // Fix nanoseconds issue
-    return new Date(validISO).toISOString().split('T')[0]
-  } catch (error) {
-    console.error('Invalid date format:', isoString)
-    return 'Invalid Date' // Fallback for errors
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    ...(includeTime && {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'America/New_York' // Optional: adjust based on need
+    })
   }
+
+  return date.toLocaleDateString('en-US', options)
 }
 
 // Converts an ISO string, number, or Date object to a time-only string in the format "HH:MM:SS".

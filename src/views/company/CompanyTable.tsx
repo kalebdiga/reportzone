@@ -1,24 +1,21 @@
 'use client'
 import React, { useState } from 'react'
 
-import { Button, Switch } from '@mui/material'
-import { Check, LockKeyhole, Pencil, Plus, X } from 'lucide-react'
+import { Button } from '@mui/material'
+import { Pencil, Plus } from 'lucide-react'
 import Table from '@/components/layout/shared/table/Table'
-import { useUserStore } from '@/lib/store/userProfileStore'
 import { useFetchData } from '@/apihandeler/useFetchData'
 import { useSession } from 'next-auth/react'
 import ChangeStatus from './ChangeStatus'
-import { date } from 'yup'
 import { convertToDateOnly } from '@/utils/dateConverter'
 import TableSkeleton from '@/utils/TableSkleton'
 import ModalComponent from '@/components/layout/shared/ModalComponent'
-import UpdateEmployeeProfile from './employee/UpdateEmployeeProfile'
-import UpdateEmployeePassword from './employee/UpdateEmployeePassword'
+
 import { type UserData } from '@/typs/user.type'
-import CreateEmployee from './employee/CreateEmployee'
-import Link from 'next/link'
+
 import CreateCompany from './CreateCompany'
 import UpdateCompany from './UpdateCompany'
+import CompanyEmployeesTable from './employee/CompanyEmployeesTable'
 
 const CompanyTable = () => {
   //state
@@ -26,9 +23,9 @@ const CompanyTable = () => {
   const [resultsPerPage, setResultsPerPage] = useState(5)
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
   const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
-  const [OpenEmplyeePassword, setOpenEmplyeePassword] = useState(false)
+  const [OpenEmplyee, setOpenEmplyee] = useState(false)
   const [openCreateEployee, setOpenCreateEployee] = useState(false)
-  const [singleCompanyData, setSingleCompanyData] = useState<UserData>(null as any)
+  const [singleCompanyData, setSingleCompanyData] = useState<any>(null as any)
 
   //hooks
 
@@ -36,7 +33,23 @@ const CompanyTable = () => {
 
   const headers = [
     { key: 'name', label: 'Company Name' },
-    { key: 'totalEmployee', label: 'Total Employees', render: (row: any) => <EmployeeLink row={row} /> },
+    {
+      key: 'totalEmployee',
+      label: 'Total Employees',
+      render: (row: any) => (
+        <div
+          onClick={() => {
+            setOpenEmplyee(true)
+            setSingleCompanyData(row)
+          }}
+        >
+          <span className={`${row?.totalEmployee > 0 ? ' text-blue-600' : 'text-blue-600'}`}>
+            {' '}
+            {row?.totalEmployee}
+          </span>
+        </div>
+      )
+    },
 
     { key: 'status', label: 'Status', render: (row: any) => <ChangeStatus row={row} /> },
     { key: 'createdAt', label: 'Created At', render: (row: any) => convertToDateOnly(row.createdAt) },
@@ -105,13 +118,9 @@ const CompanyTable = () => {
           <UpdateCompany data={data} handleClose={handleClose} />
         )}
       </ModalComponent>
-      <ModalComponent
-        open={OpenEmplyeePassword}
-        handleClose={() => setOpenEmplyeePassword(false)}
-        data={singleCompanyData}
-      >
+      <ModalComponent open={OpenEmplyee} handleClose={() => setOpenEmplyee(false)} data={singleCompanyData}>
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
-          <UpdateEmployeePassword data={data} handleClose={handleClose} />
+          <CompanyEmployeesTable handleClose={handleClose} data={data} />
         )}
       </ModalComponent>
       <ModalComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)}>
@@ -124,11 +133,3 @@ const CompanyTable = () => {
 }
 
 export default CompanyTable
-
-const EmployeeLink = ({ row }: any) => {
-  return (
-    <Link href={`/companies/employee/${row?.id}`} className='flex items-center gap-2'>
-      <span className={`${row?.totalEmployee > 0 ? ' text-blue-600' : 'text-blue-600'}`}> {row?.totalEmployee}</span>
-    </Link>
-  )
-}

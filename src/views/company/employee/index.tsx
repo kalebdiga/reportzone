@@ -23,7 +23,9 @@ const handleCopy = (text: string) => {
   toast.success('Email Copied to Clipboard')
 }
 
-const CompanyEmployeesTable = ({ id }: { id: string }) => {
+const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
+  const id = data?.id
+  console.log(data)
   const [page, setPage] = useState(1)
   const [resultsPerPage, setResultsPerPage] = useState(5)
   const [sortKey, setSortKey] = useState('date')
