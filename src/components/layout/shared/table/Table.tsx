@@ -43,7 +43,7 @@ interface CustomTableProps {
   csv?: boolean
   csvName?: string
   csvData?: any[]
-  tableTitle?: string
+  tableTitle?: string | React.ReactNode
   number: number
   page: number
   setPage: React.Dispatch<React.SetStateAction<number>>
@@ -60,6 +60,8 @@ interface CustomTableProps {
   dataForTotal?: any[]
   addNew?: React.ReactNode
   selectionId?: string
+  isSlectedDataRequired?: boolean
+  setSelcteData?: any
 }
 const Table: React.FC<CustomTableProps> = ({
   headers,
@@ -83,7 +85,9 @@ const Table: React.FC<CustomTableProps> = ({
   displayTotal = true,
   dataForTotal,
   addNew,
-  selectionId = 'id'
+  selectionId = 'id',
+  isSlectedDataRequired,
+  setSelcteData
 }) => {
   // const { openModal, Modal, filteredData, setFilterFields } = UseFilterModal();
 
@@ -213,12 +217,20 @@ const Table: React.FC<CustomTableProps> = ({
       setcsvData(csvData)
     }
   }, [selectedRows, data])
+
+  useEffect(() => {
+    if (isSlectedDataRequired) {
+      if (setSelcteData) {
+        setSelcteData(selectedRows ?? [])
+      }
+    }
+  }, [selectedRows, data])
   console.log('CSV Data:', data)
   return (
     <>
       <Card className=' '>
         <div className='w-[100%] pl-[1%] flex justify-between items-center bg-transparent  py-[1%] pr-[1%] '>
-          <div className='w-[80%] flex gap-[1em] max-md:hidden'>
+          <div className='w-[80%] flex gap-[1em] '>
             <h1 className=' font-[500] text-[1.15rem] leading-[28px] text-[#434f68]'>{tableTitle}</h1>
           </div>
           <div className='md:w-[40%] flex justify-end w-full items-center gap-[1em]'>
@@ -255,16 +267,17 @@ const Table: React.FC<CustomTableProps> = ({
                 <MuiTable>
                   <TableHead>
                     <TableRow>
-                      {csv && (
-                        <TableCell padding='checkbox'>
-                          <Checkbox
-                            checked={selectAll}
-                            onChange={handleSelectAll}
-                            indeterminate={selectedRows.length > 0 && selectedRows.length < data.length}
-                            color='primary'
-                          />
-                        </TableCell>
-                      )}
+                      {csv ||
+                        (isSlectedDataRequired && (
+                          <TableCell padding='checkbox'>
+                            <Checkbox
+                              checked={selectAll}
+                              onChange={handleSelectAll}
+                              indeterminate={selectedRows.length > 0 && selectedRows.length < data.length}
+                              color='primary'
+                            />
+                          </TableCell>
+                        ))}
 
                       {headers.map(header => (
                         <TableCell
@@ -282,16 +295,17 @@ const Table: React.FC<CustomTableProps> = ({
                   <TableBody>
                     {sortedRows()?.map((row, index) => (
                       <TableRow key={row.id} hover>
-                        {csv && (
-                          <TableCell padding='checkbox'>
-                            <Checkbox
-                              checked={selectedRows.some(selected => {
-                                return getValueByPath(selected, selectionId) === getValueByPath(row, selectionId)
-                              })}
-                              onChange={() => handleRowSelect(row)}
-                            />
-                          </TableCell>
-                        )}
+                        {csv ||
+                          (isSlectedDataRequired && (
+                            <TableCell padding='checkbox'>
+                              <Checkbox
+                                checked={selectedRows.some(selected => {
+                                  return getValueByPath(selected, selectionId) === getValueByPath(row, selectionId)
+                                })}
+                                onChange={() => handleRowSelect(row)}
+                              />
+                            </TableCell>
+                          ))}
                         {headers.map(header => (
                           <TableCell
                             key={header.key}
@@ -299,7 +313,7 @@ const Table: React.FC<CustomTableProps> = ({
                               fontWeight: getValueByKey(row, header.key) === 'Total' ? 600 : 'normal'
                             }}
                           >
-                            {header.render ? header.render(row) : (getValueByKey(row, header.key) ?? 'test')}
+                            {header.render ? header.render(row) : (getValueByKey(row, header.key) ?? '-')}
                           </TableCell>
                         ))}
                         {action && (
@@ -321,7 +335,7 @@ const Table: React.FC<CustomTableProps> = ({
                                   bgcolor: 'white',
                                   boxShadow: 3,
                                   borderRadius: 1,
-                                  minWidth: 250
+                                  minWidth: 150
                                 }}
                               >
                                 {actionElements(row)}

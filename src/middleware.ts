@@ -2,7 +2,7 @@
 import { auth } from '../auth'
 import { NextResponse } from 'next/server'
 
-const protectedRoutes = ['/add-management']
+const protectedRoutes = ['/add-management/addprofile']
 const publicRoutes = ['/login']
 
 export default auth(req => {
@@ -19,7 +19,7 @@ export default auth(req => {
 
   // If accessing login while authenticated
   if (isPublic && isAuthed) {
-    return NextResponse.redirect(new URL('/add-management', req.nextUrl))
+    return NextResponse.redirect(new URL('/add-management/addprofile', req.nextUrl))
   }
 
   // Allow all other routes
@@ -27,5 +27,5 @@ export default auth(req => {
 })
 
 export const config = {
-  matcher: ['/add-management', '/login']
+  matcher: ['/add-management/addprofile', '/login']
 }

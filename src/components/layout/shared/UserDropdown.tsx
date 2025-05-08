@@ -26,6 +26,9 @@ import { useSettings } from '@core/hooks/useSettings'
 import { doLogout } from '@/utils/actions'
 import { useSession } from 'next-auth/react'
 import { useUserStore } from '@/lib/store/userProfileStore'
+import ModalComponent from './ModalComponent'
+import UpdateProfile from '@/views/profile/UpdateProfile'
+import UpdatePassword from '@/views/profile/UpdatePassword'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({
@@ -40,6 +43,8 @@ const BadgeContentSpan = styled('span')({
 const UserDropdown = () => {
   // States
   const [open, setOpen] = useState(false)
+  const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
+  const [OpenEmplyeePassword, setOpenEmplyeePassword] = useState(false)
 
   // Refs
   const anchorRef = useRef<HTMLDivElement>(null)
@@ -48,7 +53,7 @@ const UserDropdown = () => {
   const router = useRouter()
 
   const { user, companyUsers } = useUserStore()
-
+  console.log(user, companyUsers, 'useeer')
   const { settings } = useSettings()
 
   const handleDropdownOpen = () => {
@@ -113,25 +118,21 @@ const UserDropdown = () => {
                         {user?.fname ?? 'John'} {user?.lname ?? 'Doe'}
                       </Typography>
                       <Typography variant='caption'>{user?.email}</Typography>
+                      <Typography variant='caption'>
+                        {user?.globalRole === true ? 'Super Admin' : companyUsers?.[0].role}
+                      </Typography>
                     </div>
                   </div>
                   <Divider className='mlb-1' />
-                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e)}>
+                  <MenuItem className='mli-2 gap-3' onClick={() => setOpenEmplyeeProfile(true)}>
                     <i className='tabler-user' />
-                    <Typography color='text.primary'>My Profile</Typography>
+                    <Typography color='text.primary'>Update Profile</Typography>
                   </MenuItem>
-                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e)}>
-                    <i className='tabler-settings' />
-                    <Typography color='text.primary'>Settings</Typography>
+                  <MenuItem className='mli-2 gap-3' onClick={() => setOpenEmplyeePassword(true)}>
+                    <i className='tabler:lock-password' />
+                    <Typography color='text.primary'>Change Password</Typography>
                   </MenuItem>
-                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e)}>
-                    <i className='tabler-currency-dollar' />
-                    <Typography color='text.primary'>Pricing</Typography>
-                  </MenuItem>
-                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e)}>
-                    <i className='tabler-help-circle' />
-                    <Typography color='text.primary'>FAQ</Typography>
-                  </MenuItem>
+
                   <div className='flex items-center plb-2 pli-3'>
                     <Button
                       fullWidth
@@ -151,6 +152,14 @@ const UserDropdown = () => {
           </Fade>
         )}
       </Popper>
+      <ModalComponent open={OpenEmplyeeProfile} handleClose={() => setOpenEmplyeeProfile(false)} data={user}>
+        {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
+          <UpdateProfile handleClose={handleClose} data={data} />
+        )}
+      </ModalComponent>
+      <ModalComponent open={OpenEmplyeePassword} handleClose={() => setOpenEmplyeePassword(false)}>
+        {({ handleClose }: { data: any; handleClose?: () => void }) => <UpdatePassword handleClose={handleClose} />}
+      </ModalComponent>
     </>
   )
 }

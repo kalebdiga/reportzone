@@ -1,7 +1,8 @@
+import CampaginTable from '@/views/admanagement/campagins/CampaginTable'
 import React from 'react'
 
 function Page() {
-  return <div>P</div>
+  return <CampaginTable />
 }
 
 export default Page

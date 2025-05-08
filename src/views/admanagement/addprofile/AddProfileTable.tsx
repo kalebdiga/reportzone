@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 
 import { Button, Switch } from '@mui/material'
-import { Check, LockKeyhole, Pencil, Plus, X } from 'lucide-react'
+import { Check, Link, LockKeyhole, Pencil, Plus, X } from 'lucide-react'
 import Table from '@/components/layout/shared/table/Table'
 import { useUserStore } from '@/lib/store/userProfileStore'
 import { useFetchData } from '@/apihandeler/useFetchData'
@@ -12,10 +12,13 @@ import { date } from 'yup'
 import { convertToDateOnly } from '@/utils/dateConverter'
 import TableSkeleton from '@/utils/TableSkleton'
 import ModalComponent from '@/components/layout/shared/ModalComponent'
-import UpdateEmployeeProfile from './UpdateEmployeeProfile'
+import CampaginTable from '../campagins/CampaginTable'
 import UpdateEmployeePassword from './UpdateEmployeePassword'
 import { type UserData } from '@/typs/user.type'
 import CreateEmployee from './CreateEmployee'
+import { Form, Formik } from 'formik'
+import FormikTextField from '@/lib/form/FormikInput'
+import DialogComponent from '@/components/layout/shared/DialogsSizes'
 
 const AddProfileTable = () => {
   //state
@@ -151,9 +154,9 @@ const AddProfileTable = () => {
       <Table
         headers={headers}
         selectionId='user.id'
-        csv={true}
+        csv={false}
         data={addProfileData?.profiles}
-        action={true}
+        action={false}
         addNew={
           <Button
             variant='contained'
@@ -161,12 +164,11 @@ const AddProfileTable = () => {
               setOpenCreateEployee(true)
             }}
           >
-            <Plus />
-            <span className=' max-md:hidden'>Add New</span>
+            <Link className=' size-4' />
+            <span className=' max-md:hidden'>Link Profile</span>
           </Button>
         }
-        tableTitle='
-Employees'
+        tableTitle={<SearchProfile />}
         number={addProfileData?.meta?.totalRecords}
         page={page}
         setPage={setPage}
@@ -174,19 +176,34 @@ Employees'
         setResultsPerPage={setResultsPerPage}
         loading={false}
         setLoading={() => {}}
-        actionElements={actionElements}
         dropdownVisible={dropdownVisible}
         setDropdownVisible={setDropdownVisible}
       />
-      <ModalComponent
+
+      <DialogComponent
+        open={OpenEmplyeeProfile}
+        handleClose={() => setOpenEmplyeeProfile(false)}
+        data={singleaddProfileData}
+        title='Campagin'
+        maxWidth='xl'
+      >
+        {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
+          <div className=' max-w-[100%]'>
+            <CampaginTable data={data} handleClose={handleClose} />
+          </div>
+        )}
+      </DialogComponent>
+      {/* <ModalComponent
         open={OpenEmplyeeProfile}
         handleClose={() => setOpenEmplyeeProfile(false)}
         data={singleaddProfileData}
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
-          <UpdateEmployeeProfile data={data} handleClose={handleClose} />
+          <div className=' max-w-[800px]'>
+            <CampaginTable data={data} handleClose={handleClose} />
+          </div>
         )}
-      </ModalComponent>
+      </ModalComponent> */}
       <ModalComponent
         open={OpenEmplyeePassword}
         handleClose={() => setOpenEmplyeePassword(false)}
@@ -213,5 +230,26 @@ const VerifiedRenderHandeler = ({ row }: any) => {
     >
       <div>{row?.user?.emailVerified ? <Check className='size-[1rem]' /> : <X className='size-[1rem]' />}</div>
     </button>
+  )
+}
+
+const SearchProfile = ({ row }: any) => {
+  return (
+    <Formik
+      initialValues={{
+        name: ''
+      }}
+      onSubmit={() => {}}
+    >
+      {() => (
+        <Form className='space-y-5 w-full pb-1'>
+          <div className='flex flex-wrap gap-4'>
+            <div className='flex flex-col w-full md:w-[100%]'>
+              <FormikTextField name='search' label='search store' placeholder='search...' fullWidth />
+            </div>
+          </div>
+        </Form>
+      )}
+    </Formik>
   )
 }

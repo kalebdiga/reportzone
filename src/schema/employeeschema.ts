@@ -34,7 +34,7 @@ export const profileSchema = Yup.object().shape({
   fname: Yup.string().required('First name is required'),
   lname: Yup.string().required('Last name is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
-  account_status: Yup.string().nullable()
+  account_status: Yup.string().nullable().optional()
 })
 
 export const passwordSchema = Yup.object().shape({

@@ -2,6 +2,7 @@
 
 import { useField } from 'formik'
 import { MenuItem, Select, FormControl, FormHelperText } from '@mui/material'
+import CustomTextField from '@/@core/components/mui/TextField'
 
 type FormikDropdownProps = {
   name: string
@@ -15,22 +16,33 @@ const FormikDropdown = ({ name, label, options, fullWidth = true, ...props }: Fo
 
   const showError = Boolean(meta.touched && meta.error)
   return (
-    <FormControl fullWidth={fullWidth} error={showError} style={{ marginBottom: '1rem' }}>
+    <FormControl fullWidth={fullWidth} error={showError} style={{ marginBottom: '1rem' }} {...props}>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <label className='text-textPrimary text-[0.8rem]' style={{ color: showError ? 'red' : '' }}>
           {label}
         </label>
-        <Select {...field} {...props} value={field.value || ''} sx={{ height: '37px' }}>
+        <CustomTextField select {...field} {...props} value={field.value || ''} label='Default' id='custom-select'>
           {options.map(option => (
             <MenuItem key={option.value} value={option.value}>
               {option.label}
             </MenuItem>
           ))}
-        </Select>
+        </CustomTextField>
       </div>
       <FormHelperText>{showError ? meta.error : ''}</FormHelperText>
     </FormControl>
   )
+}
+
+{
+  /* <CustomTextField select fullWidth defaultValue='' label='Default' id='custom-select'>
+<MenuItem value=''>
+  <em>None</em>
+</MenuItem>
+<MenuItem value={10}>Ten</MenuItem>
+<MenuItem value={20}>Twenty</MenuItem>
+<MenuItem value={30}>Thirty</MenuItem>
+</CustomTextField> */
 }
 
 export default FormikDropdown

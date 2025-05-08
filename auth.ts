@@ -8,7 +8,7 @@ export const routes = {
   signOut: '/auth/signout',
   error: '/auth/error',
   forgotPassword: '/forgot-password',
-  home: '/add-management'
+  home: '/add-management/addprofile'
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({

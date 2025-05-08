@@ -69,7 +69,12 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
-        <MenuItem href='/add-management' icon={<i className='tabler-speakerphone' />}>
+        <MenuItem
+          href='/add-management/addprofile'
+          activeUrl='/add-management/'
+          exactMatch={false}
+          icon={<i className='tabler-speakerphone' />}
+        >
           Ads Management
         </MenuItem>
 

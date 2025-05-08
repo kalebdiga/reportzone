@@ -115,8 +115,8 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
           toast.success('Login successful')
           const callbackUrl =
             typeof window !== 'undefined'
-              ? `${window.location.origin}/add-management`
-              : 'http://localhost:3000/add-management'
+              ? `${window.location.origin}/add-management/addprofile`
+              : 'http://localhost:3000/add-management/addprofile'
 
           const res = await signIn('login', {
             userId: data.userId,
@@ -128,7 +128,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
           })
 
           if (res?.ok) {
-            setTimeout(() => router.push('/add-management'), 200)
+            setTimeout(() => router.push('/add-management/addprofile'), 200)
             console.log(res, 'res')
           } else {
             console.log('error')

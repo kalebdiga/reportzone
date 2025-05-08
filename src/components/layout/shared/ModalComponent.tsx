@@ -17,17 +17,17 @@ const ModalComponent: React.FC<ModalComponentProps> = ({ open, handleClose, chil
       aria-describedby='modal-description'
       open={open}
       onClose={handleClose}
-      className='fixed inset-0 flex items-center justify-center'
+      className='fixed inset-0 flex items-center justify-center '
     >
-      <div className='flex relative  bg-red-500'>
+      <div className='flex  max-h-[90vh] flex-col overflow-y-auto bg-white  '>
         {handleClose && (
-          <div className='absolute top-2 right-2'>
+          <div className='flex justify-end items-center'>
             <IconButton onClick={handleClose} aria-label='Close'>
               <X size={20} />
             </IconButton>
           </div>
         )}
-        <div className='bg-white  rounded shadow-md'>{children({ data, handleClose })}</div>
+        <div className='  rounded shadow-md '>{children({ data, handleClose })}</div>
       </div>
     </Modal>
   )

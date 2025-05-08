@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/',
-        destination: '/add-management',
+        destination: '/add-management/addprofile',
         permanent: true,
         locale: false
       }

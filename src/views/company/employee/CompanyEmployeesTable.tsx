@@ -136,15 +136,6 @@ const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?:
   return (
     <>
       <div className='flex relative justify-center flex-col items-center bs-full bg-backgroundPaper !min-is-full  md:!min-is-[unset]md:is-[800px] md:rounded'>
-        {handleClose && (
-          <div className=' flex justify-end items-center w-full py-[1%]'>
-            <div className='  '>
-              <IconButton onClick={handleClose} aria-label='Close'>
-                <X size={20} />
-              </IconButton>
-            </div>
-          </div>
-        )}
         <div className=' w-f'>
           <Table
             headers={headers}

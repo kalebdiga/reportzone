@@ -1,3 +1,6 @@
+import moment from 'moment'
+import { DateTime } from 'luxon'
+
 // Converts an ISO string, number, or Date object to a human-readable UTC date string.
 // Example: "2025-05-03T12:00:00Z" -> "Sat, 03 May 2025 12:00:00 GMT"
 export function convertToReadableDate(isoString: string | number | Date) {
@@ -42,4 +45,70 @@ export function convertToEpoch(isoString: string | number | Date) {
 // Example: "2025-05-03T12:00:00Z" -> "5/3/2025, 12:00:00 PM" (format depends on locale)
 export function convertToLocalTime(isoString: string | number | Date) {
   return new Date(isoString).toLocaleString()
+}
+
+export const formatDateToDayAndTime = (dateString: string): string => {
+  return moment(dateString).format('dddd [at] h:mm A')
+}
+
+const days = [
+  { title: 'Monday', value: 1 },
+  { title: 'Tuesday', value: 2 },
+  { title: 'Wednesday', value: 3 },
+  { title: 'Thursday', value: 4 },
+  { title: 'Friday', value: 5 },
+  { title: 'Saturday', value: 6 },
+  { title: 'Sunday', value: 0 },
+  { title: 'Everyday', value: 7 }
+]
+
+export function convertNewYorkHourToUtc(hour: number, isAm: boolean): number {
+  // if (hour < 1 || hour > 12) {
+  //   throw new Error('Hour must be between 1 and 12.')
+  // }
+
+  // Convert to 24-hour format
+  const normalizedHour = isAm ? (hour === 12 ? 0 : hour) : hour === 12 ? 12 : hour + 12
+
+  const now = DateTime.now()
+  const newYorkTime = now.setZone('America/New_York').set({
+    hour: normalizedHour,
+    minute: 0,
+    second: 0,
+    millisecond: 0
+  })
+
+  const utcTime = newYorkTime.toUTC()
+  return utcTime.hour
+}
+
+export const formatDayTime = (item: any): string => {
+  console.log('object', item)
+  const dayName = days.find(day => day.value === item?.day)?.title || 'Everyday'
+  const ampm = item?.hour < 12 ? 'AM' : 'PM'
+  const minuteFormatted = item?.minute.toString().padStart(2, '0')
+  return `${dayName} at ${convertNewYorkHourToUtc(item.hour, item?.hour < 12 || false)}:${minuteFormatted} ${ampm}`
+}
+
+export function convertUtcHourToNewYork(utcHour: number): number {
+  if (utcHour < 0 || utcHour > 23) {
+    throw new Error('UTC hour must be between 0 and 23.')
+  }
+
+  const now = DateTime.now()
+  const utcTime = now.setZone('UTC').set({ hour: utcHour, minute: 0, second: 0, millisecond: 0 })
+
+  // Convert UTC to New York time
+  const newYorkTime = utcTime.setZone('America/New_York')
+
+  // Normalize hour to 12-hour format
+  let hour = newYorkTime.hour
+
+  if (hour > 12) {
+    hour -= 12
+  } else if (hour === 0) {
+    hour = 12 // Midnight case (12 AM)
+  }
+
+  return hour
 }

@@ -11,7 +11,7 @@ export async function doCredentialLogin(data: any) {
     const response: { error?: string } = await signIn('login', {
       data: JSON.stringify(data),
       redirect: false,
-      callbackUrl: '/add-management'
+      callbackUrl: '/add-management/addprofile'
     })
 
     return response

@@ -29,42 +29,31 @@ import FormikDropdown from '@/lib/form/FormikDropDown'
 import { profileSchema } from '@/schema/employeeschema'
 import { IconButton } from '@mui/material'
 import { X } from 'lucide-react'
-const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleClose?: () => void }) => {
+const UpdateProfile = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
   // Hooks
   const router = useRouter()
 
-  console.log(data, 'employee data')
+  console.log(data?.lname, 'admin data')
 
   // Mutation Hook
 
   const postMutation = useDynamicMutation({ type: 'Json' })
 
-  const onSubmit = async (values: {
-    fname: string
-    lname: string
-    email: string
-    account_status: string | null
-    role: string
-  }) => {
-    if (!data?.user?.id) return
+  const onSubmit = async (values: { fname: string; lname: string; email: string }) => {
+    // if (!data?.id) return
 
     try {
       // Update profile details
-      if (
-        values.fname !== data?.user?.fname ||
-        values.lname !== data?.user?.lname ||
-        values.email !== data?.user?.email
-      ) {
+      if (values.fname !== data?.fname || values.lname !== data?.lname || values.email !== data?.email) {
         postMutation.mutate({
-          url: `/users/${data?.user?.id}`,
+          url: `/users/profile/update`,
           method: 'PATCH',
           body: {
             fname: values.fname,
             lname: values.lname,
-            email: values.email,
-            account_status: values.account_status
+            email: values.email
           },
-
+          invalidateKey: ['profile'],
           onSuccess: data => {
             toast.success('Profile updated successfully')
             handleClose && handleClose()
@@ -72,26 +61,8 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
         })
       }
 
-      // Check if the role has changed
-      if (values.role !== data?.companyUsers[0]?.role) {
-        // Update role
-        postMutation.mutate({
-          url: `/users/${data?.user?.id}/role`,
-          method: 'PATCH',
-          body: {
-            role: values.role
-          },
-          invalidateKey: ['employeeData'],
-
-          onSuccess: data => {
-            toast.success('Role updated successfully')
-            handleClose && handleClose()
-          }
-        })
-      }
-
       // Redirect after successful updates
-      router.push('/employees')
+      // router.push('/employees')
     } catch (err) {
       console.error('Error updating profile or role:', err)
       toast.error('Failed to update profile or role')
@@ -110,16 +81,14 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
         )}
         <div className='flex flex-col gap-6 is-full  sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-0 sm:mbs-14 md:mbs-0 '>
           <div className='flex flex-col gap-1'>
-            <Typography variant='h4'>Update Employee Profile</Typography>
-            <Typography>Update the employee&apos;s details below</Typography>
+            <Typography variant='h4'>Update Profile</Typography>
+            <Typography>Update the details below</Typography>
           </div>
           <Formik
             initialValues={{
-              fname: data?.user?.fname || '',
-              lname: data?.user?.lname || '',
-              email: data?.user?.email || '',
-              account_status: null,
-              role: 'admin'
+              fname: data?.fname || '',
+              lname: data?.lname || '',
+              email: data?.email || ''
             }}
             validationSchema={profileSchema}
             onSubmit={onSubmit}
@@ -129,14 +98,7 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
                 <FormikTextField name='fname' label='First Name' fullWidth />
                 <FormikTextField name='lname' label='Last Name' fullWidth />
                 <FormikTextField name='email' label='Email' fullWidth />
-                <FormikDropdown
-                  name='role'
-                  label='Role'
-                  options={[
-                    { value: 'admin', label: 'Admin' },
-                    { value: 'employee', label: 'User' }
-                  ]}
-                />{' '}
+
                 <Button fullWidth variant='contained' type='submit'>
                   Update Profile
                 </Button>
@@ -149,4 +111,4 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
   )
 }
 
-export default UpdateEmployeeProfile
+export default UpdateProfile
