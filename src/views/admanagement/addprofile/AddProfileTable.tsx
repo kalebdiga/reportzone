@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { US } from 'country-flag-icons/react/3x2'
 
-import { Button, Switch } from '@mui/material'
+import { Button, Chip, Switch } from '@mui/material'
 import { Check, Link, LockKeyhole, Pencil, Plus, X } from 'lucide-react'
 import Table from '@/components/layout/shared/table/Table'
 import { useUserStore } from '@/lib/store/userProfileStore'
@@ -84,7 +84,11 @@ const AddProfileTable = () => {
       key: 'isActive',
       label: 'Status',
       render: (row: any) => (
-        <span style={{ color: row.isActive ? 'green' : 'red' }}>{row.isActive ? 'Active' : 'Inactive'}</span>
+        <Chip
+          label={row.isActive ? 'Active' : 'Inactive'}
+          color={row.isActive ? 'success' : 'warning'}
+          variant='tonal'
+        />
       )
     },
 
