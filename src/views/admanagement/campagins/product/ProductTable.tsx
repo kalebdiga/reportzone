@@ -1,20 +1,20 @@
 'use client'
 import React, { useState } from 'react'
 
-import { Button, IconButton, Switch, Typography } from '@mui/material'
-import { ArrowLeft, Check, Copy, LockKeyhole, Pencil, Plus, X } from 'lucide-react'
-import Table from '@/components/layout/shared/table/Table'
+import { Button, Chip } from '@mui/material'
+import { Check, LockKeyhole, Pencil, X } from 'lucide-react'
 import { useUserStore } from '@/lib/store/userProfileStore'
 import { useFetchData } from '@/apihandeler/useFetchData'
 import { useSession } from 'next-auth/react'
-import { date } from 'yup'
-import { convertToDateOnly } from '@/utils/dateConverter'
+
 import TableSkeleton from '@/utils/TableSkleton'
-import ModalComponent from '@/components/layout/shared/ModalComponent'
 import { type UserData } from '@/typs/user.type'
-import Link from 'next/link'
 import copy from 'copy-to-clipboard'
 import { toast } from 'sonner'
+import Table2 from '@/components/layout/shared/table/SadowlessTable'
+import SadowlessTable from '@/components/layout/shared/table/SadowlessTable'
+import ProductImaage from './../../../../../public/images/product.jpg'
+import Image from 'next/image'
 
 const handleCopy = (text: string) => {
   copy(text)
@@ -30,7 +30,6 @@ const ProductTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
   const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
   const [OpenEmplyeePassword, setOpenEmplyeePassword] = useState(false)
-  const [openCreateEployee, setOpenCreateEployee] = useState(false)
   const [singleProductData, setSingleProductData] = useState<UserData>(null as any)
 
   //hooks
@@ -39,9 +38,23 @@ const ProductTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
   const session = useSession()
 
   const headers = [
-    { key: 'AdProduct', label: 'Ad Product' },
+    {
+      key: 'AdProduct',
+      label: 'Product Image',
+      render: (row: any) => (
+        <span
+          style={{
+            color: row.state === 'PAUSED' ? '#a16207' : row.campaignState === 'ARCHIVED' ? '#7f1d1d' : '#14532d'
+          }}
+        >
+          <Image src={ProductImaage} alt='product image' width={45} height={45} />
+        </span>
+      )
+    },
 
-    { key: 'AdType', label: 'Ad Type' },
+    { key: 'AdProduct', label: 'Product Name' },
+
+    // { key: 'AdType', label: 'Ad Type' },
     { key: 'sku', label: 'SKU' },
     { key: 'asin', label: 'ASIN' },
 
@@ -49,13 +62,11 @@ const ProductTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
       key: 'state',
       label: 'State',
       render: (row: any) => (
-        <span
-          style={{
-            color: row.state === 'PAUSED' ? '#a16207' : row.campaignState === 'ARCHIVED' ? '#7f1d1d' : '#14532d'
-          }}
-        >
-          {row.state}
-        </span>
+        <Chip
+          label={row.state ?? '-'}
+          color={row.state === 'ENABLED' ? 'success' : row.state === 'PAUSED' ? 'warning' : 'error'}
+          variant='tonal'
+        />
       )
     }
 
@@ -109,7 +120,7 @@ const ProductTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
   )
   if (isLoading) {
     return (
-      <div className=' is-[800px]'>
+      <div className=' '>
         <TableSkeleton />
       </div>
     )
@@ -118,7 +129,7 @@ const ProductTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
     <>
       {/* <div className='flex relative justify-center flex-col items-center bs-full bg-backgroundPaper !min-is-full  md:!min-is-[unset] md:is-[800px] md:rounded'> */}
       <div className=' w-full '>
-        <Table
+        <SadowlessTable
           headers={headers}
           selectionId='user.id'
           csv={false}
@@ -128,6 +139,7 @@ const ProductTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
           page={page}
           setPage={setPage}
           resultsPerPage={resultsPerPage}
+          isPagination={false}
           setResultsPerPage={setResultsPerPage}
           loading={false}
           setLoading={() => {}}

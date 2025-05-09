@@ -16,6 +16,7 @@ import { type UserData } from '@/typs/user.type'
 import CreateCompany from './CreateCompany'
 import UpdateCompany from './UpdateCompany'
 import CompanyEmployeesTable from './employee/CompanyEmployeesTable'
+import DialogComponent from '@/components/layout/shared/DialogsSizes'
 
 const CompanyTable = () => {
   //state
@@ -109,7 +110,7 @@ const CompanyTable = () => {
         dropdownVisible={dropdownVisible}
         setDropdownVisible={setDropdownVisible}
       />
-      <ModalComponent
+      <DialogComponent
         open={OpenEmplyeeProfile}
         handleClose={() => setOpenEmplyeeProfile(false)}
         data={singleCompanyData}
@@ -117,17 +118,22 @@ const CompanyTable = () => {
         {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
           <UpdateCompany data={data} handleClose={handleClose} />
         )}
-      </ModalComponent>
-      <ModalComponent open={OpenEmplyee} handleClose={() => setOpenEmplyee(false)} data={singleCompanyData}>
+      </DialogComponent>
+      <DialogComponent
+        maxWidth='lg'
+        open={OpenEmplyee}
+        handleClose={() => setOpenEmplyee(false)}
+        data={singleCompanyData}
+      >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <CompanyEmployeesTable handleClose={handleClose} data={data} />
         )}
-      </ModalComponent>
-      <ModalComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)}>
+      </DialogComponent>
+      <DialogComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)} maxWidth='lg'>
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <CreateCompany handleClose={handleClose} id={data} />
         )}
-      </ModalComponent>
+      </DialogComponent>
     </>
   )
 }

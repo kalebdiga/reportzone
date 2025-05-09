@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { US } from 'country-flag-icons/react/3x2'
 
 import { Button, Switch } from '@mui/material'
 import { Check, Link, LockKeyhole, Pencil, Plus, X } from 'lucide-react'
@@ -19,6 +20,7 @@ import CreateEmployee from './CreateEmployee'
 import { Form, Formik } from 'formik'
 import FormikTextField from '@/lib/form/FormikInput'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
+import { useRouter } from 'next/navigation'
 
 const AddProfileTable = () => {
   //state
@@ -31,12 +33,35 @@ const AddProfileTable = () => {
   const [singleaddProfileData, setSingleaddProfileData] = useState<UserData>(null as any)
 
   //hooks
+  const router = useRouter()
 
   const { companyUsers } = useUserStore()
   const data = useSession()
 
   const headers = [
-    { key: 'accountName', label: 'Account Name' },
+    {
+      key: 'accountName',
+      label: 'Account Name',
+      render: (row: any) => (
+        <div
+          onClick={() => {
+            setOpenEmplyeeProfile(true)
+            setSingleaddProfileData(row)
+          }}
+        >
+          <div className=' flex items-center gap-3'>
+            {' '}
+            {/* <US title='United States' className='...' /> */}
+            {/* <img
+              className=' size-[32px]'
+              alt='United States'
+              src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${row?.countryCode}.svg`}
+            /> */}
+            <h1 className=' font-[500] text-[1rem]'> {row?.accountName}</h1>
+          </div>
+        </div>
+      )
+    },
     { key: 'countryCode', label: 'Country Code' },
 
     {
@@ -45,8 +70,7 @@ const AddProfileTable = () => {
       render: (row: any) => (
         <div
           onClick={() => {
-            setOpenEmplyeeProfile(true)
-            setSingleaddProfileData(row)
+            router.push(`campagines?profileId=${row?.id}`)
           }}
         >
           <span className={`${row?.totalCampaigns > 0 ? ' text-blue-600' : 'text-blue-600'}`}>
@@ -184,7 +208,8 @@ const AddProfileTable = () => {
         open={OpenEmplyeeProfile}
         handleClose={() => setOpenEmplyeeProfile(false)}
         data={singleaddProfileData}
-        title='Campagin'
+        title='Ads Campaigns
+'
         maxWidth='xl'
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (

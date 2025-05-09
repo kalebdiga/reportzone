@@ -62,8 +62,9 @@ interface CustomTableProps {
   selectionId?: string
   isSlectedDataRequired?: boolean
   setSelcteData?: any
+  isPagination?: boolean
 }
-const Table: React.FC<CustomTableProps> = ({
+const SadowlessTable: React.FC<CustomTableProps> = ({
   headers,
   data = [],
   filter = false,
@@ -87,7 +88,8 @@ const Table: React.FC<CustomTableProps> = ({
   addNew,
   selectionId = 'id',
   isSlectedDataRequired,
-  setSelcteData
+  setSelcteData,
+  isPagination = true
 }) => {
   // const { openModal, Modal, filteredData, setFilterFields } = UseFilterModal();
 
@@ -178,7 +180,7 @@ const Table: React.FC<CustomTableProps> = ({
     setSelectAll(allSelected)
   }
   const sortedRows = () => {
-    if (!sortConfig) return Array.isArray(data) ? data : []
+    if (!sortConfig) return data
 
     const sortedData = [...data]
 
@@ -228,133 +230,133 @@ const Table: React.FC<CustomTableProps> = ({
   console.log('CSV Data:', data)
   return (
     <>
-      <Card className=' '>
-        <div className='w-[100%] pl-[1%] flex justify-between items-center bg-transparent  py-[1%] pr-[1%] '>
-          <div className='w-[80%] flex gap-[1em] '>
-            <h1 className=' font-[500] text-[1.15rem] leading-[28px] text-[#434f68]'>{tableTitle}</h1>
-          </div>
-          <div className='md:w-[40%] flex justify-end w-full items-center gap-[1em]'>
-            {filter && (
-              <div className='flex gap-[1em]'>
-                <Button
-                  className='bg-primary text-white rounded-md px-4 py-2'
-                  onClick={() => {
-                    setSelectedFilter(filterFieldData)
-                    setLoading(true)
-                  }}
-                >
-                  Filter
-                </Button>
-              </div>
-            )}
-            {csv && (
-              <div className='flex gap-[1em]'>
-                <CSV data={csvData} fileName={'data'} />
-              </div>
-            )}
-
-            <div className=' flex justify-end items-center gap-[15px] '>{addNew} </div>
-          </div>
+      <div className='w-[100%] pl-[1%] flex justify-between items-center bg-transparent  py-[1%] pr-[1%] '>
+        <div className='w-[80%] flex gap-[1em] '>
+          <h1 className=' font-[500] text-[1.15rem] leading-[28px] text-[#434f68]'>{tableTitle}</h1>
         </div>
-        <div className='table-container w-full  overflow-x-auto  bg-white'>
-          {sortedRows()?.length === 0 ? (
-            <Nodatafound />
-          ) : (
-            <Box component={Paper} sx={{ overflowX: 'auto' }}>
-              {sortedRows()?.length === 0 ? (
-                <div>Nodatafound</div>
-              ) : (
-                <MuiTable className=' font-[500]'>
-                  <TableHead>
-                    <TableRow>
+        <div className='md:w-[40%] flex justify-end w-full items-center gap-[1em]'>
+          {filter && (
+            <div className='flex gap-[1em]'>
+              <Button
+                className='bg-primary text-white rounded-md px-4 py-2'
+                onClick={() => {
+                  setSelectedFilter(filterFieldData)
+                  setLoading(true)
+                }}
+              >
+                Filter
+              </Button>
+            </div>
+          )}
+          {csv && (
+            <div className='flex gap-[1em]'>
+              <CSV data={csvData} fileName={'data'} />
+            </div>
+          )}
+
+          <div className=' flex justify-end items-center gap-[15px] '>{addNew} </div>
+        </div>
+      </div>
+      <div className='table-container w-full  overflow-x-auto  bg-white'>
+        {sortedRows()?.length === 0 ? (
+          <Nodatafound />
+        ) : (
+          <Box component={Paper} sx={{ overflowX: 'auto' }}>
+            {sortedRows()?.length === 0 ? (
+              <div>Nodatafound</div>
+            ) : (
+              <MuiTable>
+                <TableHead>
+                  <TableRow>
+                    {csv ||
+                      (isSlectedDataRequired && (
+                        <TableCell padding='checkbox'>
+                          <Checkbox
+                            checked={selectAll}
+                            onChange={handleSelectAll}
+                            indeterminate={selectedRows.length > 0 && selectedRows.length < data.length}
+                            color='primary'
+                          />
+                        </TableCell>
+                      ))}
+
+                    {headers.map(header => (
+                      <TableCell
+                        key={header.key}
+                        onClick={() => handleSort(header.key)}
+                        sx={{ cursor: 'pointer', fontWeight: 600 }}
+                      >
+                        {header.label}
+                        {sortConfig?.key === header.key && (sortConfig.direction === 'ascending' ? ' ↑' : ' ↓')}
+                      </TableCell>
+                    ))}
+                    {action && <TableCell>Actions</TableCell>}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {sortedRows()?.map((row, index) => (
+                    <TableRow key={row.id} hover>
                       {csv ||
                         (isSlectedDataRequired && (
                           <TableCell padding='checkbox'>
                             <Checkbox
-                              checked={selectAll}
-                              onChange={handleSelectAll}
-                              indeterminate={selectedRows.length > 0 && selectedRows.length < data.length}
-                              color='primary'
+                              checked={selectedRows.some(selected => {
+                                return getValueByPath(selected, selectionId) === getValueByPath(row, selectionId)
+                              })}
+                              onChange={() => handleRowSelect(row)}
                             />
                           </TableCell>
                         ))}
-
                       {headers.map(header => (
                         <TableCell
                           key={header.key}
-                          onClick={() => handleSort(header.key)}
-                          sx={{ cursor: 'pointer', fontWeight: 600 }}
+                          sx={{
+                            fontWeight: getValueByKey(row, header.key) === 'Total' ? 600 : 'normal'
+                          }}
                         >
-                          {header.label}
-                          {sortConfig?.key === header.key && (sortConfig.direction === 'ascending' ? ' ↑' : ' ↓')}
+                          {header.render ? header.render(row) : (getValueByKey(row, header.key) ?? '-')}
                         </TableCell>
                       ))}
-                      {action && <TableCell>Actions</TableCell>}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {sortedRows()?.map((row, index) => (
-                      <TableRow key={row.id} hover>
-                        {csv ||
-                          (isSlectedDataRequired && (
-                            <TableCell padding='checkbox'>
-                              <Checkbox
-                                checked={selectedRows.some(selected => {
-                                  return getValueByPath(selected, selectionId) === getValueByPath(row, selectionId)
-                                })}
-                                onChange={() => handleRowSelect(row)}
-                              />
-                            </TableCell>
-                          ))}
-                        {headers.map(header => (
-                          <TableCell
-                            key={header.key}
-                            sx={{
-                              fontWeight: getValueByKey(row, header.key) === 'Total' ? 600 : 'normal'
-                            }}
+                      {action && (
+                        <TableCell align='center' sx={{ position: 'relative' }}>
+                          <button
+                            className=' bg-transparent cursor-pointer active:bg-slate-400 active:size-6 active:rounded-[50%]'
+                            onClick={() => handleActionsClick(index)}
                           >
-                            {header.render ? header.render(row) : (getValueByKey(row, header.key) ?? '-')}
-                          </TableCell>
-                        ))}
-                        {action && (
-                          <TableCell align='center' sx={{ position: 'relative' }}>
-                            <button
-                              className=' bg-transparent cursor-pointer active:bg-slate-400 active:size-6 active:rounded-[50%]'
-                              onClick={() => handleActionsClick(index)}
+                            <EllipsisVertical />
+                          </button>
+                          {dropdownVisible === index && actionElements instanceof Function && (
+                            <Box
+                              ref={dropdownRef}
+                              sx={{
+                                position: 'absolute',
+                                right: 0,
+                                top: getDropdownPosition(index).top,
+                                zIndex: 999,
+                                bgcolor: 'white',
+                                boxShadow: 3,
+                                borderRadius: 1,
+                                minWidth: 150
+                              }}
                             >
-                              <EllipsisVertical />
-                            </button>
-                            {dropdownVisible === index && actionElements instanceof Function && (
-                              <Box
-                                ref={dropdownRef}
-                                sx={{
-                                  position: 'absolute',
-                                  right: 0,
-                                  top: getDropdownPosition(index).top,
-                                  zIndex: 999,
-                                  bgcolor: 'white',
-                                  boxShadow: 3,
-                                  borderRadius: 1,
-                                  minWidth: 150
-                                }}
-                              >
-                                {actionElements(row)}
-                              </Box>
-                            )}
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    ))}
-                    {displayTotal && (
-                      <TableRow>
-                        {dataForTotal?.map((row: any, idx: number) => (
-                          <TableCell key={idx} sx={{ fontWeight: 600 }}>
-                            {row.toLocaleString()}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    )}
+                              {actionElements(row)}
+                            </Box>
+                          )}
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                  {displayTotal && (
+                    <TableRow>
+                      {dataForTotal?.map((row: any, idx: number) => (
+                        <TableCell key={idx} sx={{ fontWeight: 600 }}>
+                          {row.toLocaleString()}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  )}
 
+                  {isPagination && (
                     <TableRow>
                       <TableCell colSpan={100}>
                         {sortedRows()?.length === 0 ? (
@@ -405,15 +407,15 @@ const Table: React.FC<CustomTableProps> = ({
                         )}
                       </TableCell>
                     </TableRow>
-                  </TableBody>
-                </MuiTable>
-              )}
-            </Box>
-          )}
-        </div>
-      </Card>
+                  )}
+                </TableBody>
+              </MuiTable>
+            )}
+          </Box>
+        )}
+      </div>
     </>
   )
 }
 
-export default Table
+export default SadowlessTable

@@ -8,7 +8,7 @@ import { useRouter, usePathname } from 'next/navigation'
 export default function Tabs() {
   const router = useRouter()
   const pathname = usePathname() // Get the current route
-  const [value, setValue] = useState<string>('')
+  const [value, setValue] = useState<string>('addprofile')
 
   // Synchronize the tab value with the current route
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function Tabs() {
       <TabContext value={value}>
         <TabList variant='standard' onChange={handleChange} aria-label='full width tabs example'>
           <Tab value='addprofile' label='All Profiles' />
-          <Tab value='campagines' label='Ads Profile' />
+          <Tab value='campagines' label='Detail Campagins' />
         </TabList>
       </TabContext>
     </>

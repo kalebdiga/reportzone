@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 
-import { Button, IconButton, Switch, Typography } from '@mui/material'
+import { Button, Chip, IconButton, Switch, Typography } from '@mui/material'
 import { ArrowLeft, Check, Copy, LockKeyhole, Pencil, Plus, X } from 'lucide-react'
 import Table from '@/components/layout/shared/table/Table'
 import { useUserStore } from '@/lib/store/userProfileStore'
@@ -21,6 +21,7 @@ import FormikTextField from '@/lib/form/FormikInput'
 import FormikDropdown from '@/lib/form/FormikDropDown'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
 import CreateCampaginSchedule from './CreateCampaginSchedule'
+import SadowlessTable from '@/components/layout/shared/table/SadowlessTable'
 
 const handleCopy = (text: string) => {
   copy(text)
@@ -54,16 +55,22 @@ const SceduleTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
       key: 'state',
       label: 'State',
       render: (row: any) => (
-        <span
-          style={{
-            color: row.state === 'PAUSED' ? '#a16207' : row.state === 'ARCHIVED' ? '#7f1d1d' : '#14532d'
-          }}
-        >
-          {row.state}
-        </span>
+        <Chip
+          label={row.state ?? '-'}
+          color={row.state === 'ENABLED' ? 'success' : row.state === 'PAUSED' ? 'warning' : 'error'}
+          variant='tonal'
+        />
+
+        // <span
+        //   style={{
+        //     color: row.state === 'PAUSED' ? '#a16207' : row.state === 'ARCHIVED' ? '#7f1d1d' : '#14532d'
+        //   }}
+        // >
+        //   {row.state}
+        // </span>
       )
     },
-    { key: 'budget', label: 'Budget', render: (row: any) => (row.budget ? `$${row.budget}` : 'N/A') },
+    { key: 'budget', label: 'Budget', render: (row: any) => (row.budget ? `$${row.budget}` : '-') },
     { key: 'active', label: 'Status', render: (row: any) => <ChangeEployeeStatus row={row} /> }
   ]
   const { data: SceduleData, isLoading } = useFetchData(
@@ -120,9 +127,9 @@ const SceduleTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
         </div>
       </div>
       <div className=' w-full '>
-        <Table
+        <SadowlessTable
           headers={headers}
-          selectionId='user.id'
+          selectionId='SceduleData.id'
           csv={false}
           data={SceduleData}
           action={false}
@@ -143,7 +150,7 @@ const SceduleTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
         open={openCreateScedule}
         handleClose={() => setOpenCreateScedule(false)}
         data={singleSceduleData}
-        title='Campagin'
+        title='Create Schedule'
         maxWidth='xl'
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (

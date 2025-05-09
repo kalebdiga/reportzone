@@ -17,6 +17,7 @@ import UpdateEmployeePassword from './UpdateEmployeePassword'
 import { type UserData } from '@/typs/user.type'
 import CreateEmployee from './CreateEmployee'
 import Card from '@mui/material/Card'
+import DialogComponent from '@/components/layout/shared/DialogsSizes'
 
 const EmployeesTable = () => {
   //state
@@ -149,7 +150,7 @@ Employees'
         dropdownVisible={dropdownVisible}
         setDropdownVisible={setDropdownVisible}
       />
-      <ModalComponent
+      <DialogComponent
         open={OpenEmplyeeProfile}
         handleClose={() => setOpenEmplyeeProfile(false)}
         data={singleEmployeeData}
@@ -157,8 +158,8 @@ Employees'
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <UpdateEmployeeProfile data={data} handleClose={handleClose} />
         )}
-      </ModalComponent>
-      <ModalComponent
+      </DialogComponent>
+      <DialogComponent
         open={OpenEmplyeePassword}
         handleClose={() => setOpenEmplyeePassword(false)}
         data={singleEmployeeData}
@@ -166,10 +167,10 @@ Employees'
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <UpdateEmployeePassword data={data} handleClose={handleClose} />
         )}
-      </ModalComponent>
-      <ModalComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)}>
+      </DialogComponent>
+      <DialogComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)}>
         {({ handleClose }) => <CreateEmployee handleClose={handleClose} />}
-      </ModalComponent>
+      </DialogComponent>
     </>
   )
 }

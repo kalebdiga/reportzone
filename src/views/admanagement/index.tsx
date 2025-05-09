@@ -25,7 +25,6 @@ export default function AdManagement() {
       setUserData(ProfileData.user)
       setCompanyUsers(ProfileData.companyUsers)
     }
-    console.log(user, 'user')
   }, [ProfileData, setUserData, setCompanyUsers, isLoading])
 
   if (status === 'loading') return <p>Loading...</p>

@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 
-import { Button, IconButton, Switch, Typography } from '@mui/material'
+import { Button, Chip, IconButton, Switch, Typography } from '@mui/material'
 import {
   ArrowLeft,
   CalendarCheck,
@@ -34,15 +34,18 @@ import ProductTable from './product/ProductTable'
 import SceduleTable from './schedule/SceduleTable'
 import CampaginHistory from './CampaginHistory'
 import CreateCampaginSchedule from './schedule/CreateCampaginSchedule'
+import SadowlessTable from '@/components/layout/shared/table/SadowlessTable'
+import { useSearchParams } from 'next/navigation'
 
 const handleCopy = (text: string) => {
   copy(text)
   toast.success('Email Copied to Clipboard')
 }
 const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => void }) => {
-  const id = data?.id
   console.log(data, 'data of add profile')
+  const searchParams = useSearchParams()
 
+  const id = searchParams.get('profileId')
   console.log(id, 'from employee table')
   const [page, setPage] = useState(1)
   const [resultsPerPage, setResultsPerPage] = useState(5)
@@ -52,7 +55,7 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
 
   const [OpenEmplyeePassword, setOpenEmplyeePassword] = useState(false)
   const [openCreateEployee, setOpenCreateEployee] = useState(false)
-  const [singleCampaginData, setSingleCampaginData] = useState<UserData>(null as any)
+  const [singleCampaginData, setSingleCampaginData] = useState<any>(null as any)
   const [openCampaginHistory, setOpenCampaginHistory] = useState(false)
   const [selcteData, setSelcteData] = useState([])
   const [openCreateScedule, setOpenCreateScedule] = useState(false)
@@ -70,7 +73,7 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
     // { key: 'profileId', label: 'Profile ID' },
 
     { key: 'campaignName', label: 'Name' },
-    { key: 'campaignType', label: 'Type' },
+    { key: 'campaignType', label: 'Campaign Type' },
 
     {
       key: 'totalProducts',
@@ -82,7 +85,7 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
             setOpenProductTable(true)
           }}
         >
-          <span className={`${row?.totalProducts > 0 ? ' text-blue-600' : 'text-blue-600'}`}>
+          <span className={` cursor-pointer ${row?.totalProducts > 0 ? ' text-blue-600' : 'text-blue-600'}`}>
             {' '}
             {row?.totalProducts}
           </span>
@@ -92,27 +95,6 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
     { key: 'totalKeywords', label: 'Keywords' },
 
     { key: 'campaignBudget', label: 'Budget', render: (row: any) => <span>${row.campaignBudget}</span> },
-
-    {
-      key: 'campaignState',
-      label: 'State',
-      render: (row: any) => (
-        <span
-          style={{
-            color: row.campaignState === 'PAUSED' ? '#a16207' : row.campaignState === 'ARCHIVED' ? '#7f1d1d' : '#14532d'
-          }}
-        >
-          {row.campaignState}
-        </span>
-      )
-    },
-    { key: 'campaignStartDate', label: 'Start Date', render: (row: any) => convertToDateOnly(row.campaignStartDate) },
-    {
-      key: 'campaignEndDate',
-      label: 'End Date',
-      render: (row: any) =>
-        row.campaignEndDate === '0001-01-01T00:00:00Z' ? '-' : convertToDateOnly(row.campaignEndDate)
-    },
     {
       key: 'activeSchedule',
       label: 'Schedule',
@@ -122,10 +104,35 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
             setSingleCampaginData(row)
             setOpenSceduleTable(true)
           }}
+          className=' font-bold cursor-pointer'
         >
-          {row.activeSchedule}/{row.inActiveSchedule}
+          <span className=' text-green-800'>{row.activeSchedule}</span>/{row.inActiveSchedule}
         </span>
       )
+    },
+    {
+      key: 'campaignState',
+      label: 'State',
+      render: (row: any) => (
+        <span
+          style={{
+            color: row.campaignState === 'PAUSED' ? '#a16207' : row.campaignState === 'ARCHIVED' ? '#7f1d1d' : '#14532d'
+          }}
+        >
+          <Chip
+            label={row.campaignState}
+            color={row.campaignState === 'ENABLED' ? 'success' : 'warning'}
+            variant='tonal'
+          />
+        </span>
+      )
+    },
+    { key: 'campaignStartDate', label: 'Start Date', render: (row: any) => convertToDateOnly(row.campaignStartDate) },
+    {
+      key: 'campaignEndDate',
+      label: 'End Date',
+      render: (row: any) =>
+        row.campaignEndDate === '0001-01-01T00:00:00Z' ? '-' : convertToDateOnly(row.campaignEndDate)
     }
 
     // { key: 'inActiveSchedule', label: 'Inactive Schedule' },
@@ -165,7 +172,7 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
   )
   if (isLoading) {
     return (
-      <div className=' is-[800px]'>
+      <div className=' '>
         <TableSkeleton />
       </div>
     )
@@ -175,7 +182,7 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
       {/* <div className='flex relative justify-center flex-col items-center bs-full bg-backgroundPaper !min-is-full  md:!min-is-[unset] md:is-[800px] md:rounded'> */}
 
       <div className=' w-full '>
-        <Table
+        <SadowlessTable
           headers={headers}
           selectionId='id'
           csv={false}
@@ -228,7 +235,8 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
         handleClose={() => setOpenProductTable(false)}
         data={singleCampaginData}
         maxWidth='xl'
-        title='Product'
+        title={`Campaign Products ( ${singleCampaginData?.campaignName})
+`}
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <ProductTable data={data} handleClose={handleClose} />
@@ -262,7 +270,7 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
         open={openCreateScedule}
         handleClose={() => setOpenCreateScedule(false)}
         data={selcteData}
-        title='Campagin'
+        title='Create Schedule'
         maxWidth='xl'
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (

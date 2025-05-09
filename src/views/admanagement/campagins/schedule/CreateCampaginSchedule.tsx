@@ -17,6 +17,7 @@ import { Checkbox, MenuItem } from '@mui/material'
 
 import FormGroup from '@mui/material/FormGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
+import DialogComponent from '@/components/layout/shared/DialogsSizes'
 
 const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
   const [schedules, setSchedules] = useState<any[]>([

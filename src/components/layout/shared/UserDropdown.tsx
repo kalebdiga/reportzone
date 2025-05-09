@@ -119,7 +119,7 @@ const UserDropdown = () => {
                       </Typography>
                       <Typography variant='caption'>{user?.email}</Typography>
                       <Typography variant='caption'>
-                        {user?.globalRole === true ? 'Super Admin' : companyUsers?.[0].role}
+                        {user?.globalRole === true ? 'Super Admin' : companyUsers?.[0]?.role}
                       </Typography>
                     </div>
                   </div>
