@@ -219,7 +219,7 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
           >
             {addProfileData?.profiles?.map((item: any, index: number) => (
               <MenuItem key={index} value={item?.id} className='text-gray-950'>
-                {item?.countryCode}{' '}
+                {item?.countryCode}/{item?.accountName}{' '}
                 <span onClick={() => setProfileId('')}>
                   <X className=' size-4' />
                 </span>
