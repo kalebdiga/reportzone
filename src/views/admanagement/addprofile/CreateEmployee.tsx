@@ -65,6 +65,7 @@ const CreateEmployee = ({ handleClose }: { handleClose?: () => void }) => {
           company_id: companyId
         },
         onSuccess: data => {
+          toast.dismiss()
           toast.success('Employee created successfully')
           resetForm()
           handleClose?.()
@@ -73,6 +74,7 @@ const CreateEmployee = ({ handleClose }: { handleClose?: () => void }) => {
       })
     } catch (err) {
       console.error('Error creating employee:', err)
+      toast.dismiss()
       toast.error('Failed to create employee')
     }
   }

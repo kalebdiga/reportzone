@@ -10,18 +10,24 @@ import Typography from '@mui/material/Typography'
 // Utility Imports
 import { toast } from 'react-toastify'
 import { convertNewYorkHourToUtc } from '@/utils/dateConverter'
-import { Form, Formik } from 'formik'
-import FormikDropdown from '@/lib/form/FormikDropDown'
+
 import CustomTextField from '@/@core/components/mui/TextField'
 import { Checkbox, MenuItem } from '@mui/material'
 
-import FormGroup from '@mui/material/FormGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
+import OverviewSchedule from './OverviewSchedule'
+import useDynamicMutation from '@/apihandeler/usePostData'
+import UpdateCampaginSchedule from './UpdateCampaginSchedule'
+import { UserData } from '@/typs/user.type'
 
 const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
+  const postMutation = useDynamicMutation({ type: 'Json' })
+
+  const [openSceduleTable, setOpenSceduleTable] = useState(false)
+
   const [schedules, setSchedules] = useState<any[]>([
-    { day: null, hour: null, minute: 0, am: true, budget: null, budgetNoChange: false, state: '', stateNoChange: false }
+    { day: null, hour: null, minute: 0, am: true, budget: null, budgetChange: true, state: '', stateChange: true }
   ])
 
   const addScheduleRow = () => {
@@ -62,8 +68,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
     }
   }
 
-  const handleSubmit = () => {
-    console.log(data)
+  const handleSubmit = async () => {
     const scheduleCreationInputs = data?.flatMap((campaign: any) =>
       schedules.map(item => ({
         campaignId: campaign.id || '',
@@ -76,29 +81,72 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
         index: 0
       }))
     )
-    console.log('Submitted Schedules:', scheduleCreationInputs)
-    toast.success('Schedules submitted successfully!')
+
+    try {
+      postMutation.mutate({
+        url: '/schedules',
+        method: 'POST',
+        body: scheduleCreationInputs,
+        invalidateKey: [['capaignData'], ['updateScedule']],
+
+        onSuccess: data => {
+          toast.dismiss()
+          toast.success(' Schedules submitted successfully!')
+          handleClose?.()
+        }
+      })
+    } catch (err) {
+      console.error('Error creating :', err)
+      toast.dismiss()
+      toast.error('Failed to create ')
+    }
+  }
+  const SceduleData = data?.length === 1 && data?.[0]
+
+  const validateSchedules = () => {
+    return schedules.every(
+      item =>
+        item.day !== null &&
+        item.hour !== null &&
+        item.minute !== null &&
+        (!item.budgetChange || (item.budgetChange && item.budget !== null && item.budget > 0)) &&
+        (!item.stateChange || (item.stateChange && item.state))
+    )
   }
 
   return (
     <>
-      <div className='flex justify-between items-center my-[3%]'>
+      <div className='flex justify-between items-center my-[3%] pl-[8%]  w-full'>
         <div className='w-[60%]'>
-          <div className='w-full flex items-center gap-3'>
-            <Typography variant='h6'>Name: {data?.campaignName}</Typography>
-          </div>
-          <div className='w-full flex items-center gap-3'>
-            <Typography variant='h6'>Budget: {data?.campaignBudget}</Typography>
-          </div>
-          <div className='w-full flex items-center gap-3'>
-            <Typography variant='h6'>Status: {data?.campaignState}</Typography>
-          </div>
+          {SceduleData && (
+            <>
+              <div className='w-full flex items-center gap-3'>
+                <Typography variant='h6'>Name: {SceduleData?.campaignName}</Typography>
+              </div>
+              <div className='w-full flex items-center gap-3'>
+                <Typography variant='h6'>Budget: {SceduleData?.campaignBudget}</Typography>
+              </div>
+              <div className='w-full flex items-center gap-3'>
+                <Typography variant='h6'>Status: {SceduleData?.campaignState}</Typography>
+              </div>
+            </>
+          )}
+          {data?.length > 1 && (
+            <Button
+              onClick={() => {
+                setOpenSceduleTable(true)
+              }}
+              variant='contained'
+            >
+              Schedules
+            </Button>
+          )}
         </div>
       </div>
-      <div className='flex flex-col gap-6'>
+      <div className='flex flex-col gap-6   justify-start pl-[8%] w-full'>
         {schedules.map((item, index) => (
           <>
-            <div key={index} className='schedule-row flex flex-wrap gap-4'>
+            <div key={index} className='schedule-row items-center flex flex-wrap gap-4'>
               <div>
                 <CustomTextField
                   select
@@ -113,9 +161,6 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                     setSchedules(newItems)
                   }}
                 >
-                  <MenuItem value=''>
-                    <em>None</em>
-                  </MenuItem>
                   {days.map(day => (
                     <MenuItem key={day.value} value={day.value}>
                       {day.title}
@@ -149,27 +194,30 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                     </MenuItem>
                   ))}
                 </CustomTextField>
-
-                <Button
-                  onClick={() => {
-                    const newItems = [...schedules]
-                    newItems[index].am = !newItems[index].am
-                    setSchedules(newItems)
-                  }}
-                >
-                  {item.am ? 'AM' : 'PM'}
-                </Button>
+                <div className='mt-[13%]'>
+                  <Button
+                    onClick={() => {
+                      const newItems = [...schedules]
+                      newItems[index].am = !newItems[index].am
+                      setSchedules(newItems)
+                    }}
+                  >
+                    {item.am ? 'AM' : 'PM'}
+                  </Button>
+                </div>
               </div>
               <div className=' flex flex-col'>
                 <FormControlLabel
                   label='Budget'
                   control={
                     <Checkbox
-                      checked={item.budgetNoChange}
+                      checked={item.budgetChange}
                       onChange={() => {
                         const newItems = [...schedules]
-                        newItems[index].budgetNoChange = !newItems[index].budgetNoChange
-                        if (newItems[index].budgetNoChange) newItems[index].budget = null
+                        newItems[index].budgetChange = !newItems[index].budgetChange
+                        if (newItems[index].budgetChange) {
+                          newItems[index].stateChange = true
+                        }
                         setSchedules(newItems)
                       }}
                       name='Budget'
@@ -179,7 +227,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                 <CustomTextField
                   type='number'
                   value={item.budget || ''}
-                  disabled={item.budgetNoChange}
+                  disabled={!item.budgetChange}
                   onChange={e => {
                     const newItems = [...schedules]
                     newItems[index].budget = parseFloat(e.target.value)
@@ -192,11 +240,13 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                   label='State'
                   control={
                     <Checkbox
-                      checked={item.stateNoChange}
+                      checked={item.stateChange}
                       onChange={() => {
                         const newItems = [...schedules]
-                        newItems[index].stateNoChange = !newItems[index].stateNoChange
-                        if (newItems[index].stateNoChange) newItems[index].state = ''
+                        newItems[index].stateChange = !newItems[index].stateChange
+                        if (newItems[index].stateChange) {
+                          newItems[index].budgetChange = true
+                        }
                         setSchedules(newItems)
                       }}
                     />
@@ -206,10 +256,10 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                 <CustomTextField
                   select
                   fullWidth
-                  label='State'
+                  label=''
                   defaultValue=''
                   value={item.state || ''}
-                  disabled={item.stateNoChange}
+                  disabled={!item.stateChange}
                   onChange={e => {
                     const newItems = [...schedules]
                     newItems[index].state = e.target.value
@@ -234,15 +284,27 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
             </div>
           </>
         ))}
-        <div className='flex gap-4'>
+        <div className='flex gap-4 w-full justify-end items-end'>
           <Button variant='outlined' onClick={addScheduleRow}>
             Add Row
           </Button>
-          <Button variant='contained' onClick={handleSubmit}>
+          <Button variant='contained' onClick={handleSubmit} disabled={!validateSchedules()}>
             Submit
           </Button>
         </div>
       </div>
+
+      <DialogComponent
+        open={openSceduleTable}
+        handleClose={() => setOpenSceduleTable(false)}
+        data={data}
+        maxWidth='xl'
+        title='Scedule'
+      >
+        {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
+          <OverviewSchedule data={data} handleClose={handleClose} />
+        )}
+      </DialogComponent>
     </>
   )
 }
@@ -251,13 +313,14 @@ export default CreateCampaginSchedule
 
 // Days of the week
 export const days = [
-  { value: 0, title: 'Sunday' },
+  // { value: , title: 'Sunday' },
   { value: 1, title: 'Monday' },
   { value: 2, title: 'Tuesday' },
   { value: 3, title: 'Wednesday' },
   { value: 4, title: 'Thursday' },
   { value: 5, title: 'Friday' },
-  { value: 6, title: 'Saturday' }
+  { value: 6, title: 'Saturday' },
+  { value: 7, title: 'Sunday' }
 ]
 
 // States for the schedule

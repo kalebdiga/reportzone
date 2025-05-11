@@ -23,6 +23,7 @@ const ChangeEployeeStatus = ({ row }: any) => {
       },
       invalidateKey: ['employeeData', 'CompanyEmployees'],
       onSuccess: data => {
+        toast.dismiss()
         toast.success('Status updated successfully')
       },
       onError: error => {

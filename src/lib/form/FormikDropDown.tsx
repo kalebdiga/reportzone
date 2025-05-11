@@ -18,10 +18,10 @@ const FormikDropdown = ({ name, label, options, fullWidth = true, ...props }: Fo
   return (
     <FormControl fullWidth={fullWidth} error={showError} style={{ marginBottom: '1rem' }} {...props}>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <label className='text-textPrimary text-[0.8rem]' style={{ color: showError ? 'red' : '' }}>
+        {/* <label className='text-textPrimary text-[0.8rem]' style={{ color: showError ? 'red' : '' }}>
           {label}
-        </label>
-        <CustomTextField select {...field} {...props} value={field.value || ''} label='Default' id='custom-select'>
+        </label> */}
+        <CustomTextField select {...field} {...props} value={field.value || ''} label={label} id='custom-select'>
           {options.map(option => (
             <MenuItem key={option.value} value={option.value}>
               {option.label}

@@ -55,6 +55,7 @@ const UpdateProfile = ({ data, handleClose }: { data: any; handleClose?: () => v
           },
           invalidateKey: ['profile'],
           onSuccess: data => {
+            toast.dismiss()
             toast.success('Profile updated successfully')
             handleClose && handleClose()
           }
@@ -72,18 +73,7 @@ const UpdateProfile = ({ data, handleClose }: { data: any; handleClose?: () => v
   return (
     <div className='flex  justify-center'>
       <div className=' relative flex justify-center items-center bs-full bg-backgroundPaper !min-is-full p-1  md:!min-is-[unset] md:p-2 md:is-[480px] md:rounded-md'>
-        {handleClose && (
-          <div className='absolute top-2 right-2'>
-            <IconButton onClick={handleClose} aria-label='Close'>
-              <X size={20} />
-            </IconButton>
-          </div>
-        )}
         <div className='flex flex-col gap-6 is-full  sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-0 sm:mbs-14 md:mbs-0 '>
-          <div className='flex flex-col gap-1'>
-            <Typography variant='h4'>Update Profile</Typography>
-            <Typography>Update the details below</Typography>
-          </div>
           <Formik
             initialValues={{
               fname: data?.fname || '',

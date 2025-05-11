@@ -1,32 +1,16 @@
 'use client'
-import React, { useState } from 'react'
+import React, { type ChangeEventHandler, useState } from 'react'
 
-import { Button, Chip, IconButton, Switch, Typography } from '@mui/material'
-import {
-  ArrowLeft,
-  CalendarCheck,
-  CalendarPlus,
-  Check,
-  Copy,
-  FileClock,
-  LockKeyhole,
-  Pencil,
-  Plus,
-  X
-} from 'lucide-react'
+import { Button, Chip, IconButton, InputAdornment, ListItemIcon, ListItemText, Switch, Typography } from '@mui/material'
+import { CalendarPlus, Check, X } from 'lucide-react'
 import Table from '@/components/layout/shared/table/Table'
 import { useUserStore } from '@/lib/store/userProfileStore'
 import { useFetchData } from '@/apihandeler/useFetchData'
 import { useSession } from 'next-auth/react'
-import { date } from 'yup'
 import { convertToDateOnly } from '@/utils/dateConverter'
-import TableSkeleton from '@/utils/TableSkleton'
-import ModalComponent from '@/components/layout/shared/ModalComponent'
 import UpdateEmployeePassword from '../addprofile/UpdateEmployeePassword'
 import { type UserData } from '@/typs/user.type'
 import CreateEmployee from '../addprofile/CreateEmployee'
-import ChangeEployeeStatus from '../../employees/ChangeEployeeStatus'
-import Link from 'next/link'
 import copy from 'copy-to-clipboard'
 import { toast } from 'sonner'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
@@ -34,8 +18,10 @@ import ProductTable from './product/ProductTable'
 import SceduleTable from './schedule/SceduleTable'
 import CampaginHistory from './CampaginHistory'
 import CreateCampaginSchedule from './schedule/CreateCampaginSchedule'
-import SadowlessTable from '@/components/layout/shared/table/SadowlessTable'
 import { useSearchParams } from 'next/navigation'
+import { MenuItem } from '@/components/Menu'
+import CustomTextField from '@/@core/components/mui/TextField'
+import { debounce } from 'lodash'
 
 const handleCopy = (text: string) => {
   copy(text)
@@ -48,7 +34,10 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
   const id = searchParams.get('profileId')
   console.log(id, 'from employee table')
   const [page, setPage] = useState(1)
-  const [resultsPerPage, setResultsPerPage] = useState(5)
+  const [profileId, setProfileId] = useState(id)
+  const [state, setState] = useState('')
+
+  const [resultsPerPage, setResultsPerPage] = useState(10)
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
   const [openProductTable, setOpenProductTable] = useState(false)
   const [openSceduleTable, setOpenSceduleTable] = useState(false)
@@ -59,6 +48,7 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
   const [openCampaginHistory, setOpenCampaginHistory] = useState(false)
   const [selcteData, setSelcteData] = useState([])
   const [openCreateScedule, setOpenCreateScedule] = useState(false)
+  const [searchInput, setSearchInput] = useState('')
 
   console.log(selcteData, 'selected Data')
 
@@ -141,59 +131,136 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
 
     // { key: 'totalKeywords', label: 'Total Keywords' }
   ]
-  const { data: CampaginData, isLoading } = useFetchData(
-    ['CompanyEmployees', session?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
-    `/advertising/stats/campaigns?page=${page}&page_size=${resultsPerPage}${id ? `&profile_id=${id}` : ''}`
+  const { data: combinedData, isLoading: combinedLoading } = useFetchData(
+    [
+      searchInput ? 'searchCampagin' : 'capaignData',
+      session?.data?.user?.accessToken,
+      companyUsers[0]?.companyId,
+      page,
+      resultsPerPage,
+      profileId,
+      state,
+      searchInput
+    ],
+    searchInput
+      ? `/advertising/search/campaigns?${profileId ? `profile_id=${profileId}&` : ''}search=${searchInput}`
+      : `/advertising/stats/campaigns?page=${page}&page_size=${resultsPerPage}${profileId ? `&profile_id=${profileId}` : ''}${state ? `&state=${state}` : ''}`
   )
 
-  const handleActionClick = (row: any) => {}
-  const actionElements = (row: any) => (
-    <div className=' flex flex-col gap-2 p-[1%] z-[999]'>
-      <div className='flex items-center gap-2 '>
-        <CalendarCheck className='size-[1rem]' />
-        <span> Schedule</span>
-      </div>
+  // Use combinedData for both search results and default campaign data
+  const tableData = searchInput ? combinedData?.campaigns : combinedData?.campaigns
+  const totalRecords = searchInput ? combinedData?.meta?.totalRecords : combinedData?.meta?.totalRecords
 
-      <div
-        className='flex items-center gap-2 '
+  const { data: addProfileData, isLoading: ProfileDataLoading } = useFetchData(
+    ['addProfileData'],
+    `/advertising/profiles`
+
+    // data?.data?.user?.accessToken ? { Authorization: `Bearer ${data?.data?.user?.accessToken}` } : {}
+  )
+
+  console.log(addProfileData)
+
+  const actionElements = (row: any) => (
+    <div>
+      {/* <div className=' flex flex-col gap-2 p-[1%] z-[999]'> */}
+      <MenuItem>
+        <ListItemIcon>
+          <i className='tabler-calendar-check text-xl' />
+        </ListItemIcon>
+        <ListItemText primary='Schedule' />
+      </MenuItem>
+      <MenuItem
         onClick={() => {
           setOpenCampaginHistory(true)
         }}
       >
-        <FileClock className='size-[1rem]' />
-        <span>History</span>
-      </div>
+        <ListItemIcon>
+          <i className='tabler-history text-xl' />
+        </ListItemIcon>
+        <ListItemText primary='History' />
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          setOpenCampaginHistory(true)
+        }}
+      >
+        <ListItemIcon>
+          <i className='tabler-pencil text-xl' />
+        </ListItemIcon>
+        <ListItemText primary='Edit' />
+      </MenuItem>
 
-      <div className='flex items-center gap-2 '>
-        <Pencil className='size-[1rem]' />
-        <span> Edit</span>
-      </div>
+      {/* </div> */}
     </div>
   )
-  if (isLoading) {
-    return (
-      <div className=' '>
-        <TableSkeleton />
-      </div>
-    )
+
+  const onChange: ChangeEventHandler<HTMLInputElement> = e => {
+    console.log('Changed value:', e.target.value)
+    setSearchInput(e.target.value)
   }
+
+  const handelSearch = debounce(onChange, 500)
+
   return (
     <>
       {/* <div className='flex relative justify-center flex-col items-center bs-full bg-backgroundPaper !min-is-full  md:!min-is-[unset] md:is-[800px] md:rounded'> */}
+      <div className='flex w-full items-center gap-[1rem] my-[1%]'>
+        <div className='w-[10%]'>
+          <CustomTextField
+            select
+            fullWidth
+            defaultValue=''
+            label='Select Profile'
+            id='custom-select'
+            value={profileId}
+            onChange={e => {
+              setProfileId(e.target.value)
+            }}
+          >
+            {addProfileData?.profiles?.map((item: any, index: number) => (
+              <MenuItem key={index} value={item?.id} className='text-gray-950'>
+                {item?.countryCode}{' '}
+                <span onClick={() => setProfileId('')}>
+                  <X className=' size-4' />
+                </span>
+              </MenuItem>
+            ))}
+          </CustomTextField>
+        </div>
 
+        <div className='w-[10%]'>
+          <CustomTextField
+            select
+            fullWidth
+            defaultValue=''
+            label='Select Profile'
+            id='custom-select'
+            value={state}
+            onChange={e => {
+              setState(e.target.value)
+            }}
+          >
+            {['ENABLED', 'PAUSED', 'ARCHIVED']?.map((item: any, index: number) => (
+              <MenuItem key={index} value={item} className='text-gray-950'>
+                {item}
+              </MenuItem>
+            ))}
+          </CustomTextField>
+        </div>
+      </div>
       <div className=' w-full '>
-        <SadowlessTable
+        <Table
           headers={headers}
           selectionId='id'
           csv={false}
-          data={CampaginData?.campaigns}
+          data={tableData} // Dynamically use combinedData
           action={true}
-          number={CampaginData?.meta?.totalRecords}
+          number={totalRecords} // Dynamically use total records from combinedData
           page={page}
           setPage={setPage}
           resultsPerPage={resultsPerPage}
           setResultsPerPage={setResultsPerPage}
-          loading={false}
+          loading={combinedLoading}
           setLoading={() => {}}
           actionElements={actionElements}
           dropdownVisible={dropdownVisible}
@@ -201,22 +268,41 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
           isSlectedDataRequired={true}
           setSelcteData={setSelcteData}
           tableTitle={
-            selcteData.length > 0 && (
-              <Button
-                variant='contained'
-                onClick={() => {
-                  setOpenCreateScedule(true)
-                }}
-              >
-                <CalendarPlus />
-                <span className=' max-md:hidden'>Add Scedule</span>
-              </Button>
-            )
+            <div className='flex items-center gap-[1rem]'>
+              {selcteData.length > 0 && (
+                <Button
+                  variant='contained'
+                  onClick={() => {
+                    setOpenCreateScedule(true)
+                  }}
+                >
+                  <CalendarPlus />
+                  <span className='max-md:hidden'>Add Schedule</span>
+                </Button>
+              )}
+              <div>
+                <CustomTextField
+                  id='input-with-icon-adornment'
+                  label=''
+                  placeholder='search...'
+                  onChange={handelSearch}
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-search' />
+                        </InputAdornment>
+                      )
+                    }
+                  }}
+                />
+              </div>
+            </div>
           }
         />
       </div>
 
-      <ModalComponent
+      <DialogComponent
         open={OpenEmplyeePassword}
         handleClose={() => setOpenEmplyeePassword(false)}
         data={singleCampaginData}
@@ -224,12 +310,12 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <UpdateEmployeePassword data={data} handleClose={handleClose} />
         )}
-      </ModalComponent>
-      <ModalComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)} data={id}>
+      </DialogComponent>
+      <DialogComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)} data={id}>
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <CreateEmployee handleClose={handleClose} />
         )}
-      </ModalComponent>
+      </DialogComponent>
       <DialogComponent
         open={openProductTable}
         handleClose={() => setOpenProductTable(false)}
@@ -271,12 +357,10 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
         handleClose={() => setOpenCreateScedule(false)}
         data={selcteData}
         title='Create Schedule'
-        maxWidth='xl'
+        maxWidth='md'
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
-          <div className=' max-w-[100%]'>
-            <CreateCampaginSchedule data={selcteData} handleClose={handleClose} />
-          </div>
+          <CreateCampaginSchedule data={selcteData} handleClose={handleClose} />
         )}
       </DialogComponent>
       {/* </div> */}

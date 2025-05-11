@@ -137,7 +137,7 @@ const headers = [
 ]
 function Logs() {
   const [page, setPage] = useState(1)
-  const [resultsPerPage, setResultsPerPage] = useState(5)
+  const [resultsPerPage, setResultsPerPage] = useState(10)
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
 
   return (

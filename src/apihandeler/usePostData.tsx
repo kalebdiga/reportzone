@@ -16,7 +16,7 @@ type MutationOptions = {
   onError?: (error: any) => void
   onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
   onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void
-  invalidateKey?: QueryKey
+  invalidateKey?: QueryKey | QueryKey[]
 }
 
 const useDynamicMutation = ({ type = 'Json' }: { type?: 'FormData' | 'Json' }) => {
@@ -36,12 +36,8 @@ const useDynamicMutation = ({ type = 'Json' }: { type?: 'FormData' | 'Json' }) =
         onDownloadProgress
       }
 
-      try {
-        const response = await axios.request(config)
-        return response.data
-      } catch (error) {
-        throw error
-      }
+      const response = await axios.request(config)
+      return response.data
     },
 
     onSuccess: (data, variables) => {
@@ -49,8 +45,27 @@ const useDynamicMutation = ({ type = 'Json' }: { type?: 'FormData' | 'Json' }) =
         variables.onSuccess(data)
       }
 
+      const invalidate = (key: QueryKey) => {
+        console.log('🟡 Invalidating key:', key)
+
+        // Debug current cache
+        const allKeys = queryClient
+          .getQueryCache()
+          .getAll()
+          .map(q => q.queryKey)
+        console.log('🔍 Current query keys in cache:', allKeys)
+
+        // Invalidate and refetch
+        queryClient.invalidateQueries({ queryKey: key, exact: false })
+        queryClient.refetchQueries({ queryKey: key, exact: false })
+      }
+
       if (variables.invalidateKey) {
-        queryClient.invalidateQueries({ queryKey: variables.invalidateKey })
+        if (Array.isArray(variables.invalidateKey)) {
+          variables.invalidateKey.forEach(invalidate)
+        } else {
+          invalidate(variables.invalidateKey)
+        }
       }
     },
 
@@ -62,6 +77,7 @@ const useDynamicMutation = ({ type = 'Json' }: { type?: 'FormData' | 'Json' }) =
       const message =
         (error as any)?.response?.data?.message || (error as any)?.response?.data?.error || 'Something went wrong'
 
+      toast.dismiss()
       toast.error(typeof message === 'string' ? message : 'Something went wrong')
     },
 

@@ -55,6 +55,7 @@ const UpdateEmployeePassword = ({ data, handleClose }: { data: UserData; handleC
         invalidateKey: ['employeeData'],
 
         onSuccess: data => {
+          toast.dismiss()
           toast.success('Password changed successfully')
           router.push('/employees')
           handleClose && handleClose()

@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 
-import { Button, Switch } from '@mui/material'
+import { Button, ListItemIcon, ListItemText, Switch } from '@mui/material'
 import { Check, LockKeyhole, Pencil, Plus, X } from 'lucide-react'
 import Table from '@/components/layout/shared/table/Table'
 import { useUserStore } from '@/lib/store/userProfileStore'
@@ -11,18 +11,17 @@ import ChangeEployeeStatus from './ChangeEployeeStatus'
 import { date } from 'yup'
 import { convertToDateOnly } from '@/utils/dateConverter'
 import TableSkeleton from '@/utils/TableSkleton'
-import ModalComponent from '@/components/layout/shared/ModalComponent'
 import UpdateEmployeeProfile from './UpdateEmployeeProfile'
 import UpdateEmployeePassword from './UpdateEmployeePassword'
 import { type UserData } from '@/typs/user.type'
 import CreateEmployee from './CreateEmployee'
 import Card from '@mui/material/Card'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
+import { MenuItem } from '@/components/Menu'
 
 const EmployeesTable = () => {
-  //state
   const [page, setPage] = useState(1)
-  const [resultsPerPage, setResultsPerPage] = useState(5)
+  const [resultsPerPage, setResultsPerPage] = useState(10)
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
   const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
   const [OpenEmplyeePassword, setOpenEmplyeePassword] = useState(false)
@@ -54,17 +53,6 @@ const EmployeesTable = () => {
     data?.data?.user?.accessToken ? { Authorization: `Bearer ${data?.data?.user?.accessToken}` } : {}
   )
 
-  const { data: EmployeeDataForCsv } = useFetchData(
-    ['employeeData', data?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
-    `/users?page_size=${resultsPerPage}&page=${page}&company_id=${companyUsers[0]?.companyId}`,
-    data?.data?.user?.accessToken ? { Authorization: `Bearer ${data?.data?.user?.accessToken}` } : {}
-  )
-
-  // const { data: EmployeeData, isLoading } = useFetchData(
-  //   ['employeeData', data?.data?.user?.accessToken, companyUsers[0]?.companyId],
-  //   `/users?company_id=${companyUsers[0]?.companyId}`,
-  //   data?.data?.user?.accessToken ? { Authorization: `Bearer ${data?.data?.user?.accessToken}` } : {}
-  // )
   const transformedData = (EmployeeData?.users || [])?.map((item: any) => ({
     ...item,
     name: item.user.fname + ' ' + item.user.lname,
@@ -72,52 +60,32 @@ const EmployeesTable = () => {
     date: convertToDateOnly(item.user.createdAt)
   }))
 
-  // // Filter, sort, and paginate data
-  // const transformedData = (EmployeeData?.users || [])
-  //   .sort((a: any, b: any) => {
-  //     // Custom sorting logic: prioritize 'active' over 'suspended'
-  //     const statusOrder = { active: 1, suspended: 2 }
-  //     return (
-  //       (statusOrder[a.user.accountStatus as keyof typeof statusOrder] || 5) -
-  //       (statusOrder[b.user.accountStatus as keyof typeof statusOrder] || 5)
-  //     )
-  //   })
-  //   .map((item: any) => ({
-  //     ...item,
-  //     name: item.user.fname + ' ' + item.user.lname,
-  //     role: item.user.globalRole ? 'Super Admin' : '',
-  //     date: convertToDateOnly(item.user.createdAt)
-  //   }))
-  //   .slice((page - 1) * resultsPerPage, page * resultsPerPage) // Paginate data
   const handleActionClick = (row: any) => {
     setSingleEmployeeData(row)
     setOpenEmplyeeProfile(true)
   }
   const actionElements = (row: any) => (
-    <div className=' flex flex-col gap-2 p-[1%] z-[999]'>
-      <Button variant='outlined' onClick={() => handleActionClick(row)}>
-        <div className='flex items-center gap-2 '>
-          <Pencil className='size-[1rem]' />
-          <span> Edit</span>
-        </div>
-      </Button>
-      <Button
-        variant='tonal'
-        color='warning'
+    <div>
+      <MenuItem onClick={() => handleActionClick(row)}>
+        <ListItemIcon>
+          <i className='tabler-pencil text-xl' />
+        </ListItemIcon>
+        <ListItemText primary='Edit' />
+      </MenuItem>
+
+      <MenuItem
         onClick={() => {
           setOpenEmplyeePassword(true), setSingleEmployeeData(row)
         }}
       >
-        <div className='flex items-center gap-2 '>
-          <LockKeyhole className='size-[1rem]' />
-          <span>Change Password</span>
-        </div>
-      </Button>
+        <ListItemIcon>
+          <i className='tabler-key text-xl' />
+        </ListItemIcon>
+        <ListItemText primary='Change Password' />
+      </MenuItem>
     </div>
   )
-  if (isLoading) {
-    return <TableSkeleton />
-  }
+
   return (
     <>
       <Table
@@ -144,7 +112,7 @@ Employees'
         setPage={setPage}
         resultsPerPage={resultsPerPage}
         setResultsPerPage={setResultsPerPage}
-        loading={false}
+        loading={isLoading}
         setLoading={() => {}}
         actionElements={actionElements}
         dropdownVisible={dropdownVisible}
@@ -154,6 +122,8 @@ Employees'
         open={OpenEmplyeeProfile}
         handleClose={() => setOpenEmplyeeProfile(false)}
         data={singleEmployeeData}
+        title='Update Employee Profile
+'
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <UpdateEmployeeProfile data={data} handleClose={handleClose} />
@@ -163,12 +133,19 @@ Employees'
         open={OpenEmplyeePassword}
         handleClose={() => setOpenEmplyeePassword(false)}
         data={singleEmployeeData}
+        title='Change Password
+'
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <UpdateEmployeePassword data={data} handleClose={handleClose} />
         )}
       </DialogComponent>
-      <DialogComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)}>
+      <DialogComponent
+        open={openCreateEployee}
+        handleClose={() => setOpenCreateEployee(false)}
+        maxWidth='md'
+        title='Create Employee'
+      >
         {({ handleClose }) => <CreateEmployee handleClose={handleClose} />}
       </DialogComponent>
     </>

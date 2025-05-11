@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 
-import { Button } from '@mui/material'
+import { Button, ListItemIcon, ListItemText } from '@mui/material'
 import { Pencil, Plus } from 'lucide-react'
 import Table from '@/components/layout/shared/table/Table'
 import { useFetchData } from '@/apihandeler/useFetchData'
@@ -9,7 +9,6 @@ import { useSession } from 'next-auth/react'
 import ChangeStatus from './ChangeStatus'
 import { convertToDateOnly } from '@/utils/dateConverter'
 import TableSkeleton from '@/utils/TableSkleton'
-import ModalComponent from '@/components/layout/shared/ModalComponent'
 
 import { type UserData } from '@/typs/user.type'
 
@@ -17,11 +16,12 @@ import CreateCompany from './CreateCompany'
 import UpdateCompany from './UpdateCompany'
 import CompanyEmployeesTable from './employee/CompanyEmployeesTable'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
+import { MenuItem } from '@/components/Menu'
 
 const CompanyTable = () => {
   //state
   const [page, setPage] = useState(1)
-  const [resultsPerPage, setResultsPerPage] = useState(5)
+  const [resultsPerPage, setResultsPerPage] = useState(10)
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
   const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
   const [OpenEmplyee, setOpenEmplyee] = useState(false)
@@ -44,7 +44,7 @@ const CompanyTable = () => {
             setSingleCompanyData(row)
           }}
         >
-          <span className={`${row?.totalEmployee > 0 ? ' text-blue-600' : 'text-blue-600'}`}>
+          <span className={` cursor-pointer ${row?.totalEmployee > 0 ? ' text-blue-600' : 'text-blue-600'}`}>
             {' '}
             {row?.totalEmployee}
           </span>
@@ -66,18 +66,16 @@ const CompanyTable = () => {
     setOpenEmplyeeProfile(true)
   }
   const actionElements = (row: any) => (
-    <div className=' flex flex-col gap-2 p-[1%] z-[999]'>
-      <Button variant='outlined' onClick={() => handleActionClick(row)}>
-        <div className='flex items-center gap-2 '>
-          <Pencil className='size-[1rem]' />
-          <span> Edit</span>
-        </div>
-      </Button>
+    <div>
+      <MenuItem onClick={() => handleActionClick(row)}>
+        <ListItemIcon>
+          <i className='tabler-pencil text-xl' />
+        </ListItemIcon>
+        <ListItemText primary='Edit' />
+      </MenuItem>
     </div>
   )
-  if (isLoading) {
-    return <TableSkeleton />
-  }
+
   return (
     <>
       <Table
@@ -104,7 +102,7 @@ const CompanyTable = () => {
         setPage={setPage}
         resultsPerPage={resultsPerPage}
         setResultsPerPage={setResultsPerPage}
-        loading={false}
+        loading={isLoading}
         setLoading={() => {}}
         actionElements={actionElements}
         dropdownVisible={dropdownVisible}
@@ -114,6 +112,7 @@ const CompanyTable = () => {
         open={OpenEmplyeeProfile}
         handleClose={() => setOpenEmplyeeProfile(false)}
         data={singleCompanyData}
+        title='Update Company'
       >
         {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
           <UpdateCompany data={data} handleClose={handleClose} />
@@ -124,12 +123,18 @@ const CompanyTable = () => {
         open={OpenEmplyee}
         handleClose={() => setOpenEmplyee(false)}
         data={singleCompanyData}
+        title={`${singleCompanyData?.name}/Employees`}
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <CompanyEmployeesTable handleClose={handleClose} data={data} />
         )}
       </DialogComponent>
-      <DialogComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)} maxWidth='lg'>
+      <DialogComponent
+        open={openCreateEployee}
+        handleClose={() => setOpenCreateEployee(false)}
+        maxWidth='sm'
+        title='Create Company'
+      >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <CreateCompany handleClose={handleClose} id={data} />
         )}

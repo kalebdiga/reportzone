@@ -26,7 +26,7 @@ const ProductTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
 
   console.log(id, 'from employee table')
   const [page, setPage] = useState(1)
-  const [resultsPerPage, setResultsPerPage] = useState(5)
+  const [resultsPerPage, setResultsPerPage] = useState(10)
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
   const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
   const [OpenEmplyeePassword, setOpenEmplyeePassword] = useState(false)
@@ -39,7 +39,7 @@ const ProductTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
 
   const headers = [
     {
-      key: 'AdProduct',
+      key: 'img',
       label: 'Product Image',
       render: (row: any) => (
         <span
@@ -52,9 +52,8 @@ const ProductTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
       )
     },
 
-    { key: 'AdProduct', label: 'Product Name' },
+    { key: 'AdProduct', label: 'Product Name', render: (row: any) => <span>Product Name</span> },
 
-    // { key: 'AdType', label: 'Ad Type' },
     { key: 'sku', label: 'SKU' },
     { key: 'asin', label: 'ASIN' },
 
@@ -63,30 +62,12 @@ const ProductTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
       label: 'State',
       render: (row: any) => (
         <Chip
-          label={row.state ?? '-'}
+          label={row.state ?? 'No change'}
           color={row.state === 'ENABLED' ? 'success' : row.state === 'PAUSED' ? 'warning' : 'error'}
           variant='tonal'
         />
       )
     }
-
-    // {
-    //   key: 'deliveryReasons',
-    //   label: 'Delivery Reasons',
-    //   render: (row: any) => (
-    //     <ul>
-    //       {row.deliveryReasons.map((reason: string, index: number) => (
-    //         <li key={index}>{reason}</li>
-    //       ))}
-    //     </ul>
-    //   )
-    // },
-    // { key: 'creationDateTime', label: 'Created At', render: (row: any) => convertToDateOnly(row.creationDateTime) },
-    // {
-    //   key: 'lastUpdatedDateTime',
-    //   label: 'Last Updated',
-    //   render: (row: any) => convertToDateOnly(row.lastUpdatedDateTime)
-    // }
   ]
   const { data: ProductData, isLoading } = useFetchData(
     ['products', session?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
@@ -118,16 +99,9 @@ const ProductTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
       </Button>
     </div>
   )
-  if (isLoading) {
-    return (
-      <div className=' '>
-        <TableSkeleton />
-      </div>
-    )
-  }
+
   return (
     <>
-      {/* <div className='flex relative justify-center flex-col items-center bs-full bg-backgroundPaper !min-is-full  md:!min-is-[unset] md:is-[800px] md:rounded'> */}
       <div className=' w-full '>
         <SadowlessTable
           headers={headers}
@@ -139,17 +113,15 @@ const ProductTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
           page={page}
           setPage={setPage}
           resultsPerPage={resultsPerPage}
-          isPagination={false}
+          isPagination={isLoading}
           setResultsPerPage={setResultsPerPage}
-          loading={false}
+          loading={isLoading}
           setLoading={() => {}}
           actionElements={actionElements}
           dropdownVisible={dropdownVisible}
           setDropdownVisible={setDropdownVisible}
         />
       </div>
-
-      {/* </div> */}
     </>
   )
 }

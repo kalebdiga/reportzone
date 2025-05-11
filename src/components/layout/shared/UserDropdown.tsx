@@ -26,9 +26,9 @@ import { useSettings } from '@core/hooks/useSettings'
 import { doLogout } from '@/utils/actions'
 import { useSession } from 'next-auth/react'
 import { useUserStore } from '@/lib/store/userProfileStore'
-import ModalComponent from './ModalComponent'
 import UpdateProfile from '@/views/profile/UpdateProfile'
 import UpdatePassword from '@/views/profile/UpdatePassword'
+import DialogComponent from './DialogsSizes'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({
@@ -129,7 +129,7 @@ const UserDropdown = () => {
                     <Typography color='text.primary'>Update Profile</Typography>
                   </MenuItem>
                   <MenuItem className='mli-2 gap-3' onClick={() => setOpenEmplyeePassword(true)}>
-                    <i className='tabler:lock-password' />
+                    <i className='tabler-lock-password' />
                     <Typography color='text.primary'>Change Password</Typography>
                   </MenuItem>
 
@@ -152,14 +152,23 @@ const UserDropdown = () => {
           </Fade>
         )}
       </Popper>
-      <ModalComponent open={OpenEmplyeeProfile} handleClose={() => setOpenEmplyeeProfile(false)} data={user}>
+      <DialogComponent
+        open={OpenEmplyeeProfile}
+        handleClose={() => setOpenEmplyeeProfile(false)}
+        data={user}
+        title='Update Profile'
+      >
         {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
           <UpdateProfile handleClose={handleClose} data={data} />
         )}
-      </ModalComponent>
-      <ModalComponent open={OpenEmplyeePassword} handleClose={() => setOpenEmplyeePassword(false)}>
+      </DialogComponent>
+      <DialogComponent
+        open={OpenEmplyeePassword}
+        handleClose={() => setOpenEmplyeePassword(false)}
+        title='Update Password'
+      >
         {({ handleClose }: { data: any; handleClose?: () => void }) => <UpdatePassword handleClose={handleClose} />}
-      </ModalComponent>
+      </DialogComponent>
     </>
   )
 }

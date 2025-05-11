@@ -112,7 +112,6 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
           'Content-Type': 'application/json'
         },
         onSuccess: async data => {
-          toast.success('Login successful')
           const callbackUrl =
             typeof window !== 'undefined'
               ? `${window.location.origin}/add-management/addprofile`
@@ -128,7 +127,10 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
           })
 
           if (res?.ok) {
-            setTimeout(() => router.push('/add-management/addprofile'), 200)
+            toast.success('Login successful')
+
+            router.push('/add-management/addprofile')
+            toast.dismiss()
             console.log(res, 'res')
           } else {
             console.log('error')

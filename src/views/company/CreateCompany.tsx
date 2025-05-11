@@ -44,6 +44,7 @@ const CreateCompany = ({ id, handleClose }: { id: any; handleClose?: () => void 
         },
         invalidateKey: ['companyData'],
         onSuccess: data => {
+          toast.dismiss()
           toast.success('Company created successfully')
           resetForm()
           handleClose?.()
@@ -61,20 +62,7 @@ const CreateCompany = ({ id, handleClose }: { id: any; handleClose?: () => void 
       <div className='p-1'>
         <div className='flex justify-center max-md:h-[70svh] max-md:overflow-y-auto bg-backgroundPaper md:is-[400px]'>
           <div className='relative flex justify-center items-center bs-full bg-backgroundPaper !min-is-full p-6 md:!min-is-[unset] md:p-12 md:is-[400px] md:rounded-md'>
-            {/* Close Icon */}
-            {handleClose && (
-              <div className='absolute top-2 right-2'>
-                <IconButton onClick={handleClose} aria-label='Close'>
-                  <X size={20} />
-                </IconButton>
-              </div>
-            )}
-
             <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-11 sm:mbs-14 md:mbs-0'>
-              <div className='flex flex-col gap-1'>
-                <Typography variant='h4'>Create Company</Typography>
-                <Typography>Fill in the details below to create a new Company</Typography>
-              </div>
               <Formik
                 initialValues={{
                   name: ''

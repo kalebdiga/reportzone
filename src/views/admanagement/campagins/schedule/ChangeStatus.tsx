@@ -3,31 +3,37 @@ import { Switch } from '@mui/material'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 
-const ChangeEployeeStatus = ({ row }: any) => {
-  const [status, setStatus] = useState(row?.user?.accountStatus !== 'suspended')
+const ChangeStatus = ({ row }: any) => {
+  const [status, setStatus] = useState<boolean>(row?.active)
   const patchMutation = useDynamicMutation({ type: 'Json' })
-
+  console.log(row, 'row')
   const handleUpdate = (id: string) => {
     if (!id) return
 
     setStatus(prevStatus => !prevStatus)
 
     patchMutation.mutate({
-      url: `/users/${id}`,
-      method: 'PATCH',
+      url: `/schedules/${id}`,
+      method: 'PUT',
       body: {
-        fname: null,
-        lname: null,
-        email: null,
-        account_status: status ? 'suspended' : 'active'
+        id: row?.id,
+        day: row?.day,
+        hour: row?.hour,
+        minute: row?.minute,
+        active: status,
+        campaignId: row?.campaignId,
+        budget: row?.budget,
+        state: row?.state,
+        createdAt: row?.createdAt,
+        updatedAt: row?.updatedAt,
+        isAm: row?.hour < 12
       },
-      invalidateKey: ['employeeData', 'CompanyEmployees'],
+      invalidateKey: ['updateScedule'],
       onSuccess: data => {
         toast.dismiss()
         toast.success('Status updated successfully')
       },
       onError: error => {
-        toast.dismiss()
         console.error('Error updating status:', error)
         setStatus(prevStatus => !prevStatus)
       }
@@ -36,9 +42,9 @@ const ChangeEployeeStatus = ({ row }: any) => {
 
   return (
     <div>
-      <Switch checked={status} onChange={() => handleUpdate(row?.user?.id)} color='primary' />
+      <Switch checked={status} onChange={() => handleUpdate(row?.id)} color='primary' />
     </div>
   )
 }
 
-export default ChangeEployeeStatus
+export default ChangeStatus

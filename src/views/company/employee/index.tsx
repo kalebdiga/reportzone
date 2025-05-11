@@ -8,7 +8,6 @@ import { useFetchData } from '@/apihandeler/useFetchData'
 import { useSession } from 'next-auth/react'
 import { convertToDateOnly } from '@/utils/dateConverter'
 import TableSkeleton from '@/utils/TableSkleton'
-import ModalComponent from '@/components/layout/shared/ModalComponent'
 import UpdateEmployeeProfile from './UpdateEmployeeProfile'
 import UpdateEmployeePassword from './UpdateEmployeePassword'
 import { type UserData } from '@/typs/user.type'
@@ -17,6 +16,7 @@ import ChangeEployeeStatus from '../../employees/ChangeEployeeStatus'
 import Link from 'next/link'
 import copy from 'copy-to-clipboard'
 import { toast } from 'sonner'
+import DialogComponent from '@/components/layout/shared/DialogsSizes'
 
 const handleCopy = (text: string) => {
   copy(text)
@@ -27,7 +27,7 @@ const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?:
   const id = data?.id
   console.log(data)
   const [page, setPage] = useState(1)
-  const [resultsPerPage, setResultsPerPage] = useState(5)
+  const [resultsPerPage, setResultsPerPage] = useState(10)
   const [sortKey, setSortKey] = useState('date')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
@@ -160,7 +160,7 @@ const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?:
     </div>
   )
 
-  if (isLoading) return <TableSkeleton />
+  // if (isLoading) return <TableSkeleton />
 
   return (
     <>
@@ -195,14 +195,14 @@ const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?:
         setPage={setPage}
         resultsPerPage={resultsPerPage}
         setResultsPerPage={setResultsPerPage}
-        loading={false}
+        loading={isLoading}
         setLoading={() => {}}
         actionElements={actionElements}
         dropdownVisible={dropdownVisible}
         setDropdownVisible={setDropdownVisible}
       />
 
-      <ModalComponent
+      <DialogComponent
         open={OpenEmplyeeProfile}
         handleClose={() => setOpenEmplyeeProfile(false)}
         data={singleEmployeeData}
@@ -210,9 +210,9 @@ const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?:
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <UpdateEmployeeProfile data={data} handleClose={handleClose} />
         )}
-      </ModalComponent>
+      </DialogComponent>
 
-      <ModalComponent
+      <DialogComponent
         open={OpenEmplyeePassword}
         handleClose={() => setOpenEmplyeePassword(false)}
         data={singleEmployeeData}
@@ -220,13 +220,13 @@ const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?:
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <UpdateEmployeePassword data={data} handleClose={handleClose} />
         )}
-      </ModalComponent>
+      </DialogComponent>
 
-      <ModalComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)} data={id}>
+      <DialogComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)} data={id}>
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <CreateEmployee handleClose={handleClose} id={data} />
         )}
-      </ModalComponent>
+      </DialogComponent>
     </>
   )
 }

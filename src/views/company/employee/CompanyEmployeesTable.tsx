@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 
-import { Button, IconButton, Switch, Typography } from '@mui/material'
+import { Button, IconButton, ListItemIcon, ListItemText, Switch, Typography } from '@mui/material'
 import { ArrowLeft, Check, Copy, LockKeyhole, Pencil, Plus, X } from 'lucide-react'
 import Table from '@/components/layout/shared/table/Table'
 import { useUserStore } from '@/lib/store/userProfileStore'
@@ -10,7 +10,6 @@ import { useSession } from 'next-auth/react'
 import { date } from 'yup'
 import { convertToDateOnly } from '@/utils/dateConverter'
 import TableSkeleton from '@/utils/TableSkleton'
-import ModalComponent from '@/components/layout/shared/ModalComponent'
 import UpdateEmployeeProfile from './UpdateEmployeeProfile'
 import UpdateEmployeePassword from './UpdateEmployeePassword'
 import { type UserData } from '@/typs/user.type'
@@ -20,6 +19,8 @@ import Link from 'next/link'
 import copy from 'copy-to-clipboard'
 import { toast } from 'sonner'
 import SadowlessTable from '@/components/layout/shared/table/SadowlessTable'
+import DialogComponent from '@/components/layout/shared/DialogsSizes'
+import { MenuItem } from '@/components/Menu'
 
 const handleCopy = (text: string) => {
   copy(text)
@@ -32,7 +33,7 @@ const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?:
 
   console.log(id, 'from employee table')
   const [page, setPage] = useState(1)
-  const [resultsPerPage, setResultsPerPage] = useState(5)
+  const [resultsPerPage, setResultsPerPage] = useState(10)
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
   const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
   const [OpenEmplyeePassword, setOpenEmplyeePassword] = useState(false)
@@ -106,34 +107,27 @@ const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?:
     setOpenEmplyeeProfile(true)
   }
   const actionElements = (row: any) => (
-    <div className=' flex flex-col gap-2 p-[1%] z-[999]'>
-      <Button variant='outlined' onClick={() => handleActionClick(row)}>
-        <div className='flex items-center gap-2 '>
-          <Pencil className='size-[1rem]' />
-          <span> Edit</span>
-        </div>
-      </Button>
-      <Button
-        variant='tonal'
-        color='warning'
+    <div>
+      <MenuItem onClick={() => handleActionClick(row)}>
+        <ListItemIcon>
+          <i className='tabler-pencil text-xl' />
+        </ListItemIcon>
+        <ListItemText primary='Edit' />
+      </MenuItem>
+
+      <MenuItem
         onClick={() => {
           setOpenEmplyeePassword(true), setSingleEmployeeData(row)
         }}
       >
-        <div className='flex items-center gap-2 '>
-          <LockKeyhole className='size-[1rem]' />
-          <span>Change Password</span>
-        </div>
-      </Button>
+        <ListItemIcon>
+          <i className='tabler-key text-xl' />
+        </ListItemIcon>
+        <ListItemText primary='Change Password' />
+      </MenuItem>
     </div>
   )
-  if (isLoading) {
-    return (
-      <div className=' is-[800px]'>
-        <TableSkeleton />
-      </div>
-    )
-  }
+
   return (
     <>
       <SadowlessTable
@@ -153,42 +147,52 @@ const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?:
             <span className=' max-md:hidden'>Add New</span>
           </Button>
         }
-        tableTitle={`${Company?.name}/Employees`}
+        tableTitle={``}
         number={EmployeeData?.meta?.totalRecords}
         page={page}
         setPage={setPage}
         resultsPerPage={resultsPerPage}
         setResultsPerPage={setResultsPerPage}
-        loading={false}
+        loading={isLoading}
         setLoading={() => {}}
         actionElements={actionElements}
         dropdownVisible={dropdownVisible}
         setDropdownVisible={setDropdownVisible}
       />
 
-      <ModalComponent
+      <DialogComponent
         open={OpenEmplyeeProfile}
         handleClose={() => setOpenEmplyeeProfile(false)}
         data={singleEmployeeData}
+        title='Update Employee Profile
+'
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <UpdateEmployeeProfile data={data} handleClose={handleClose} />
         )}
-      </ModalComponent>
-      <ModalComponent
+      </DialogComponent>
+      <DialogComponent
         open={OpenEmplyeePassword}
         handleClose={() => setOpenEmplyeePassword(false)}
         data={singleEmployeeData}
+        title='Change Password
+'
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <UpdateEmployeePassword data={data} handleClose={handleClose} />
         )}
-      </ModalComponent>
-      <ModalComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)} data={id}>
+      </DialogComponent>
+      <DialogComponent
+        open={openCreateEployee}
+        handleClose={() => setOpenCreateEployee(false)}
+        data={id}
+        title='Create Employee'
+        maxWidth='md'
+      >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <CreateEmployee handleClose={handleClose} id={data} />
         )}
-      </ModalComponent>
+      </DialogComponent>
     </>
   )
 }

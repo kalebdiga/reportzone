@@ -66,6 +66,7 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
           },
 
           onSuccess: data => {
+            toast.dismiss()
             toast.success('Profile updated successfully')
             handleClose && handleClose()
           }
@@ -84,6 +85,7 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
           invalidateKey: ['employeeData'],
 
           onSuccess: data => {
+            toast.dismiss()
             toast.success('Role updated successfully')
             handleClose && handleClose()
           }
@@ -94,6 +96,7 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
       router.push('/employees')
     } catch (err) {
       console.error('Error updating profile or role:', err)
+      toast.dismiss()
       toast.error('Failed to update profile or role')
     }
   }
@@ -102,10 +105,6 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
     <div className='flex  justify-center '>
       <div className=' relative flex justify-center items-center bs-full bg-backgroundPaper !min-is-full p-1  md:!min-is-[unset] md:p-2 md:is-[480px] md:rounded-md'>
         <div className='flex flex-col gap-6 is-full  sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-0 sm:mbs-14 md:mbs-0 '>
-          <div className='flex flex-col gap-1'>
-            <Typography variant='h4'>Update Employee Profile</Typography>
-            <Typography>Update the employee&apos;s details below</Typography>
-          </div>
           <Formik
             initialValues={{
               fname: data?.user?.fname || '',

@@ -62,8 +62,9 @@ const CreateEmployee = ({ id, handleClose }: { id: any; handleClose?: () => void
           password: values.password,
           company_id: id
         },
-        invalidateKey: ['employeeData'],
+        invalidateKey: ['CompanyEmployees'],
         onSuccess: data => {
+          toast.dismiss()
           toast.success('Employee created successfully')
           resetForm()
           handleClose?.()
@@ -72,6 +73,7 @@ const CreateEmployee = ({ id, handleClose }: { id: any; handleClose?: () => void
       })
     } catch (err) {
       console.error('Error creating employee:', err)
+      toast.dismiss()
       toast.error('Failed to create employee')
     }
   }
@@ -82,10 +84,6 @@ const CreateEmployee = ({ id, handleClose }: { id: any; handleClose?: () => void
         {/* Close Icon */}
 
         <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-11 sm:mbs-14 md:mbs-0'>
-          <div className='flex flex-col gap-1'>
-            <Typography variant='h4'>Create Employee</Typography>
-            <Typography>Fill in the details below to create a new employee</Typography>
-          </div>
           <Formik
             initialValues={{
               fname: '',

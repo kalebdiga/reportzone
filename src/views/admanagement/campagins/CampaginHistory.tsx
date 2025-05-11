@@ -10,14 +10,15 @@ import { useSession } from 'next-auth/react'
 import { date } from 'yup'
 import { convertToDateOnly } from '@/utils/dateConverter'
 import TableSkeleton from '@/utils/TableSkleton'
-import ModalComponent from '@/components/layout/shared/ModalComponent'
 import { type UserData } from '@/typs/user.type'
 import Link from 'next/link'
 import copy from 'copy-to-clipboard'
 import { toast } from 'sonner'
+import SadowlessTable from '@/components/layout/shared/table/SadowlessTable'
 
 const handleCopy = (text: string) => {
   copy(text)
+
   toast.success('Email Copied to Clipboard')
 }
 
@@ -61,7 +62,7 @@ const CampaginHistory = ({ data, handleClose }: { data?: any; handleClose?: () =
   const id = data?.id
 
   const [page, setPage] = useState(1)
-  const [resultsPerPage, setResultsPerPage] = useState(5)
+  const [resultsPerPage, setResultsPerPage] = useState(10)
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
   const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
   const [OpenEmplyeePassword, setOpenEmplyeePassword] = useState(false)
@@ -107,7 +108,7 @@ const CampaginHistory = ({ data, handleClose }: { data?: any; handleClose?: () =
   return (
     <>
       <div className=' w-full '>
-        <Table
+        <SadowlessTable
           headers={headers}
           selectionId='user.id'
           csv={false}
@@ -118,7 +119,7 @@ const CampaginHistory = ({ data, handleClose }: { data?: any; handleClose?: () =
           setPage={setPage}
           resultsPerPage={resultsPerPage}
           setResultsPerPage={setResultsPerPage}
-          loading={false}
+          loading={isLoading}
           setLoading={() => {}}
           actionElements={actionElements}
           dropdownVisible={dropdownVisible}

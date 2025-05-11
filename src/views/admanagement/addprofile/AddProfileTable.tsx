@@ -12,7 +12,6 @@ import ChangeEployeeStatus from './ChangeEployeeStatus'
 import { date } from 'yup'
 import { convertToDateOnly } from '@/utils/dateConverter'
 import TableSkeleton from '@/utils/TableSkleton'
-import ModalComponent from '@/components/layout/shared/ModalComponent'
 import CampaginTable from '../campagins/CampaginTable'
 import UpdateEmployeePassword from './UpdateEmployeePassword'
 import { type UserData } from '@/typs/user.type'
@@ -21,11 +20,12 @@ import { Form, Formik } from 'formik'
 import FormikTextField from '@/lib/form/FormikInput'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 const AddProfileTable = () => {
   //state
   const [page, setPage] = useState(1)
-  const [resultsPerPage, setResultsPerPage] = useState(5)
+  const [resultsPerPage, setResultsPerPage] = useState(10)
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
   const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
   const [OpenEmplyeePassword, setOpenEmplyeePassword] = useState(false)
@@ -51,18 +51,30 @@ const AddProfileTable = () => {
         >
           <div className=' flex items-center gap-3'>
             {' '}
-            {/* <US title='United States' className='...' /> */}
-            {/* <img
-              className=' size-[32px]'
-              alt='United States'
-              src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${row?.countryCode}.svg`}
-            /> */}
             <h1 className=' font-[500] text-[1rem]'> {row?.accountName}</h1>
           </div>
         </div>
       )
     },
-    { key: 'countryCode', label: 'Country Code' },
+
+    {
+      key: 'countryCode',
+      label: 'Country Code',
+      render: (row: any) => (
+        <div>
+          <div className=' flex items-center gap-3'>
+            {' '}
+            <Image
+              src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${row?.countryCode}.svg`}
+              alt='flag'
+              width={16}
+              height={16}
+            />
+            <span> {row?.countryCode}</span>
+          </div>
+        </div>
+      )
+    },
 
     {
       key: 'totalCampaigns',
@@ -73,7 +85,7 @@ const AddProfileTable = () => {
             router.push(`campagines?profileId=${row?.id}`)
           }}
         >
-          <span className={`${row?.totalCampaigns > 0 ? ' text-blue-600' : 'text-blue-600'}`}>
+          <span className={` cursor-pointer ${row?.totalCampaigns > 0 ? ' text-blue-600' : 'text-blue-600'}`}>
             {' '}
             {row?.totalCampaigns}
           </span>
@@ -92,20 +104,7 @@ const AddProfileTable = () => {
       )
     },
 
-    // { key: 'accountType', label: 'Account Type' },
-    // {
-    //   key: 'accountValidPaymentMethod',
-    //   label: 'Valid Payment Method',
-    //   render: (row: any) => (
-    //     <span style={{ color: row.accountValidPaymentMethod ? 'green' : 'red' }}>
-    //       {row.accountValidPaymentMethod ? 'Yes' : 'No'}
-    //     </span>
-    //   )
-    // },
     { key: 'createdAt', label: 'Created At', render: (row: any) => convertToDateOnly(row.createdAt) },
-
-    // { key: 'currencyCode', label: 'Currency Code' },
-    // { key: 'dailyBudget', label: 'Daily Budget' },
 
     { key: 'updatedAt', label: 'Updated At', render: (row: any) => convertToDateOnly(row.updatedAt) }
   ]
@@ -113,41 +112,16 @@ const AddProfileTable = () => {
   const { data: addProfileData, isLoading } = useFetchData(
     ['addProfileData', data?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
     `/advertising/profiles`
-
-    // data?.data?.user?.accessToken ? { Authorization: `Bearer ${data?.data?.user?.accessToken}` } : {}
   )
 
   console.log(addProfileData, 'adddddddd')
 
-  // const { data: addProfileData, isLoading } = useFetchData(
-  //   ['addProfileData', data?.data?.user?.accessToken, companyUsers[0]?.companyId],
-  //   `/users?company_id=${companyUsers[0]?.companyId}`,
-  //   data?.data?.user?.accessToken ? { Authorization: `Bearer ${data?.data?.user?.accessToken}` } : {}
-  // )
   const transformedData = (addProfileData?.users || [])?.map((item: any) => ({
     ...item,
     name: item.user.fname + ' ' + item.user.lname,
     role: item.user.globalRole ? 'Super Admin' : item.companyUsers[0]?.role,
     date: convertToDateOnly(item.user.createdAt)
   }))
-
-  // // Filter, sort, and paginate data
-  // const transformedData = (addProfileData?.users || [])
-  //   .sort((a: any, b: any) => {
-  //     // Custom sorting logic: prioritize 'active' over 'suspended'
-  //     const statusOrder = { active: 1, suspended: 2 }
-  //     return (
-  //       (statusOrder[a.user.accountStatus as keyof typeof statusOrder] || 5) -
-  //       (statusOrder[b.user.accountStatus as keyof typeof statusOrder] || 5)
-  //     )
-  //   })
-  //   .map((item: any) => ({
-  //     ...item,
-  //     name: item.user.fname + ' ' + item.user.lname,
-  //     role: item.user.globalRole ? 'Super Admin' : '',
-  //     date: convertToDateOnly(item.user.createdAt)
-  //   }))
-  //   .slice((page - 1) * resultsPerPage, page * resultsPerPage) // Paginate data
   const handleActionClick = (row: any) => {
     setSingleaddProfileData(row)
     setOpenEmplyeeProfile(true)
@@ -174,9 +148,7 @@ const AddProfileTable = () => {
       </Button>
     </div>
   )
-  if (isLoading) {
-    return <TableSkeleton />
-  }
+
   return (
     <>
       <Table
@@ -186,23 +158,18 @@ const AddProfileTable = () => {
         data={addProfileData?.profiles}
         action={false}
         addNew={
-          <Button
-            variant='contained'
-            onClick={() => {
-              setOpenCreateEployee(true)
-            }}
-          >
+          <Button variant='contained'>
             <Link className=' size-4' />
             <span className=' max-md:hidden'>Link Profile</span>
           </Button>
         }
-        tableTitle={<SearchProfile />}
+        tableTitle={''}
         number={addProfileData?.meta?.totalRecords}
         page={page}
         setPage={setPage}
         resultsPerPage={resultsPerPage}
         setResultsPerPage={setResultsPerPage}
-        loading={false}
+        loading={isLoading}
         setLoading={() => {}}
         dropdownVisible={dropdownVisible}
         setDropdownVisible={setDropdownVisible}
@@ -222,18 +189,7 @@ const AddProfileTable = () => {
           </div>
         )}
       </DialogComponent>
-      {/* <ModalComponent
-        open={OpenEmplyeeProfile}
-        handleClose={() => setOpenEmplyeeProfile(false)}
-        data={singleaddProfileData}
-      >
-        {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
-          <div className=' max-w-[800px]'>
-            <CampaginTable data={data} handleClose={handleClose} />
-          </div>
-        )}
-      </ModalComponent> */}
-      <ModalComponent
+      <DialogComponent
         open={OpenEmplyeePassword}
         handleClose={() => setOpenEmplyeePassword(false)}
         data={singleaddProfileData}
@@ -241,10 +197,10 @@ const AddProfileTable = () => {
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <UpdateEmployeePassword data={data} handleClose={handleClose} />
         )}
-      </ModalComponent>
-      <ModalComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)}>
+      </DialogComponent>
+      <DialogComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)}>
         {({ handleClose }) => <CreateEmployee handleClose={handleClose} />}
-      </ModalComponent>
+      </DialogComponent>
     </>
   )
 }

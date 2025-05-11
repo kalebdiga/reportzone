@@ -15,12 +15,40 @@ import {
   TableHead,
   TableRow,
   Button,
-  Card
+  Card,
+  Skeleton
 } from '@mui/material'
 import CSV from '@/utils/CSV'
 import { string } from 'yup'
 import { getValueByPath } from '@/utils/tebleCellSelectionHandeler'
 import Nodatafound from '@/components/NoDtata'
+import type { MouseEvent } from 'react'
+
+// MUI Imports
+import { styled } from '@mui/material/styles'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import MuiMenu from '@mui/material/Menu'
+import MuiMenuItem from '@mui/material/MenuItem'
+import type { MenuProps } from '@mui/material/Menu'
+import type { MenuItemProps } from '@mui/material/MenuItem'
+
+// Styled Menu component
+const Menu = styled(MuiMenu)<MenuProps>({
+  '& .MuiMenu-paper': {
+    border: '1px solid var(--mui-palette-divider)'
+  }
+})
+
+// Styled MenuItem component
+const MenuItems = styled(MuiMenuItem)<MenuItemProps>({
+  '&:focus': {
+    backgroundColor: 'var(--mui-palette-primary-main)',
+    '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+      color: 'var(--mui-palette-common-white)'
+    }
+  }
+})
 
 interface Header {
   key: string
@@ -91,12 +119,10 @@ const Table: React.FC<CustomTableProps> = ({
 }) => {
   // const { openModal, Modal, filteredData, setFilterFields } = UseFilterModal();
 
-  console.log('object', data)
   const [selectedRows, setSelectedRows] = useState<any[]>([])
   const [csvData, setcsvData] = useState<any[]>([])
 
   const [selectAll, setSelectAll] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement | null>(null)
   const [sortConfig, setSortConfig] = useState<{
     key: string
     direction: string
@@ -118,34 +144,17 @@ const Table: React.FC<CustomTableProps> = ({
     setPage(value)
   }
 
-  const getDropdownPosition = (rowIndex: number) => {
-    const rowElement = document.getElementById(`row-${rowIndex}`)
-    if (!rowElement) return { top: '0px' }
+  // Update the state to include row data
+  const [anchorEl, setAnchorEl] = useState<{ element: HTMLElement | null; row: any } | null>(null)
 
-    const rowRect = rowElement.getBoundingClientRect()
-    const windowHeight = window.innerHeight
-    const dropdownHeight = 120
-
-    let top = rowRect.bottom + 5
-    if (top + dropdownHeight > windowHeight) {
-      top = rowRect.top - dropdownHeight - 5
-    }
-
-    return { top: `${top}px` }
+  const handleClick = (event: MouseEvent<HTMLElement>, row: any) => {
+    setAnchorEl({ element: event.currentTarget, row })
   }
 
-  const handleClickOutside = (event: MouseEvent) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-      setDropdownVisible(null)
-    }
+  const handleClose = () => {
+    setAnchorEl(null)
   }
 
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
   const handleSelectAll = () => {
     const newSelectAll = !selectAll
     setSelectAll(newSelectAll)
@@ -156,9 +165,7 @@ const Table: React.FC<CustomTableProps> = ({
       setSelectedRows([])
     }
   }
-  const handleActionsClick = (index: number) => {
-    setDropdownVisible((prevIndex: any) => (prevIndex === index ? null : index))
-  }
+
   const handleRowSelect = (row: any) => {
     const isSelected = selectedRows.some(
       selectedRow => getValueByPath(selectedRow, selectionId) === getValueByPath(row, selectionId)
@@ -231,9 +238,9 @@ const Table: React.FC<CustomTableProps> = ({
       <Card className=' '>
         <div className='w-[100%] pl-[1%] flex justify-between items-center bg-transparent  py-[1%] pr-[1%] '>
           <div className='w-[80%] flex gap-[1em] '>
-            <h1 className=' font-[500] text-[1.15rem] leading-[28px] text-[#434f68]'>{tableTitle}</h1>
+            <div className=' font-[500] text-[1.15rem] leading-[28px] w-full text-[#434f68]'>{tableTitle}</div>
           </div>
-          <div className='md:w-[40%] flex justify-end w-full items-center gap-[1em]'>
+          <div className='md:w-[20%] flex justify-end w-full items-center gap-[1em]'>
             {filter && (
               <div className='flex gap-[1em]'>
                 <Button
@@ -257,46 +264,58 @@ const Table: React.FC<CustomTableProps> = ({
           </div>
         </div>
         <div className='table-container w-full  overflow-x-auto  bg-white'>
-          {sortedRows()?.length === 0 ? (
+          {/* {sortedRows()?.length === 0 && !loading ? (
             <Nodatafound />
-          ) : (
-            <Box component={Paper} sx={{ overflowX: 'auto' }}>
-              {sortedRows()?.length === 0 ? (
-                <div>Nodatafound</div>
-              ) : (
-                <MuiTable className=' font-[500]'>
-                  <TableHead>
-                    <TableRow>
-                      {csv ||
-                        (isSlectedDataRequired && (
-                          <TableCell padding='checkbox'>
-                            <Checkbox
-                              checked={selectAll}
-                              onChange={handleSelectAll}
-                              indeterminate={selectedRows.length > 0 && selectedRows.length < data.length}
-                              color='primary'
-                            />
-                          </TableCell>
-                        ))}
+          ) : ( */}
+          <Box component={Paper} sx={{ overflowX: 'auto' }}>
+            {sortedRows()?.length === 0 && loading === false ? (
+              <Nodatafound />
+            ) : (
+              <MuiTable className=' font-[500] w-full'>
+                <TableHead className=' w-full'>
+                  <TableRow>
+                    {(csv || isSlectedDataRequired) && (
+                      <TableCell padding='checkbox'>
+                        <Checkbox
+                          checked={selectAll}
+                          onChange={handleSelectAll}
+                          indeterminate={selectedRows.length > 0 && selectedRows.length < data.length}
+                          color='primary'
+                        />
+                      </TableCell>
+                    )}
 
-                      {headers.map(header => (
-                        <TableCell
-                          key={header.key}
-                          onClick={() => handleSort(header.key)}
-                          sx={{ cursor: 'pointer', fontWeight: 600 }}
-                        >
-                          {header.label}
-                          {sortConfig?.key === header.key && (sortConfig.direction === 'ascending' ? ' ↑' : ' ↓')}
-                        </TableCell>
-                      ))}
-                      {action && <TableCell>Actions</TableCell>}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {sortedRows()?.map((row, index) => (
-                      <TableRow key={row.id} hover>
-                        {csv ||
-                          (isSlectedDataRequired && (
+                    {headers.map(header => (
+                      <TableCell
+                        key={header.key}
+                        onClick={() => handleSort(header.key)}
+                        sx={{ cursor: 'pointer', fontWeight: 600 }}
+                      >
+                        {header.label}
+                        {sortConfig?.key === header.key && (sortConfig.direction === 'ascending' ? ' ↑' : ' ↓')}
+                      </TableCell>
+                    ))}
+                    {action && <TableCell>Actions</TableCell>}
+                  </TableRow>
+                </TableHead>
+                <TableBody className='w-full'>
+                  {loading ? (
+                    [...Array(7)].map((_, rowIndex) => (
+                      <TableRow key={rowIndex}>
+                        {[...Array(headers.length + (csv || isSlectedDataRequired ? 1 : 0) + (action ? 1 : 0))].map(
+                          (_, colIndex) => (
+                            <TableCell key={colIndex}>
+                              <Skeleton variant='text' />
+                            </TableCell>
+                          )
+                        )}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <>
+                      {sortedRows()?.map((row, index) => (
+                        <TableRow key={index} hover>
+                          {(csv || isSlectedDataRequired) && (
                             <TableCell padding='checkbox'>
                               <Checkbox
                                 checked={selectedRows.some(selected => {
@@ -305,111 +324,125 @@ const Table: React.FC<CustomTableProps> = ({
                                 onChange={() => handleRowSelect(row)}
                               />
                             </TableCell>
-                          ))}
-                        {headers.map(header => (
-                          <TableCell
-                            key={header.key}
-                            sx={{
-                              fontWeight: getValueByKey(row, header.key) === 'Total' ? 600 : 'normal'
-                            }}
-                          >
-                            {header.render ? header.render(row) : (getValueByKey(row, header.key) ?? '-')}
-                          </TableCell>
-                        ))}
-                        {action && (
-                          <TableCell align='center' sx={{ position: 'relative' }}>
-                            <button
-                              className=' bg-transparent cursor-pointer active:bg-slate-400 active:size-6 active:rounded-[50%]'
-                              onClick={() => handleActionsClick(index)}
+                          )}
+                          {headers.map(header => (
+                            <TableCell
+                              key={header.key}
+                              sx={{
+                                fontWeight: getValueByKey(row, header.key) === 'Total' ? 600 : 'normal'
+                              }}
                             >
-                              <EllipsisVertical />
-                            </button>
-                            {dropdownVisible === index && actionElements instanceof Function && (
-                              <Box
-                                ref={dropdownRef}
-                                sx={{
-                                  position: 'absolute',
-                                  right: 0,
-                                  top: getDropdownPosition(index).top,
-                                  zIndex: 999,
-                                  bgcolor: 'white',
-                                  boxShadow: 3,
-                                  borderRadius: 1,
-                                  minWidth: 150
-                                }}
+                              {header.render ? header.render(row) : (getValueByKey(row, header.key) ?? '-')}
+                            </TableCell>
+                          ))}
+                          {action && (
+                            <TableCell align='center' sx={{ position: 'relative' }}>
+                              <button
+                                className='bg-transparent cursor-pointer active:bg-slate-400 active:size-6 active:rounded-[50%]'
+                                aria-haspopup='true'
+                                onClick={event => handleClick(event, row)} // Pass the row data here
+                                aria-controls='customized-menu'
                               >
-                                {actionElements(row)}
-                              </Box>
-                            )}
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    ))}
-                    {displayTotal && (
-                      <TableRow>
-                        {dataForTotal?.map((row: any, idx: number) => (
-                          <TableCell key={idx} sx={{ fontWeight: 600 }}>
-                            {row.toLocaleString()}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    )}
+                                <EllipsisVertical />
+                              </button>
 
-                    <TableRow>
-                      <TableCell colSpan={100}>
-                        {sortedRows()?.length === 0 ? (
-                          ''
-                        ) : (
-                          <>
-                            <div className='w-full justify-center flex mx-auto'>
-                              <Stack spacing={2} className='mt-4 mb-10'>
-                                <Pagination
-                                  count={totalPages}
-                                  page={page}
-                                  onChange={handlePageChange}
-                                  variant='outlined'
-                                  shape='rounded'
-                                  color='primary'
-                                />
-                              </Stack>
-                            </div>
-                            <div className='flex justify-between items-center p-4 w-[100%]'>
-                              {' '}
-                              <div>
-                                <label htmlFor='resultsPerPage' className='mr-2'>
-                                  {startItem}-{endItem} of {totalItems}
-                                </label>
-                              </div>
-                              <div>
-                                <label htmlFor='resultsPerPage' className='mr-2'>
-                                  Results per page:
-                                </label>
-                                <Select
-                                  value={resultsPerPage}
-                                  onChange={handleChangeResultsPerPage}
-                                  displayEmpty
-                                  inputProps={{ 'aria-label': 'Results per page' }}
+                              {actionElements instanceof Function && (
+                                <Menu
+                                  keepMounted
+                                  elevation={0}
+                                  anchorEl={anchorEl?.element}
+                                  id='customized-menu'
+                                  onClose={handleClose}
+                                  open={Boolean(anchorEl?.element)}
+                                  anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'left'
+                                  }}
+                                  transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left'
+                                  }}
                                   sx={{
-                                    height: '40px'
+                                    transform: 'translateX(-55px)' // Move the menu 10px to the left
                                   }}
                                 >
-                                  {[5, 10, 15, 20, 25, 50, 100].map(count => (
-                                    <MenuItem key={count} value={count}>
-                                      {count}
-                                    </MenuItem>
-                                  ))}
-                                </Select>
+                                  {anchorEl?.row && actionElements(anchorEl.row)}
+                                </Menu>
+                              )}
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      ))}
+                      {displayTotal && (
+                        <TableRow>
+                          {dataForTotal?.map((row: any, idx: number) => (
+                            <TableCell key={idx} sx={{ fontWeight: 600 }}>
+                              {row.toLocaleString()}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      )}
+
+                      {/* {isPagination && ( */}
+                      <TableRow>
+                        <TableCell colSpan={100}>
+                          {sortedRows()?.length === 0 ? (
+                            ''
+                          ) : (
+                            <>
+                              <div className='w-full justify-around flex mx-auto  items-center'>
+                                <div>
+                                  <label htmlFor='resultsPerPage' className='mr-2'>
+                                    {startItem}-{endItem} of {totalItems}
+                                  </label>
+                                </div>
+                                <div className=' flex items-center gap-[0.7rem]'>
+                                  {' '}
+                                  <div>
+                                    <Select
+                                      value={resultsPerPage}
+                                      onChange={handleChangeResultsPerPage}
+                                      displayEmpty
+                                      inputProps={{ 'aria-label': 'Results per page' }}
+                                      sx={{
+                                        height: '40px'
+                                      }}
+                                    >
+                                      {[5, 10, 15, 20, 25, 50, 100].map(count => (
+                                        <MenuItem key={count} value={count}>
+                                          {count}
+                                        </MenuItem>
+                                      ))}
+                                    </Select>
+                                  </div>
+                                  <Stack spacing={2} className=''>
+                                    <div className=''>
+                                      <Pagination
+                                        count={totalPages}
+                                        page={page}
+                                        onChange={handlePageChange}
+                                        variant='outlined'
+                                        shape='rounded'
+                                        color='primary'
+                                        showFirstButton
+                                        showLastButton
+                                      />
+                                    </div>
+                                  </Stack>
+                                </div>
                               </div>
-                            </div>
-                          </>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </MuiTable>
-              )}
-            </Box>
-          )}
+                            </>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      {/* )} */}
+                    </>
+                  )}
+                </TableBody>
+              </MuiTable>
+            )}
+          </Box>
+          {/* )} */}
         </div>
       </Card>
     </>

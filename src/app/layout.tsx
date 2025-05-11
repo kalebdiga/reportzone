@@ -44,7 +44,7 @@ const RootLayout = async (props: ChildrenType) => {
         <Providers direction={direction}>
           <InitColorSchemeScript attribute='data' defaultMode={systemMode} />
           <Toaster position='top-right' visibleToasts={1} />
-          <ToastContainer position='bottom-right' limit={1} newestOnTop />
+          <ToastContainer position='bottom-right' limit={1} newestOnTop autoClose={3000} />
           <AppProvider session={session}>{children}</AppProvider>
 
           <Customizer dir={direction} />
