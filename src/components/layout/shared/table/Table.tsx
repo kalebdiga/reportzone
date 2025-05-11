@@ -240,7 +240,7 @@ const Table: React.FC<CustomTableProps> = ({
           <div className='w-[80%] flex gap-[1em] '>
             <div className=' font-[500] text-[1.15rem] leading-[28px] w-full text-[#434f68]'>{tableTitle}</div>
           </div>
-          <div className='md:w-[20%] flex justify-end w-full items-center gap-[1em]'>
+          <div className='md:w-[40%] flex justify-end w-full items-center gap-[1em]'>
             {filter && (
               <div className='flex gap-[1em]'>
                 <Button
