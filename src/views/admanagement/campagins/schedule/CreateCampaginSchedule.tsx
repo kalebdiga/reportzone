@@ -154,7 +154,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
         {schedules.map((item, index) => (
           <>
             <div key={index} className='schedule-row items-center flex flex-wrap gap-4'>
-              <div className=' w-[20%]'>
+              <div className=' w-[20%] mt-[2%]'>
                 <CustomTextField
                   select
                   fullWidth
@@ -176,7 +176,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                 </CustomTextField>
               </div>
 
-              <div className=' flex gap-2 w-[20%]'>
+              <div className=' flex gap-2 w-[20%] mt-[2%]'>
                 <CustomTextField
                   select
                   fullWidth
