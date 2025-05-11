@@ -34,7 +34,7 @@ const EmployeesTable = () => {
   const data = useSession()
 
   const headers = [
-    { key: 'name', label: 'First Name' },
+    { key: 'name', label: 'Name' },
     { key: 'user.email', label: 'Email' },
     { key: 'user.emailVerified', label: 'Verified', render: (row: any) => <VerifiedRenderHandeler row={row} /> },
     { key: 'role', label: 'Role' },
@@ -114,9 +114,31 @@ Employees'
         setResultsPerPage={setResultsPerPage}
         loading={isLoading}
         setLoading={() => {}}
-        actionElements={actionElements}
         dropdownVisible={dropdownVisible}
         setDropdownVisible={setDropdownVisible}
+        actionElementsNotDrop={row => {
+          return (
+            <>
+              <MenuItem
+                onClick={() => {
+                  setOpenEmplyeePassword(true), setSingleEmployeeData(row)
+                }}
+                className=' bg-gray-200'
+              >
+                <ListItemIcon>
+                  <i className='tabler-lock-password text-xl' />
+                </ListItemIcon>
+                {/* <ListItemText primary='Change Password' /> */}
+              </MenuItem>
+
+              <MenuItem className=' bg-gray-200' onClick={() => handleActionClick(row)}>
+                <ListItemIcon>
+                  <i className='tabler-pencil text-xl' />
+                </ListItemIcon>
+              </MenuItem>
+            </>
+          )
+        }}
       />
       <DialogComponent
         open={OpenEmplyeeProfile}

@@ -31,7 +31,7 @@ const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?:
 
   //state
 
-  console.log(id, 'from employee table')
+  console.log(data, 'from employee table')
   const [page, setPage] = useState(1)
   const [resultsPerPage, setResultsPerPage] = useState(10)
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
@@ -46,7 +46,7 @@ const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?:
   const session = useSession()
 
   const headers = [
-    { key: 'name', label: 'First Name' },
+    { key: 'name', label: 'Name' },
     {
       key: 'user.email',
       label: 'Email',
@@ -155,9 +155,31 @@ const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?:
         setResultsPerPage={setResultsPerPage}
         loading={isLoading}
         setLoading={() => {}}
-        actionElements={actionElements}
         dropdownVisible={dropdownVisible}
         setDropdownVisible={setDropdownVisible}
+        actionElementsNotDrop={row => {
+          return (
+            <>
+              <MenuItem
+                onClick={() => {
+                  setOpenEmplyeePassword(true), setSingleEmployeeData(row)
+                }}
+                className=' bg-gray-200'
+              >
+                <ListItemIcon>
+                  <i className='tabler-lock-password text-xl' />
+                </ListItemIcon>
+                {/* <ListItemText primary='Change Password' /> */}
+              </MenuItem>
+
+              <MenuItem className=' bg-gray-200' onClick={() => handleActionClick(row)}>
+                <ListItemIcon>
+                  <i className='tabler-pencil text-xl' />
+                </ListItemIcon>
+              </MenuItem>
+            </>
+          )
+        }}
       />
 
       <DialogComponent

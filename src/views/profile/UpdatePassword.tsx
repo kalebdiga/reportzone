@@ -48,7 +48,7 @@ const UpdatePassword = ({ handleClose }: { handleClose?: () => void }) => {
         body: {
           password: values.password
         },
-        invalidateKey: ['employeeData'],
+        invalidateKey: [['employeeData']],
 
         onSuccess: data => {
           toast.dismiss()

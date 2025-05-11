@@ -147,18 +147,13 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
       : `/advertising/stats/campaigns?page=${page}&page_size=${resultsPerPage}${profileId ? `&profile_id=${profileId}` : ''}${state ? `&state=${state}` : ''}`
   )
 
-  // Use combinedData for both search results and default campaign data
   const tableData = searchInput ? combinedData?.campaigns : combinedData?.campaigns
   const totalRecords = searchInput ? combinedData?.meta?.totalRecords : combinedData?.meta?.totalRecords
 
   const { data: addProfileData, isLoading: ProfileDataLoading } = useFetchData(
     ['addProfileData'],
     `/advertising/profiles`
-
-    // data?.data?.user?.accessToken ? { Authorization: `Bearer ${data?.data?.user?.accessToken}` } : {}
   )
-
-  console.log(addProfileData)
 
   const actionElements = (row: any) => (
     <div>
@@ -205,7 +200,7 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
     <>
       {/* <div className='flex relative justify-center flex-col items-center bs-full bg-backgroundPaper !min-is-full  md:!min-is-[unset] md:is-[800px] md:rounded'> */}
       <div className='flex w-full items-center gap-[1rem] my-[1%]'>
-        <div className='w-[10%]'>
+        <div className='w-[30%]'>
           <CustomTextField
             select
             fullWidth
@@ -216,19 +211,25 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
             onChange={e => {
               setProfileId(e.target.value)
             }}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position='end'>
+                    <i className='tabler-x cursor-pointer' onClick={() => setProfileId('')} />
+                  </InputAdornment>
+                )
+              }
+            }}
           >
             {addProfileData?.profiles?.map((item: any, index: number) => (
               <MenuItem key={index} value={item?.id} className='text-gray-950'>
                 {item?.countryCode}/{item?.accountName}{' '}
-                <span onClick={() => setProfileId('')}>
-                  <X className=' size-4' />
-                </span>
               </MenuItem>
             ))}
           </CustomTextField>
         </div>
 
-        <div className='w-[10%]'>
+        <div className='w-[30%]'>
           <CustomTextField
             select
             fullWidth
@@ -240,7 +241,7 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
               setState(e.target.value)
             }}
           >
-            {['ENABLED', 'PAUSED', 'ARCHIVED']?.map((item: any, index: number) => (
+            {['', 'ENABLED', 'PAUSED', 'ARCHIVED']?.map((item: any, index: number) => (
               <MenuItem key={index} value={item} className='text-gray-950'>
                 {item}
               </MenuItem>
@@ -253,9 +254,9 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
           headers={headers}
           selectionId='id'
           csv={false}
-          data={tableData} // Dynamically use combinedData
+          data={tableData}
           action={true}
-          number={totalRecords} // Dynamically use total records from combinedData
+          number={totalRecords}
           page={page}
           setPage={setPage}
           resultsPerPage={resultsPerPage}

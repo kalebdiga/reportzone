@@ -42,7 +42,7 @@ const CreateCompany = ({ id, handleClose }: { id: any; handleClose?: () => void 
         body: {
           name: values.name
         },
-        invalidateKey: ['companyData'],
+        invalidateKey: [['companyData']],
         onSuccess: data => {
           toast.dismiss()
           toast.success('Company created successfully')

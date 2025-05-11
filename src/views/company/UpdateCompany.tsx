@@ -50,7 +50,7 @@ const UpdateCompany = ({ data, handleClose }: { data: any; handleClose?: () => v
             companyId: data?.id,
             status: null
           },
-          invalidateKey: ['companyData'],
+          invalidateKey: [['companyData']],
 
           onSuccess: data => {
             toast.dismiss()

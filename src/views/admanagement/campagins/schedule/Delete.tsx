@@ -20,7 +20,10 @@ export default function Delete({ id }: any) {
 
         onSuccess: data => {
           toast.dismiss()
+
           toast.success('Delete successfully!')
+          toast.dismiss()
+          setOpen(false)
         }
       })
     } catch (err) {
@@ -43,7 +46,7 @@ export default function Delete({ id }: any) {
         <ListItemIcon>
           <i className='tabler-trash text-xl text-red-900' />
         </ListItemIcon>
-        <ListItemText primary='Delete' className='text-red-900' />
+        {/* <ListItemText primary='Delete' className='text-red-900' /> */}
       </MenuItem>
 
       <DialogComponent

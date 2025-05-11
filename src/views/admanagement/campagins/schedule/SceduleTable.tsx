@@ -157,9 +157,27 @@ const SceduleTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
         setResultsPerPage={setResultsPerPage}
         loading={isLoading}
         setLoading={() => {}}
-        actionElements={actionElements}
         dropdownVisible={dropdownVisible}
         setDropdownVisible={setDropdownVisible}
+        actionElementsNotDrop={row => {
+          return (
+            <>
+              <Delete id={row} />
+
+              <MenuItem
+                onClick={() => {
+                  //  setOpenCampaginHistory(true)
+                  setOpenUpdateScedule(true)
+                  setSingleData(row)
+                }}
+              >
+                <ListItemIcon>
+                  <i className='tabler-pencil text-xl' />
+                </ListItemIcon>
+              </MenuItem>
+            </>
+          )
+        }}
       />
 
       <DialogComponent
@@ -170,7 +188,9 @@ const SceduleTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
         maxWidth='md'
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
-          <CreateCampaginSchedule data={[data]} handleClose={handleClose} />
+          <>
+            <CreateCampaginSchedule data={[data]} handleClose={handleClose} />
+          </>
         )}
       </DialogComponent>
 

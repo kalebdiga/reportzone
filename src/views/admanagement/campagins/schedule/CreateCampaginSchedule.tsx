@@ -12,7 +12,7 @@ import { toast } from 'react-toastify'
 import { convertNewYorkHourToUtc } from '@/utils/dateConverter'
 
 import CustomTextField from '@/@core/components/mui/TextField'
-import { Checkbox, MenuItem } from '@mui/material'
+import { Checkbox, Chip, MenuItem } from '@mui/material'
 
 import FormControlLabel from '@mui/material/FormControlLabel'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
@@ -116,18 +116,25 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
 
   return (
     <>
-      <div className='flex justify-between items-center my-[3%] pl-[8%]  w-full'>
+      <div className='flex justify-between items-center w-full'>
         <div className='w-[60%]'>
           {SceduleData && (
             <>
               <div className='w-full flex items-center gap-3'>
-                <Typography variant='h6'>Name: {SceduleData?.campaignName}</Typography>
+                <Typography variant='h5'>Name: {SceduleData?.campaignName}</Typography>
               </div>
               <div className='w-full flex items-center gap-3'>
-                <Typography variant='h6'>Budget: {SceduleData?.campaignBudget}</Typography>
+                <Typography variant='h5'>Budget: {SceduleData?.campaignBudget}</Typography>
               </div>
               <div className='w-full flex items-center gap-3'>
-                <Typography variant='h6'>Status: {SceduleData?.campaignState}</Typography>
+                <Typography variant='h5'>
+                  Status:{' '}
+                  <Chip
+                    label={SceduleData.campaignState}
+                    color={SceduleData.campaignState === 'ENABLED' ? 'success' : 'warning'}
+                    variant='tonal'
+                  />
+                </Typography>
               </div>
             </>
           )}
@@ -143,11 +150,11 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
           )}
         </div>
       </div>
-      <div className='flex flex-col gap-6   justify-start pl-[8%] w-full'>
+      <div className='flex flex-col gap-6   justify-start  w-full'>
         {schedules.map((item, index) => (
           <>
             <div key={index} className='schedule-row items-center flex flex-wrap gap-4'>
-              <div>
+              <div className=' w-[20%]'>
                 <CustomTextField
                   select
                   fullWidth
@@ -169,14 +176,14 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                 </CustomTextField>
               </div>
 
-              <div className=' flex gap-2'>
+              <div className=' flex gap-2 w-[20%]'>
                 <CustomTextField
                   select
                   fullWidth
                   defaultValue=''
                   label='Time'
                   id='custom-select'
-                  value={item.hour && item.minute !== null ? `${item.hour}:${item.minute}` : ''}
+                  value={item.hour !== null && item.minute !== null ? `${item.hour}:${item.minute}` : ''}
                   onChange={e => {
                     const [hour, minute] = e.target.value.split(':').map(Number)
                     const newItems = [...schedules]
@@ -206,7 +213,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                   </Button>
                 </div>
               </div>
-              <div className=' flex flex-col'>
+              <div className='flex flex-col justify-start w-[20%]'>
                 <FormControlLabel
                   label='Budget'
                   control={
@@ -215,8 +222,8 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                       onChange={() => {
                         const newItems = [...schedules]
                         newItems[index].budgetChange = !newItems[index].budgetChange
-                        if (newItems[index].budgetChange) {
-                          newItems[index].stateChange = true
+                        if (!newItems[index].budgetChange && !newItems[index].stateChange) {
+                          newItems[index].stateChange = true // Automatically uncheck State
                         }
                         setSchedules(newItems)
                       }}
@@ -233,9 +240,10 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                     newItems[index].budget = parseFloat(e.target.value)
                     setSchedules(newItems)
                   }}
+                  className='w-[100%]'
                 />
               </div>
-              <div className=' flex flex-col'>
+              <div className='flex flex-col w-[20%]'>
                 <FormControlLabel
                   label='State'
                   control={
@@ -244,7 +252,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                       onChange={() => {
                         const newItems = [...schedules]
                         newItems[index].stateChange = !newItems[index].stateChange
-                        if (newItems[index].stateChange) {
+                        if (!newItems[index].stateChange && !newItems[index].budgetChange) {
                           newItems[index].budgetChange = true
                         }
                         setSchedules(newItems)
@@ -252,7 +260,6 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                     />
                   }
                 />
-
                 <CustomTextField
                   select
                   fullWidth
@@ -269,7 +276,6 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                   <MenuItem value=''>
                     <em>None</em>
                   </MenuItem>
-
                   {states.map(state => (
                     <MenuItem key={state} value={state}>
                       {state}
@@ -284,9 +290,15 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
             </div>
           </>
         ))}
-        <div className='flex gap-4 w-full justify-end items-end'>
-          <Button variant='outlined' onClick={addScheduleRow}>
+
+        <div className=' w-full border-t-2 pt-[1%]'>
+          <Button variant='outlined' onClick={addScheduleRow} disabled={!validateSchedules()}>
             Add Row
+          </Button>
+        </div>
+        <div className='flex gap-4 w-full justify-end items-end'>
+          <Button variant='outlined' onClick={handleClose}>
+            Close
           </Button>
           <Button variant='contained' onClick={handleSubmit} disabled={!validateSchedules()}>
             Submit

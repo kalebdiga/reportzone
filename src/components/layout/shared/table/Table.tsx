@@ -82,6 +82,7 @@ interface CustomTableProps {
   loading: boolean
   setLoading: React.Dispatch<React.SetStateAction<boolean>>
   actionElements?: (row: any) => React.ReactNode
+  actionElementsNotDrop?: (row: any) => React.ReactNode
   dropdownVisible: number | null
   setDropdownVisible: any
   displayTotal?: boolean
@@ -108,6 +109,7 @@ const Table: React.FC<CustomTableProps> = ({
   loading,
   setLoading,
   actionElements,
+  actionElementsNotDrop,
   dropdownVisible,
   setDropdownVisible,
   displayTotal = true,
@@ -335,16 +337,22 @@ const Table: React.FC<CustomTableProps> = ({
                               {header.render ? header.render(row) : (getValueByKey(row, header.key) ?? '-')}
                             </TableCell>
                           ))}
-                          {action && (
-                            <TableCell align='center' sx={{ position: 'relative' }}>
-                              <button
-                                className='bg-transparent cursor-pointer active:bg-slate-400 active:size-6 active:rounded-[50%]'
-                                aria-haspopup='true'
-                                onClick={event => handleClick(event, row)} // Pass the row data here
-                                aria-controls='customized-menu'
-                              >
-                                <EllipsisVertical />
-                              </button>
+                          {(action || actionElementsNotDrop) && (
+                            <TableCell align='left' sx={{ position: 'relative' }} className=' flex '>
+                              <div className='  flex justify-start '>
+                                {actionElementsNotDrop instanceof Function && actionElementsNotDrop(row)}
+
+                                {actionElements instanceof Function && (
+                                  <button
+                                    className='bg-transparent cursor-pointer  active:bg-slate-400 active:size-6 active:rounded-[50%]'
+                                    aria-haspopup='true'
+                                    onClick={event => handleClick(event, row)} // Pass the row data here
+                                    aria-controls='customized-menu'
+                                  >
+                                    <EllipsisVertical />
+                                  </button>
+                                )}
+                              </div>
 
                               {actionElements instanceof Function && (
                                 <Menu

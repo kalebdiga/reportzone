@@ -64,6 +64,8 @@ const CreateEmployee = ({ handleClose }: { handleClose?: () => void }) => {
           password: values.password,
           company_id: companyId
         },
+        invalidateKey: [['employeeData']],
+
         onSuccess: data => {
           toast.dismiss()
           toast.success('Employee created successfully')

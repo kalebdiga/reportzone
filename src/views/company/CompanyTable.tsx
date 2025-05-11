@@ -2,13 +2,12 @@
 import React, { useState } from 'react'
 
 import { Button, ListItemIcon, ListItemText } from '@mui/material'
-import { Pencil, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import Table from '@/components/layout/shared/table/Table'
 import { useFetchData } from '@/apihandeler/useFetchData'
 import { useSession } from 'next-auth/react'
 import ChangeStatus from './ChangeStatus'
 import { convertToDateOnly } from '@/utils/dateConverter'
-import TableSkeleton from '@/utils/TableSkleton'
 
 import { type UserData } from '@/typs/user.type'
 
@@ -104,9 +103,19 @@ const CompanyTable = () => {
         setResultsPerPage={setResultsPerPage}
         loading={isLoading}
         setLoading={() => {}}
-        actionElements={actionElements}
         dropdownVisible={dropdownVisible}
         setDropdownVisible={setDropdownVisible}
+        actionElementsNotDrop={row => {
+          return (
+            <>
+              <MenuItem onClick={() => handleActionClick(row)}>
+                <ListItemIcon>
+                  <i className='tabler-pencil text-xl' />
+                </ListItemIcon>
+              </MenuItem>
+            </>
+          )
+        }}
       />
       <DialogComponent
         open={OpenEmplyeeProfile}

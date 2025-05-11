@@ -53,7 +53,7 @@ const UpdateProfile = ({ data, handleClose }: { data: any; handleClose?: () => v
             lname: values.lname,
             email: values.email
           },
-          invalidateKey: ['profile'],
+          invalidateKey: [['profile']],
           onSuccess: data => {
             toast.dismiss()
             toast.success('Profile updated successfully')

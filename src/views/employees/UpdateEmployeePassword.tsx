@@ -52,7 +52,7 @@ const UpdateEmployeePassword = ({ data, handleClose }: { data: UserData; handleC
           companyId: companyId,
           userId: data?.user?.id
         },
-        invalidateKey: ['employeeData'],
+        invalidateKey: [['employeeData']],
 
         onSuccess: data => {
           toast.dismiss()

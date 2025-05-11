@@ -21,7 +21,7 @@ const ChangeEployeeStatus = ({ row }: any) => {
         email: null,
         account_status: status ? 'suspended' : 'active'
       },
-      invalidateKey: ['employeeData', 'CompanyEmployees'],
+      invalidateKey: [['employeeData'], ['CompanyEmployees']],
       onSuccess: data => {
         toast.dismiss()
         toast.success('Status updated successfully')

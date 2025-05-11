@@ -64,7 +64,7 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
             email: values.email,
             account_status: values.account_status
           },
-          invalidateKey: ['CompanyEmployees'],
+          invalidateKey: [['CompanyEmployees']],
           onSuccess: data => {
             toast.dismiss()
             toast.success('Profile updated successfully')
