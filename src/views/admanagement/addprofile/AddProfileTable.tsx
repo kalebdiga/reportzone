@@ -43,12 +43,7 @@ const AddProfileTable = () => {
       key: 'accountName',
       label: 'Account Name',
       render: (row: any) => (
-        <div
-          onClick={() => {
-            setOpenEmplyeeProfile(true)
-            setSingleaddProfileData(row)
-          }}
-        >
+        <div>
           <div className=' flex items-center gap-3'>
             {' '}
             <h1 className=' font-[500] text-[1rem]'> {row?.accountName}</h1>
