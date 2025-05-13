@@ -30,12 +30,15 @@ const handleCopy = (text: string) => {
 const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => void }) => {
   console.log(data, 'data of add profile')
   const searchParams = useSearchParams()
+  const { user, companyUsers: fromeStore } = useUserStore()
 
   const id = searchParams.get('profileId')
+  const companyId = searchParams.get('companyId')
   console.log(id, 'from employee table')
   const [page, setPage] = useState(1)
   const [profileId, setProfileId] = useState(id)
   const [state, setState] = useState('')
+  const [company_id, setCompany_id] = useState(companyId)
 
   const [resultsPerPage, setResultsPerPage] = useState(10)
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
@@ -144,7 +147,7 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
     ],
     searchInput
       ? `/advertising/search/campaigns?${profileId ? `profile_id=${profileId}&` : ''}search=${searchInput}`
-      : `/advertising/stats/campaigns?page=${page}&page_size=${resultsPerPage}${profileId ? `&profile_id=${profileId}` : ''}${state ? `&state=${state}` : ''}`
+      : `/advertising/stats/campaigns?${user?.globalRole ? `company_id=${company_id ? `${company_id}` : ''}` : ''}${profileId ? `&profile_id=${profileId}` : ''}&page=${page}&page_size=${resultsPerPage}${state ? `&state=${state}` : ''}`
   )
 
   const tableData = searchInput ? combinedData?.campaigns : combinedData?.campaigns
@@ -195,7 +198,7 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
   }
 
   const handelSearch = debounce(onChange, 500)
-
+  console.log(addProfileData?.profiles)
   return (
     <>
       {/* <div className='flex relative justify-center flex-col items-center bs-full bg-backgroundPaper !min-is-full  md:!min-is-[unset] md:is-[800px] md:rounded'> */}
@@ -209,7 +212,9 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
             id='custom-select'
             value={profileId}
             onChange={e => {
-              setProfileId(e.target.value)
+              const parsedValue = JSON.parse(e.target.value)
+              setProfileId(parsedValue?.pi)
+              setCompany_id(parsedValue?.ci)
             }}
             slotProps={{
               input: {
@@ -221,11 +226,19 @@ const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => 
               }
             }}
           >
-            {addProfileData?.profiles?.map((item: any, index: number) => (
-              <MenuItem key={index} value={item?.id} className='text-gray-950'>
-                {item?.countryCode}/{item?.accountName}{' '}
-              </MenuItem>
-            ))}
+            {addProfileData?.profiles?.length > 0 ? (
+              addProfileData.profiles.map((item: any, index: number) => (
+                <MenuItem
+                  key={index}
+                  value={JSON.stringify({ pi: item?.id, ci: item?.companyId })}
+                  className='text-gray-950'
+                >
+                  {item?.countryCode || 'Unknown Country'}/{item?.accountName || 'Unknown Account'}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>No Profiles Available</MenuItem>
+            )}
           </CustomTextField>
         </div>
 

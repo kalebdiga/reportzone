@@ -37,6 +37,7 @@ export const useFetchData = (
 
       return response.data
     },
+    staleTime: 0,
     placeholderData: previousData => previousData,
     refetchOnWindowFocus: false,
     retry: true,

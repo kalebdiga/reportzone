@@ -42,9 +42,6 @@ const DialogComponent: React.FC<DialogComponentProps> = ({
         </IconButton>
       </DialogTitle>
 
-      <IconButton aria-label='close' onClick={handleClose} style={{ position: 'absolute', right: 8, top: 8 }}>
-        <X size={20} />
-      </IconButton>
       <DialogContent className=' flex items-center justify-center flex-col'>
         {children({ data, handleClose })}
       </DialogContent>

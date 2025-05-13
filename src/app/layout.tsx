@@ -43,8 +43,8 @@ const RootLayout = async (props: ChildrenType) => {
       <body className='flex is-full min-bs-full flex-auto flex-col'>
         <Providers direction={direction}>
           <InitColorSchemeScript attribute='data' defaultMode={systemMode} />
-          <Toaster position='top-right' visibleToasts={1} />
-          <ToastContainer position='bottom-right' limit={1} newestOnTop autoClose={3000} />
+          {/* <Toaster position='top-right' visibleToasts={1} /> */}
+          {/* <ToastContainer position='bottom-right' limit={1} newestOnTop autoClose={3000} /> */}
           <AppProvider session={session}>{children}</AppProvider>
 
           <Customizer dir={direction} />

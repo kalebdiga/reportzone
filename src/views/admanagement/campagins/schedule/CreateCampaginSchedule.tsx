@@ -12,7 +12,7 @@ import { toast } from 'react-toastify'
 import { convertNewYorkHourToUtc } from '@/utils/dateConverter'
 
 import CustomTextField from '@/@core/components/mui/TextField'
-import { Checkbox, Chip, MenuItem } from '@mui/material'
+import { Checkbox, Chip, IconButton, MenuItem } from '@mui/material'
 
 import FormControlLabel from '@mui/material/FormControlLabel'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
@@ -20,6 +20,8 @@ import OverviewSchedule from './OverviewSchedule'
 import useDynamicMutation from '@/apihandeler/usePostData'
 import UpdateCampaginSchedule from './UpdateCampaginSchedule'
 import { UserData } from '@/typs/user.type'
+import OverView from './OverView'
+import { formatUSD } from '@/utils/usdFormat'
 
 const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
   const postMutation = useDynamicMutation({ type: 'Json' })
@@ -71,8 +73,8 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
   const handleSubmit = async () => {
     const scheduleCreationInputs = data?.flatMap((campaign: any) =>
       schedules.map(item => ({
-        campaignId: campaign.id || '',
-        companyId: campaign.companyId || '',
+        campaignId: campaign.original?.id || '',
+        companyId: campaign.original?.companyId || '',
         day: item.day || 0,
         hour: convertNewYorkHourToUtc(item.hour || 0, item.am) || 0,
         minute: item.minute || 0,
@@ -121,18 +123,19 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
           {SceduleData && (
             <>
               <div className='w-full flex items-center gap-3'>
-                <Typography variant='h5'>Name: {SceduleData?.campaignName}</Typography>
+                <Typography>Name: {SceduleData?.campaignName}</Typography>
               </div>
               <div className='w-full flex items-center gap-3'>
-                <Typography variant='h5'>Budget: {SceduleData?.campaignBudget}</Typography>
+                <Typography>Budget: {formatUSD(SceduleData?.campaignBudget)}</Typography>
               </div>
               <div className='w-full flex items-center gap-3'>
-                <Typography variant='h5'>
+                <Typography>
                   Status:{' '}
                   <Chip
                     label={SceduleData.campaignState}
                     color={SceduleData.campaignState === 'ENABLED' ? 'success' : 'warning'}
                     variant='tonal'
+                    size='small'
                   />
                 </Typography>
               </div>
@@ -201,7 +204,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                     </MenuItem>
                   ))}
                 </CustomTextField>
-                <div className='mt-[13%]'>
+                {/* <div className='mt-[13%]'>
                   <Button
                     onClick={() => {
                       const newItems = [...schedules]
@@ -211,7 +214,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                   >
                     {item.am ? 'AM' : 'PM'}
                   </Button>
-                </div>
+                </div> */}
               </div>
               <div className='flex flex-col justify-start w-[20%]'>
                 <FormControlLabel
@@ -292,8 +295,8 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
         ))}
 
         <div className=' w-full border-t-2 pt-[1%]'>
-          <Button variant='outlined' onClick={addScheduleRow} disabled={!validateSchedules()}>
-            Add Row
+          <Button size='small' variant='contained' onClick={addScheduleRow} disabled={!validateSchedules()}>
+            Add
           </Button>
         </div>
         <div className='flex gap-4 w-full justify-end items-end'>
@@ -310,11 +313,11 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
         open={openSceduleTable}
         handleClose={() => setOpenSceduleTable(false)}
         data={data}
-        maxWidth='xl'
+        maxWidth='sm'
         title='Scedule'
       >
         {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
-          <OverviewSchedule data={data} handleClose={handleClose} />
+          <OverView data={data} handleClose={handleClose} />
         )}
       </DialogComponent>
     </>

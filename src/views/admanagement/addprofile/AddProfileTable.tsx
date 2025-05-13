@@ -77,7 +77,7 @@ const AddProfileTable = () => {
       render: (row: any) => (
         <div
           onClick={() => {
-            router.push(`campagines?profileId=${row?.id}`)
+            router.push(`campagines?profileId=${row?.id}&companyId=${row?.companyId}`)
           }}
         >
           <span className={` cursor-pointer ${row?.totalCampaigns > 0 ? ' text-blue-600' : 'text-blue-600'}`}>

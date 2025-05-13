@@ -24,6 +24,7 @@ const ChangeEployeeStatus = ({ row }: any) => {
       onSuccess: data => {
         toast.dismiss()
         toast.success('Status updated successfully')
+        toast.dismiss()
       },
       onError: error => {
         console.error('Error updating status:', error)

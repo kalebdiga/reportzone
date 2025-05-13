@@ -44,12 +44,13 @@ const SceduleTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
 
   const [openUpdateScedule, setOpenUpdateScedule] = useState(false)
 
-  const [singleData, setSingleData] = useState()
-
-  //hooks
-
   const { companyUsers } = useUserStore()
   const session = useSession()
+  const [singleData, setSingleData] = useState()
+  const { data: SceduleData, isLoading } = useFetchData(
+    ['updateScedule', session?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
+    `/schedules?campaignId=${id}`
+  )
 
   const headers = [
     {
@@ -79,10 +80,7 @@ const SceduleTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
     { key: 'budget', label: 'Budget', render: (row: any) => (row.budget ? `$${row.budget}` : '-') },
     { key: 'active', label: 'Status', render: (row: any) => <ChangeStatus row={row} /> }
   ]
-  const { data: SceduleData, isLoading } = useFetchData(
-    ['updateScedule', session?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
-    `/schedules?campaignId=${id}`
-  )
+
   const handleActionClick = (row: any) => {
     setSingleSceduleData(row)
     setOpenEmplyeeProfile(true)

@@ -1,6 +1,6 @@
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
 import { MenuItem } from '@/components/Menu'
-import { Button, ListItemIcon, ListItemText } from '@mui/material'
+import { Button, IconButton, ListItemIcon, ListItemText } from '@mui/material'
 import { useState } from 'react'
 import OverviewSchedule from './OverviewSchedule'
 import useDynamicMutation from '@/apihandeler/usePostData'
@@ -34,20 +34,16 @@ export default function Delete({ id }: any) {
   }
   return (
     <div>
-      <MenuItem
+      <IconButton
         onClick={() => {
           setOpen(true)
         }}
-        className=' bg-red-300'
-        style={{
-          color: 'green'
-        }}
       >
         <ListItemIcon>
-          <i className='tabler-trash text-xl text-red-900' />
+          <i className='tabler-trash text-xl text-red-700 ' />
         </ListItemIcon>
         {/* <ListItemText primary='Delete' className='text-red-900' /> */}
-      </MenuItem>
+      </IconButton>
 
       <DialogComponent
         open={open}

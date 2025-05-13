@@ -4,6 +4,7 @@ import TabList from '@mui/lab/TabList'
 import Tab from '@mui/material/Tab'
 import React, { type SyntheticEvent, useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import CustomTabList from '@/@core/components/mui/TabList'
 
 export default function Tabs() {
   const router = useRouter()
@@ -31,10 +32,10 @@ export default function Tabs() {
   return (
     <>
       <TabContext value={value}>
-        <TabList variant='standard' onChange={handleChange} aria-label='full width tabs example'>
+        <CustomTabList pill='true' onChange={handleChange} aria-label='customized tabs example'>
           <Tab value='addprofile' label='All Profiles' />
           <Tab value='campagines' label='Detail Campagins' />
-        </TabList>
+        </CustomTabList>
       </TabContext>
     </>
   )

@@ -2,7 +2,14 @@
 import { auth } from '../auth'
 import { NextResponse } from 'next/server'
 
-const protectedRoutes = ['/add-management/addprofile']
+const protectedRoutes = [
+  '/add-management/addprofile',
+  '/companies',
+  '/add-management/campagines',
+  '/seller-accounts',
+  '/logs',
+  '/employees'
+]
 const publicRoutes = ['/login']
 
 export default auth(req => {
@@ -27,5 +34,12 @@ export default auth(req => {
 })
 
 export const config = {
-  matcher: ['/add-management/addprofile', '/login']
+  matcher: [
+    '/add-management/addprofile',
+    '/login',
+    '/companies',
+    '/add-management/campagines',
+    '/seller-accounts',
+    '/employees'
+  ]
 }
