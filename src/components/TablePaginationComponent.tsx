@@ -27,7 +27,7 @@ const TablePaginationComponent = ({
     <div className='flex justify-between w-full items-center flex-wrap pli-6 border-bs bs-auto plb-[12.5px] gap-2'>
       <Typography color='text.disabled'>{`Showing ${start} to ${end} of ${count} entries`}</Typography>
       <div className='flex w-[70%] items-center justify-end gap-1'>
-        <div className='size-[25%]'>
+        <div className='size-[25%] flex justify-end'>
           <CustomTextField
             select
             value={rowsPerPage}
@@ -42,7 +42,7 @@ const TablePaginationComponent = ({
             <MenuItem value={70}>70</MenuItem>
           </CustomTextField>
         </div>
-        <div className='w-[100%]'>
+        <div className='w-[100%] flex justify-end'>
           <Pagination
             shape='rounded'
             color='primary'

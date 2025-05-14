@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 // MUI Imports
 import Button from '@mui/material/Button'
@@ -22,6 +22,7 @@ import UpdateCampaginSchedule from './UpdateCampaginSchedule'
 import { UserData } from '@/typs/user.type'
 import OverView from './OverView'
 import { formatUSD } from '@/utils/usdFormat'
+import ValidationTable from './ValidationTable'
 
 const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
   const postMutation = useDynamicMutation({ type: 'Json' })
@@ -41,9 +42,9 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
         minute: 0,
         am: true,
         budget: null,
-        budgetNoChange: false,
+        budgetChange: true,
         state: '',
-        stateNoChange: false
+        stateChange: true
       }
     ])
   }
@@ -70,40 +71,105 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
     }
   }
 
+  const [givePermission, setGivePermission] = useState(false)
+  const [openConfirmation, setOpenConfirmation] = useState(false)
+  const [filteredInputs, setFilteredInputs] = useState<any[]>([])
+  const [unFilteredInputs, setUnFilteredInputs] = useState<any[]>([])
+
+  const submitSchedules = async (inputs: any[]) => {
+    try {
+      await postMutation.mutateAsync({
+        url: '/schedules',
+        method: 'POST',
+        body: inputs,
+        invalidateKey: [['capaignData'], ['updateScedule']]
+      })
+
+      toast.dismiss()
+      toast.success('Schedules submitted successfully!')
+      handleClose?.()
+    } catch (err) {
+      console.error('Error creating schedules:', err)
+      toast.dismiss()
+      toast.error('Failed to create schedules.')
+    }
+  }
+  const SceduleData = data?.length === 1 && data?.[0]
+
+  useEffect(() => {
+    if (givePermission && filteredInputs.length > 0) {
+      submitSchedules(filteredInputs)
+      setGivePermission(false)
+      setOpenConfirmation(false)
+      setFilteredInputs([])
+    }
+  }, [givePermission])
+
   const handleSubmit = async () => {
     const scheduleCreationInputs = data?.flatMap((campaign: any) =>
-      schedules.map(item => ({
-        campaignId: campaign.original?.id || '',
-        companyId: campaign.original?.companyId || '',
+      schedules.map((item, idx) => ({
+        campaignId: campaign.id || '',
+        companyId: campaign.companyId || '',
         day: item.day || 0,
         hour: convertNewYorkHourToUtc(item.hour || 0, item.am) || 0,
         minute: item.minute || 0,
         budget: item.budgetNoChange ? undefined : item.budget,
         campaignState: item.stateNoChange ? null : item.state?.toUpperCase() || null,
-        index: 0
+        index: idx,
+        name: campaign?.campaignName
       }))
     )
 
-    try {
-      postMutation.mutate({
-        url: '/schedules',
-        method: 'POST',
-        body: scheduleCreationInputs,
-        invalidateKey: [['capaignData'], ['updateScedule']],
-
-        onSuccess: data => {
-          toast.dismiss()
-          toast.success(' Schedules submitted successfully!')
-          handleClose?.()
+    const scheduleCreationInputsForMultipleCampagin = data?.flatMap((campaign: any, index: any) => {
+      return schedules.map((item, idx) => {
+        return {
+          campaignId: campaign?.original?.id || '',
+          companyId: campaign?.original?.companyId || '',
+          day: item.day || 0,
+          hour: convertNewYorkHourToUtc(item.hour || 0, item.am) || 0,
+          minute: item.minute || 0,
+          budget: item.budgetNoChange ? undefined : item.budget,
+          campaignState: item.stateNoChange ? null : item.state?.toUpperCase() || null,
+          index: index,
+          name: campaign?.original?.campaignName
         }
       })
+    })
+    console.log(scheduleCreationInputsForMultipleCampagin, 'scheduleCreationInputsForMultipleCampagin')
+
+    try {
+      const checkResponse = await postMutation.mutateAsync({
+        url: '/check/schedules',
+        method: 'POST',
+        body: SceduleData ? scheduleCreationInputs : scheduleCreationInputsForMultipleCampagin
+      })
+
+      if (!Array.isArray(checkResponse) || checkResponse.length === 0) {
+        await submitSchedules(SceduleData ? scheduleCreationInputs : scheduleCreationInputsForMultipleCampagin)
+      } else {
+        setUnFilteredInputs(SceduleData ? scheduleCreationInputs : scheduleCreationInputsForMultipleCampagin)
+        const conflictIndexes = checkResponse.map((conflict: any) => conflict.index)
+        const filtered = (SceduleData ? scheduleCreationInputs : scheduleCreationInputsForMultipleCampagin).filter(
+          (_: any, idx: any) => !conflictIndexes.includes(idx)
+        )
+
+        if (filtered.length === 0) {
+          toast.dismiss()
+          toast.error('All entries have conflicts. Nothing to submit.')
+          setOpenConfirmation(true)
+
+          return
+        }
+
+        setFilteredInputs(filtered)
+        setOpenConfirmation(true)
+      }
     } catch (err) {
-      console.error('Error creating :', err)
+      console.error('Error checking conflicts:', err)
       toast.dismiss()
-      toast.error('Failed to create ')
+      toast.error('Failed to check schedule conflicts.')
     }
   }
-  const SceduleData = data?.length === 1 && data?.[0]
 
   const validateSchedules = () => {
     return schedules.every(
@@ -156,7 +222,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
       <div className='flex flex-col gap-6   justify-start  w-full'>
         {schedules.map((item, index) => (
           <>
-            <div key={index} className='schedule-row items-center flex flex-wrap gap-4'>
+            <div key={index} className='schedule-row items-center flex gap-4'>
               <div className=' w-[20%] mt-[2%]'>
                 <CustomTextField
                   select
@@ -216,7 +282,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                   </Button>
                 </div> */}
               </div>
-              <div className='flex flex-col justify-start w-[20%]'>
+              <div className='flex flex-col justify-start w-[15%]'>
                 <FormControlLabel
                   label='Budget'
                   control={
@@ -286,9 +352,16 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                   ))}
                 </CustomTextField>
               </div>
-              <div>
-                <Button onClick={() => clearScheduleItem(index)}>Clear</Button>
-                {index > 0 && <Button onClick={() => deleteScheduleItem(index)}>Delete</Button>}
+              <div className=' mt-[4%]'>
+                <IconButton onClick={() => clearScheduleItem(index)} className=' text-blue-900'>
+                  <i className='tabler-x text-textSecondary' />
+                </IconButton>
+
+                {index > 0 && (
+                  <IconButton onClick={() => deleteScheduleItem(index)}>
+                    <i className='tabler-trash text-textSecondary' />
+                  </IconButton>
+                )}
               </div>
             </div>
           </>
@@ -320,6 +393,55 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
           <OverView data={data} handleClose={handleClose} />
         )}
       </DialogComponent>
+
+      <DialogComponent
+        open={openConfirmation}
+        handleClose={() => setOpenConfirmation(false)}
+        data={{
+          unfiltered: unFilteredInputs,
+          filtered: filteredInputs
+        }}
+        title='Duplicate schedule detected.'
+        maxWidth='sm'
+        actions={
+          <>
+            {filteredInputs.length !== 0 ? (
+              <>
+                <Button
+                  onClick={() => {
+                    setGivePermission(false)
+                  }}
+                  size='small'
+                  variant='contained'
+                  color='error'
+                >
+                  No
+                </Button>
+                <Button
+                  size='small'
+                  variant='contained'
+                  onClick={() => {
+                    setGivePermission(true)
+                  }}
+                >
+                  Yes
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={() => {
+                  setOpenConfirmation(false)
+                  setGivePermission(false)
+                }}
+              >
+                close
+              </Button>
+            )}
+          </>
+        }
+      >
+        {({ data, handleClose }: { data: any; handleClose?: () => void }) => <ValidationTable data={data} />}
+      </DialogComponent>
     </>
   )
 }
@@ -335,6 +457,7 @@ export const days = [
   { value: 4, title: 'Thursday' },
   { value: 5, title: 'Friday' },
   { value: 6, title: 'Saturday' },
+  { value: 0, title: 'Sunday' },
   { value: 7, title: 'Sunday' }
 ]
 

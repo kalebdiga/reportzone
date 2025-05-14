@@ -8,7 +8,7 @@ import { useUserStore } from '@/lib/store/userProfileStore'
 import { useFetchData } from '@/apihandeler/useFetchData'
 import { useSession } from 'next-auth/react'
 import { date } from 'yup'
-import { convertToDateOnly, formatDateToDayAndTime, formatDayTime } from '@/utils/dateConverter'
+import { convertToDateOnly, formatDateToDayAndTime, formatDayTime, formatDayTimeNewYork } from '@/utils/dateConverter'
 import TableSkeleton from '@/utils/TableSkleton'
 import { type UserData } from '@/typs/user.type'
 import Link from 'next/link'
@@ -56,7 +56,7 @@ const SceduleTable = ({ data, handleClose }: { data?: any; handleClose?: () => v
     {
       key: 'createdAt',
       label: 'Schedule',
-      render: (row: any) => formatDayTime(row)
+      render: (row: any) => formatDayTimeNewYork(row)
     },
     {
       key: 'state',

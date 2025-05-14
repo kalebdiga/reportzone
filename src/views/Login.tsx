@@ -43,6 +43,9 @@ import FormikTextField from '@/lib/form/FormikInput'
 //util Imports
 import { loginSchema } from '@/schema/authschema'
 import { useUserStore } from '@/lib/store/userProfileStore'
+import { ThreeDot } from 'react-loading-indicators'
+import ThreeDotLoader from '@/components/ThreeDotLoader'
+import { CircularProgress } from '@mui/material'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -71,6 +74,8 @@ const MaskImg = styled('img')({
 const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
+  const [loading, setloading] = useState(false)
+
   const { setUserData, setCompanyUsers } = useUserStore()
 
   // Vars
@@ -101,6 +106,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const postMutation = useDynamicMutation({ type: 'Json' })
   const onSubmit = async (values: { password: string; email: string }) => {
     try {
+      setloading(true)
       await postMutation.mutateAsync({
         url: '/auth/signin',
         method: 'POST',
@@ -128,7 +134,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
 
           if (res?.ok) {
             toast.success('Login successful')
-
+            setloading(false)
             router.push('/add-management/addprofile')
             toast.dismiss()
             console.log(res, 'res')
@@ -217,7 +223,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
                   </Typography>
                 </div>
                 <Button fullWidth variant='contained' type='submit'>
-                  Login
+                  {loading ? <CircularProgress size={23} className=' text-white' /> : 'Login'}
                 </Button>
                 <div className='flex justify-center items-center flex-wrap gap-2'>
                   <Typography>New on our platform?</Typography>

@@ -213,7 +213,7 @@ const CampaginTables = () => {
         header: ({ table }) => (
           <Checkbox
             {...{
-              checked: table.getIsAllRowsSelected(),
+              checked: table?.getIsAllRowsSelected(),
               indeterminate: table.getIsSomeRowsSelected(),
               onChange: table.getToggleAllRowsSelectedHandler()
             }}
@@ -315,21 +315,31 @@ const CampaginTables = () => {
         cell: ({ row }) => (
           <div className='flex items-center'>
             <IconButton>
-              <i className='tabler-edit text-textSecondary' />
+              <i className='tabler-report text-textSecondary' />
             </IconButton>
             <OptionMenu
               iconButtonProps={{ size: 'medium' }}
               iconClassName='text-textSecondary'
               options={[
-                { text: 'Download', icon: 'tabler-download' },
                 {
-                  text: 'Delete',
-                  icon: 'tabler-trash',
+                  text: 'Scedule',
+                  icon: 'tabler-calendar-plus',
+
                   menuItemProps: {
-                    onClick: () => setData(data.filter((item: { id: any }) => item.id !== row.original.id))
+                    onClick: () => {
+                      setSingleCampaginData(row.original)
+                      setOpenSceduleTable(true)
+                    }
                   }
                 },
-                { text: 'Duplicate', icon: 'tabler-copy' }
+                {
+                  text: 'Logs',
+                  icon: 'tabler-report'
+                },
+                {
+                  text: 'Edit',
+                  icon: 'tabler-edit'
+                }
               ]}
             />
           </div>

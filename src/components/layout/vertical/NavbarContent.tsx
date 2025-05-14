@@ -23,7 +23,7 @@ const NavbarContent = () => {
   return (
     <div className={classnames(verticalLayoutClasses.navbarContent, 'flex items-center justify-between gap-4 is-full')}>
       <h1 className=' text-[1rem] font-normal  hidden md:block'>
-        welcome {user?.fname} {user?.lname}/{Company?.name}
+        Welcome {user?.fname} {user?.lname}/{Company?.name}
       </h1>
       <div className='flex items-center justify-between gap-4 max-md:hidden'>
         <div className='flex items-center gap-4'>

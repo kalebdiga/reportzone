@@ -82,12 +82,16 @@ export function convertNewYorkHourToUtc(hour: number, isAm: boolean): number {
   return utcTime.hour
 }
 
-export const formatDayTime = (item: any): string => {
-  console.log('object', item)
+export const formatDayTime = (item: { hour: number; minute: number; day: number }): string => {
+  // Convert UTC time to New York time
+  const utcTime = DateTime.fromObject({ hour: item.hour, minute: item.minute }, { zone: 'UTC' })
+
+  const nyTime = utcTime.setZone('America/New_York')
+
   const dayName = days.find(day => day.value === item?.day)?.title || 'Everyday'
-  const ampm = item?.hour < 12 ? 'AM' : 'PM'
-  const minuteFormatted = item?.minute.toString().padStart(2, '0')
-  return `${dayName} at ${convertNewYorkHourToUtc(item.hour, item?.hour < 12 || false)}:${minuteFormatted} ${ampm}`
+  const formattedTime = nyTime.toFormat('h:mm a') // e.g. "8:30 AM"
+
+  return `${dayName} at ${formattedTime}`
 }
 
 export function convertUtcHourToNewYork(utcHour: number): number {
@@ -111,4 +115,76 @@ export function convertUtcHourToNewYork(utcHour: number): number {
   }
 
   return hour
+}
+
+//
+export const formatDayTimeNewYork = ({ day, hour, minute }: { day: number; hour: number; minute: number }): string => {
+  const dayName = days.find(d => d.value === day)?.title || 'Everyday'
+
+  // Use fixed date with UTC base
+  const utcTime = DateTime.utc(2023, 1, 1, hour, minute)
+
+  // Convert to New York
+  const nyTime = utcTime.setZone('America/New_York')
+
+  return `${dayName} at ${nyTime.toFormat('h:mm a')}` // e.g. "Monday at 1:30 AM"
+} // Optional: Extract the rounding logic to a helper
+const roundToNearestValidMinute = (minute: number): number => {
+  const validMinutes = [0, 15, 30, 45]
+  return validMinutes.reduce((prev, curr) => (Math.abs(curr - minute) < Math.abs(prev - minute) ? curr : prev))
+}
+
+export const convertNewYorkHourToUtcs = (hour: number, isAm: boolean) => {
+  // Create a DateTime object for New York time
+  const newYorkTime = DateTime.fromObject({ hour: hour, minute: 0 }, { zone: 'America/New_York' })
+
+  // If it's AM and hour is 12 (12:00 AM), adjust to 0 hour
+  const adjustedTime = isAm && hour === 12 ? newYorkTime.set({ hour: 0 }) : newYorkTime
+
+  // Convert the New York time to UTC
+  const utcTime = adjustedTime.toUTC()
+
+  // Return the hour in UTC
+  return utcTime.hour
+}
+
+export const convertNewYorkHourToUtcss = (hour: number, minute: number, isAm: boolean): string => {
+  // Adjust for 12 AM case (since 12 AM is 00 in 24-hour format)
+  if (isAm && hour === 12) {
+    hour = 0 // 12 AM is 00 in 24-hour format
+  }
+
+  // Create a DateTime object for New York time
+  const newYorkTime = DateTime.fromObject({ hour, minute }, { zone: 'America/New_York' })
+
+  // Convert the New York time to UTC
+  const utcTime = newYorkTime.toUTC()
+
+  // Return the formatted UTC time in HH:mm format
+  return utcTime.toFormat('HH:mm')
+}
+
+export const convertUtcToNssssewYorkHour = (hour: number, minute: number): string => {
+  // Create a UTC DateTime object
+  const utcTime = DateTime.fromObject({ hour, minute }, { zone: 'UTC' })
+
+  // Convert to New York time zone
+  const newYorkTime = utcTime.setZone('America/New_York')
+
+  // Return formatted time in 12-hour format with AM/PM
+  return newYorkTime.toFormat('hh:mm a')
+}
+
+export const getNearestValidTime = (hour: number, minute: number): string => {
+  const validMinutes = [0, 15, 30, 45]
+  const closestMinute = validMinutes.reduce((prev, curr) =>
+    Math.abs(curr - minute) < Math.abs(prev - minute) ? curr : prev
+  )
+
+  // Create UTC DateTime and convert to America/New_York
+  const utcTime = DateTime.fromObject({ hour, minute: closestMinute }, { zone: 'UTC' })
+  const nyTime = utcTime.setZone('America/New_York')
+
+  // Format as "H:mm" to match 0:30, 9:15, etc.
+  return nyTime.toFormat('H:mm')
 }

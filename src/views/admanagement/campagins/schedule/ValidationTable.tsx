@@ -151,32 +151,31 @@ const columnHelper = createColumnHelper<ProductWithActionsType>()
 
 // Update the column definitions and data mapping logic
 
-const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; handleClose?: () => void }) => {
-  const id = Campagindata?.id
-  console.log(typeof Campagindata, 'data of add profile')
+const ValidationTable = ({ data: SceduleList, handleClose }: { data: any; handleClose?: () => void }) => {
+  console.log('data', SceduleList)
 
-  console.log(id, 'from employee table')
-  const [page, setPage] = useState(1)
-  const [resultsPerPage, setResultsPerPage] = useState(10)
-  const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
-  const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
-  const [openCreateScedule, setOpenCreateScedule] = useState(false)
-  const [singleSceduleData, setSingleSceduleData] = useState<UserData>(null as any)
+  function mergeWithVerification(unfiltered: any[], filtered: any[]) {
+    const isMatch = (a: any, b: any) =>
+      a.campaignId === b.campaignId &&
+      a.companyId === b.companyId &&
+      a.day === b.day &&
+      a.hour === b.hour &&
+      a.minute === b.minute
 
-  const [openUpdateScedule, setOpenUpdateScedule] = useState(false)
+    return unfiltered.map(item => {
+      const verified = filtered.some(f => isMatch(f, item))
+      return {
+        ...item,
+        verified: verified ? 'Yes' : 'No'
+      }
+    })
+  }
 
-  const { companyUsers } = useUserStore()
-  const session = useSession()
-  const [singleData, setSingleData] = useState()
-  const { data: SceduleData, isLoading } = useFetchData(
-    ['updateScedule', session?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
-    `/schedules?campaignId=${id}`
-  )
+  const mergedData = useMemo(() => {
+    return mergeWithVerification(SceduleList.unfiltered, SceduleList.filtered)
+  }, [SceduleList])
 
-  // console.log('data', productData)
-  const [rowSelection, setRowSelection] = useState({})
-  const [data, setData] = useState(SceduleData || [])
-  const [globalFilter, setGlobalFilter] = useState('')
+  console.log(SceduleList, 'scedule list')
 
   // Update the column definitions and data mapping logic
 
@@ -186,78 +185,34 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
         header: 'Scedule',
         cell: ({ row }) => <Typography>{formatDayTime(row.original)}</Typography>
       }),
-      columnHelper.accessor('state', {
-        header: 'State',
+      columnHelper.accessor('verified', {
+        header: 'Verified',
         cell: ({ row }) => (
           <Chip
-            label={row.original.state ?? 'No change'}
-            color={
-              row.original.state === 'ENABLED' ? 'success' : row.original.state === 'PAUSED' ? 'warning' : 'primary'
-            }
+            label={row.original.verified === 'Yes' ? 'Valid' : 'Duplicated'}
+            color={row.original.verified === 'Yes' ? 'success' : 'error'}
             variant='tonal'
             size='small'
           />
         )
       }),
-      columnHelper.accessor('budget', {
-        header: 'Budget',
-        cell: ({ row }) => <Typography>${row.original.budget}</Typography>
-      }),
-
-      columnHelper.accessor('active', {
-        header: 'Status',
-        cell: ({ row }) => <ChangeStatus row={row.original} />
-      }),
-
-      columnHelper.accessor('updatedAt', {
-        header: 'Updated At',
-        cell: ({ row }) => <Typography>{convertToDateOnly(row.original.updatedAt)}</Typography>
-      }),
-      columnHelper.accessor('actions', {
-        header: 'Actions',
-        cell: ({ row }) => (
-          <div className='flex items-center'>
-            <Delete id={row.original} />
-
-            <IconButton
-              onClick={() => {
-                //  setOpenCampaginHistory(true)
-                setOpenUpdateScedule(true)
-                setSingleData(row.original)
-              }}
-            >
-              <i className='tabler-edit text-textSecondary' />
-            </IconButton>
-            <IconButton>
-              <i className='tabler-report text-textSecondary' />
-            </IconButton>
-          </div>
-        ),
-        enableSorting: false
+      columnHelper.accessor('name', {
+        header: 'Campagin Name',
+        cell: ({ row }) => <Typography>{row.original.name}</Typography>
       })
     ],
-    [data]
+    [mergedData]
   )
   const table = useReactTable({
-    data: data,
+    data: mergedData,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter
     },
-    state: {
-      rowSelection,
-      globalFilter
-    },
-    initialState: {
-      pagination: {
-        pageSize: resultsPerPage
-      }
-    },
+
     enableRowSelection: true,
     globalFilterFn: fuzzyFilter,
-    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -266,50 +221,13 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
     getFacetedMinMaxValues: getFacetedMinMaxValues()
   })
 
-  useEffect(() => {
-    if (SceduleData) {
-      setData(SceduleData)
-    }
-  }, [SceduleData])
-
   return (
     <>
       {/* <Card>
         <CardHeader title='Filters' /> */}
-      <div className=' w-[100%]'>
-        <div className=' w-[100%] max-md:w-[100%]'>
-          <div className=' w-full flex items-center gap-3'>
-            <p className=' text-[1.2rem] max-md:text-[0.7rem]'>Name: {Campagindata?.campaignName}</p>
-          </div>
-          <div className=' w-full flex items-center gap-3'>
-            <p className=' text-[1.2rem] max-md:text-[0.7rem]'>Budget: {Campagindata?.campaignBudget}</p>
-          </div>
-          <div className=' w-full flex items-center gap-3'>
-            <p className=' text-[1.2rem] max-md:text-[0.7rem]'>
-              Status:{' '}
-              <Chip
-                label={Campagindata.campaignState}
-                color={Campagindata.campaignState === 'ENABLED' ? 'success' : 'warning'}
-                variant='tonal'
-              />
-            </p>
-          </div>
-        </div>
-      </div>
+      <div className=' w-[100%]'></div>
       <div className=' w-full flex flex-wrap justify-end gap-4 p-6'>
-        <div className='flex flex-wrap items-center max-sm:flex-col gap-4 max-sm:is-full is-auto w-full justify-end'>
-          <Button
-            onClick={() => {
-              setOpenCreateScedule(true)
-              setSingleSceduleData(Campagindata)
-            }}
-            variant='contained'
-            className='max-sm:is-full is-auto'
-            startIcon={<i className='tabler-plus' />}
-          >
-            <span className=' max-md:hidden'>Add Scedule</span>
-          </Button>
-        </div>
+        <div className='flex flex-wrap items-center max-sm:flex-col gap-4 max-sm:is-full is-auto w-full justify-end'></div>
       </div>
       <div className='overflow-x-auto w-full'>
         <table className={tableStyles.table}>
@@ -338,19 +256,7 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
               </tr>
             ))}
           </thead>
-          {isLoading ? (
-            <tbody>
-              {[...Array(7)].map((_, rowIndex) => (
-                <tr key={rowIndex}>
-                  {[...Array(11)].map((_, colIndex) => (
-                    <td key={colIndex}>
-                      <Skeleton variant='text' />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          ) : table.getFilteredRowModel().rows?.length === 0 ? (
+          {table.getFilteredRowModel().rows?.length === 0 ? (
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
@@ -374,59 +280,18 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
           )}
         </table>
       </div>
-      <TablePagination
-        component={() => (
-          <TablePaginationComponent
-            count={SceduleData?.meta?.totalRecords || 0}
-            rowsPerPage={resultsPerPage}
-            page={page - 1}
-            onPageChange={(_, newPage) => {
-              setPage(newPage)
-            }}
-            onRowsPerPageChange={e => {
-              const newRowsPerPage = parseInt(e.target.value, 10)
-              setResultsPerPage(newRowsPerPage)
-              setPage(1)
-            }}
-            setResultsPerPage={setResultsPerPage}
-          />
+      <div className=' px-[4%]'>
+        {SceduleList?.filtered?.length !== 0 ? (
+          <Typography>
+            You&apos;re about to submit only the valid schedules. Are you sure you want to proceed?
+          </Typography>
+        ) : (
+          <Typography>Oops! Every entry has a conflict. Please adjust your schedules before submitting.</Typography>
         )}
-        count={SceduleData?.meta?.totalRecords || 0}
-        rowsPerPage={resultsPerPage}
-        page={page - 1}
-        onPageChange={(_, newPage) => {
-          setPage(newPage + 1)
-        }}
-      />
+      </div>
       {/* </Card> */}
-
-      <DialogComponent
-        open={openCreateScedule}
-        handleClose={() => setOpenCreateScedule(false)}
-        data={singleSceduleData}
-        title='Create Schedule'
-        maxWidth='md'
-      >
-        {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
-          <>
-            <CreateCampaginSchedule data={[data]} handleClose={handleClose} />
-          </>
-        )}
-      </DialogComponent>
-
-      <DialogComponent
-        open={openUpdateScedule}
-        handleClose={() => setOpenUpdateScedule(false)}
-        data={singleData}
-        title='Update Schedule'
-        maxWidth='md'
-      >
-        {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
-          <UpdateCampaginSchedule data={[data]} handleClose={handleClose} />
-        )}
-      </DialogComponent>
     </>
   )
 }
 
-export default ScedulesTable
+export default ValidationTable

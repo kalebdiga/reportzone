@@ -9,6 +9,7 @@ const ChangeStatus = ({ row }: any) => {
   console.log(row, 'row')
   const handleUpdate = (id: string) => {
     if (!id) return
+    console.log(row, 'roooooooooooooooooooow')
 
     setStatus(prevStatus => !prevStatus)
 
@@ -20,7 +21,7 @@ const ChangeStatus = ({ row }: any) => {
         day: row?.day,
         hour: row?.hour,
         minute: row?.minute,
-        active: status,
+        active: !status,
         campaignId: row?.campaignId,
         budget: row?.budget,
         state: row?.state,
@@ -28,7 +29,7 @@ const ChangeStatus = ({ row }: any) => {
         updatedAt: row?.updatedAt,
         isAm: row?.hour < 12
       },
-      invalidateKey: ['updateScedule'],
+      invalidateKey: [['updateScedule'], ['capaignData']],
       onSuccess: data => {
         toast.dismiss()
         toast.success('Status updated successfully')

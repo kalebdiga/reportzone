@@ -6,34 +6,34 @@ import React, { useState, useEffect } from 'react'
 // MUI Imports
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
+import { Checkbox, MenuItem, IconButton, Chip } from '@mui/material'
 
 // Utility Imports
 import { toast } from 'react-toastify'
-import { convertNewYorkHourToUtc } from '@/utils/dateConverter'
+import { convertNewYorkHourToUtc, getNearestValidTime } from '@/utils/dateConverter'
+import { formatUSD } from '@/utils/usdFormat'
 
 import CustomTextField from '@/@core/components/mui/TextField'
-import { Checkbox, MenuItem } from '@mui/material'
-
 import FormControlLabel from '@mui/material/FormControlLabel'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
 import OverviewSchedule from './OverviewSchedule'
 import useDynamicMutation from '@/apihandeler/usePostData'
+import { DateTime } from 'luxon'
 
 const UpdateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
   const postMutation = useDynamicMutation({ type: 'Json' })
   const [openSceduleTable, setOpenSceduleTable] = useState(false)
 
-  // Initialize schedules with provided data
   const [schedules, setSchedules] = useState<any[]>([])
-
+  console.log('data of scedule', data)
   useEffect(() => {
     if (data) {
       setSchedules(
         Array.isArray(data)
           ? data.map((item: any) => ({
               day: item.day || null,
-              hour: item.hour || null,
-              minute: item.minute || 0,
+              hour: item.hour ?? 0,
+              minute: item.minute ?? 0,
               am: item.hour < 12,
               budget: item.budget,
               budgetChange: item.budget !== null,
@@ -101,7 +101,7 @@ const UpdateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
         body: scheduleUpdateInputs?.[0],
         invalidateKey: [['capaignData'], ['updateScedule']],
 
-        onSuccess: data => {
+        onSuccess: () => {
           toast.dismiss()
           toast.success('Schedules updated successfully!')
           handleClose?.()
@@ -125,141 +125,156 @@ const UpdateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
     )
   }
 
+  const SceduleData = data?.length === 1 && data?.[0]
+
   return (
     <>
-      <div className='flex flex-col gap-6 justify-start pl-[8%] w-full'>
-        {schedules.map((item, index) => (
-          <div key={index} className='schedule-row items-center flex flex-wrap gap-4'>
-            <div>
-              <CustomTextField
-                select
-                fullWidth
-                defaultValue=''
-                label='Day'
-                id='custom-select'
-                value={item.day || ''}
-                onChange={e => {
-                  const newItems = [...schedules]
-                  newItems[index].day = parseInt(e.target.value)
-                  setSchedules(newItems)
-                }}
-              >
-                {days.map(day => (
-                  <MenuItem key={day.value} value={day.value}>
-                    {day.title}
-                  </MenuItem>
-                ))}
-              </CustomTextField>
-            </div>
-
-            <div className='flex gap-2'>
-              <CustomTextField
-                select
-                fullWidth
-                defaultValue=''
-                label='Time'
-                id='custom-select'
-                value={item.hour && item.minute !== null ? `${item.hour}:${item.minute}` : ''}
-                onChange={e => {
-                  const [hour, minute] = e.target.value.split(':').map(Number)
-                  const newItems = [...schedules]
-                  newItems[index].hour = hour
-                  newItems[index].minute = minute
-                  setSchedules(newItems)
-                }}
-              >
-                <MenuItem value=''>
-                  <em>None</em>
-                </MenuItem>
-                {hoursWithMinutes.map(time => (
-                  <MenuItem key={time.label} value={`${time.hour}:${time.minute}`}>
-                    {time.label}
-                  </MenuItem>
-                ))}
-              </CustomTextField>
-              <div className='mt-[13%]'>
-                <Button
-                  onClick={() => {
+      <div className='flex justify-between items-center w-full'>
+        <div className='w-[60%]'>
+          {data?.length > 1 && (
+            <Button
+              onClick={() => {
+                setOpenSceduleTable(true)
+              }}
+              variant='contained'
+            >
+              Schedules
+            </Button>
+          )}
+        </div>
+      </div>
+      <div className='flex flex-col gap-6 justify-start w-full'>
+        {schedules.map((item, index) => {
+          console.log(
+            item.hour !== undefined && item.minute !== undefined
+              ? `${item.hour}:${item.minute.toString().padStart(2, '0')}`
+              : ''
+          )
+          return (
+            <div key={index} className='schedule-row items-center flex gap-4'>
+              <div className='w-[20%]  mt-[2.3%]'>
+                <CustomTextField
+                  select
+                  fullWidth
+                  label='Day'
+                  value={item.day || ''}
+                  onChange={e => {
                     const newItems = [...schedules]
-                    newItems[index].am = !newItems[index].am
+                    newItems[index].day = parseInt(e.target.value)
                     setSchedules(newItems)
                   }}
                 >
-                  {item.am ? 'AM' : 'PM'}
-                </Button>
+                  {days.map(day => (
+                    <MenuItem key={day.value} value={day.value}>
+                      {day.title}
+                    </MenuItem>
+                  ))}
+                </CustomTextField>
+              </div>
+              <div className='flex gap-2 w-[20%]  mt-[2.3%]'>
+                <CustomTextField
+                  select
+                  fullWidth
+                  label='Time'
+                  value={getNearestValidTime(item.hour, item.minute)}
+                  onChange={e => {
+                    const [hour, minute] = e.target.value.split(':').map(Number)
+                    const newItems = [...schedules]
+                    newItems[index].hour = hour
+                    newItems[index].minute = minute
+                    setSchedules(newItems)
+                  }}
+                >
+                  <MenuItem value=''>
+                    <em>None</em>
+                  </MenuItem>
+                  {hoursWithMinutes.map(time => {
+                    console.log(`${time.hour}:${time.minute.toString().padStart(2, '0')}`)
+                    return (
+                      <MenuItem key={time.label} value={`${time.hour}:${time.minute.toString().padStart(2, '0')}`}>
+                        {time.label}
+                      </MenuItem>
+                    )
+                  })}
+                </CustomTextField>
+              </div>
+              <div className='flex flex-col w-[15%]'>
+                <FormControlLabel
+                  label='Budget'
+                  control={
+                    <Checkbox
+                      checked={item.budgetChange}
+                      onChange={() => {
+                        const newItems = [...schedules]
+                        newItems[index].budgetChange = !newItems[index].budgetChange
+                        setSchedules(newItems)
+                      }}
+                    />
+                  }
+                />
+                <CustomTextField
+                  type='number'
+                  value={item.budget || ''}
+                  disabled={!item.budgetChange}
+                  onChange={e => {
+                    const newItems = [...schedules]
+                    newItems[index].budget = parseFloat(e.target.value)
+                    setSchedules(newItems)
+                  }}
+                />
+              </div>
+              <div className='flex flex-col w-[20%]'>
+                <FormControlLabel
+                  label='State'
+                  control={
+                    <Checkbox
+                      checked={item.stateChange}
+                      onChange={() => {
+                        const newItems = [...schedules]
+                        newItems[index].stateChange = !newItems[index].stateChange
+                        setSchedules(newItems)
+                      }}
+                    />
+                  }
+                />
+                <CustomTextField
+                  select
+                  fullWidth
+                  value={item.state || ''}
+                  disabled={!item.stateChange}
+                  onChange={e => {
+                    const newItems = [...schedules]
+                    newItems[index].state = e.target.value
+                    setSchedules(newItems)
+                  }}
+                >
+                  <MenuItem value=''>
+                    <em>None</em>
+                  </MenuItem>
+                  {states.map(state => (
+                    <MenuItem key={state} value={state}>
+                      {state}
+                    </MenuItem>
+                  ))}
+                </CustomTextField>
+              </div>
+              <div className=' mt-[4%]'>
+                <IconButton onClick={() => clearScheduleItem(index)} className=' text-blue-900'>
+                  <i className='tabler-x text-textSecondary' />
+                </IconButton>
+                {index > 0 && (
+                  <IconButton onClick={() => deleteScheduleItem(index)}>
+                    <i className='tabler-trash text-textSecondary' />
+                  </IconButton>
+                )}
               </div>
             </div>
-            <div className='flex flex-col'>
-              <FormControlLabel
-                label='Budget'
-                control={
-                  <Checkbox
-                    checked={item.budgetChange}
-                    onChange={() => {
-                      const newItems = [...schedules]
-                      newItems[index].budgetChange = !newItems[index].budgetChange
-                      setSchedules(newItems)
-                    }}
-                  />
-                }
-              />
-              <CustomTextField
-                type='number'
-                value={item.budget || ''}
-                disabled={!item.budgetChange}
-                onChange={e => {
-                  const newItems = [...schedules]
-                  newItems[index].budget = parseFloat(e.target.value)
-                  setSchedules(newItems)
-                }}
-              />
-            </div>
-            <div className='flex flex-col'>
-              <FormControlLabel
-                label='State'
-                control={
-                  <Checkbox
-                    checked={item.stateChange}
-                    onChange={() => {
-                      const newItems = [...schedules]
-                      newItems[index].stateChange = !newItems[index].stateChange
-                      setSchedules(newItems)
-                    }}
-                  />
-                }
-              />
-              <CustomTextField
-                select
-                fullWidth
-                label=''
-                defaultValue=''
-                value={item.state || ''}
-                disabled={!item.stateChange}
-                onChange={e => {
-                  const newItems = [...schedules]
-                  newItems[index].state = e.target.value
-                  setSchedules(newItems)
-                }}
-              >
-                <MenuItem value=''>
-                  <em>None</em>
-                </MenuItem>
-                {states.map(state => (
-                  <MenuItem key={state} value={state}>
-                    {state}
-                  </MenuItem>
-                ))}
-              </CustomTextField>
-            </div>
-            <div>
-              <Button onClick={() => clearScheduleItem(index)}>Clear</Button>
-              {index > 0 && <Button onClick={() => deleteScheduleItem(index)}>Delete</Button>}
-            </div>
-          </div>
-        ))}
+          )
+        })}
+
         <div className='flex gap-4 w-full justify-end items-end'>
-          <Button variant='outlined' onClick={addScheduleRow}>
-            Add Row
+          <Button variant='outlined' onClick={handleClose}>
+            Close
           </Button>
           <Button variant='contained' onClick={handleSubmit} disabled={!validateSchedules()}>
             Submit
@@ -293,6 +308,7 @@ export const days = [
   { value: 4, title: 'Thursday' },
   { value: 5, title: 'Friday' },
   { value: 6, title: 'Saturday' },
+  { value: 0, title: 'Sunday' },
   { value: 7, title: 'Sunday' }
 ]
 
@@ -307,3 +323,27 @@ export const hoursWithMinutes = Array.from({ length: 24 }, (_, hour) =>
     label: `${hour % 12 === 0 ? 12 : hour % 12}:${minute.toString().padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`
   }))
 ).flat()
+
+// export const getNearestValidTime = (hour: number, minute: number): string => {
+//   const validMinutes = [0, 15, 30, 45]
+//   const closestMinute = validMinutes.reduce((prev, curr) =>
+//     Math.abs(curr - minute) < Math.abs(prev - minute) ? curr : prev
+//   )
+
+//   // Create a UTC DateTime with nearest valid minute
+//   const utcTime = DateTime.fromObject({ hour, minute: closestMinute }, { zone: 'UTC' })
+
+//   // Convert to New York time
+//   const nyTime = utcTime.setZone('America/New_York')
+
+//   // Format: 12-hour clock with AM/PM
+//   return nyTime.toFormat('hh:mm a') // e.g., "09:15 AM"
+// }
+
+// export const hoursWithMinutes = Array.from({ length: 24 }, (_, hour) =>
+//   Array.from({ length: 12 }, (_, i) => i * 5).map(minute => ({
+//     hour,
+//     minute,
+//     label: `${hour % 12 === 0 ? 12 : hour % 12}:${minute.toString().padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`
+//   }))
+// ).flat()

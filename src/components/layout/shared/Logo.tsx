@@ -70,7 +70,7 @@ const Logo = ({ color }: { color?: CSSProperties['color'] }) => {
 
   return (
     <div className='flex items-center'>
-      <Image src={img} alt='logo' width={45} height={45} />
+      <Image src={img} alt='logo' width={28} height={28} />
       <LogoText
         color={color}
         ref={logoTextRef}
