@@ -263,7 +263,7 @@ const CampaginKeyTable = ({ data: CampaginData, handleClose }: { data?: any; han
             <tbody>
               {[...Array(7)].map((_, rowIndex) => (
                 <tr key={rowIndex}>
-                  {[...Array(3)].map((_, colIndex) => (
+                  {[...Array(4)].map((_, colIndex) => (
                     <td key={colIndex}>
                       <Skeleton variant='text' />
                     </td>
