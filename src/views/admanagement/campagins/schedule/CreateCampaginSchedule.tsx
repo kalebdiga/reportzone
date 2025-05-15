@@ -130,7 +130,8 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
           budget: item.budgetNoChange ? undefined : item.budget,
           campaignState: item.stateNoChange ? null : item.state?.toUpperCase() || null,
           index: index,
-          name: campaign?.original?.campaignName
+          name: campaign?.original?.campaignName,
+          active: true
         }
       })
     })
