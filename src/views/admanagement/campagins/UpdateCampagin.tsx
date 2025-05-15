@@ -23,35 +23,36 @@ import FormikTextField from '@/lib/form/FormikInput'
 import useDynamicMutation from '@/apihandeler/usePostData'
 
 // Validation Schema
+
+import { type UserData } from '@/typs/user.type'
+import FormikDropdown from '@/lib/form/FormikDropDown'
+import { campaginSchema, profileSchema } from '@/schema/employeeschema'
 import { IconButton } from '@mui/material'
 import { X } from 'lucide-react'
-const UpdateCompany = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
+const UpdateCampagin = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
   // Hooks
   const router = useRouter()
 
-  console.log(data, 'employee data')
+  console.log(data, 'admin data')
 
   // Mutation Hook
 
   const postMutation = useDynamicMutation({ type: 'Json' })
 
-  const onSubmit = async (values: { name: string }) => {
-    console.log(data, 'data')
+  const onSubmit = async (values: { budget: string; state: string }) => {
     if (!data?.id) return
 
     try {
       // Update profile details
-      if (values.name !== data?.name) {
+      if (values.budget !== data?.budget || values.state !== data?.state) {
         postMutation.mutate({
-          url: `/companies`,
-          method: 'PATCH',
+          url: `/advertising/campaigns/${data?.id}`,
+          method: 'PUT',
           body: {
-            companyName: values.name,
-            companyId: data?.id,
-            status: null
+            budget: Number(values.budget),
+            state: values.state
           },
-          invalidateKey: [['companyData']],
-
+          invalidateKey: [['capaignData']],
           onSuccess: data => {
             toast.dismiss()
             handleClose && handleClose()
@@ -60,10 +61,10 @@ const UpdateCompany = ({ data, handleClose }: { data: any; handleClose?: () => v
       }
 
       // Redirect after successful updates
-      // router.push('/company')
+      // router.push('/employees')
     } catch (err) {
-      console.error('Error updating :', err)
-      toast.error('Failed to update ')
+      console.error('Error updating profile or role:', err)
+      toast.error('Failed to update profile or role')
     }
   }
 
@@ -73,16 +74,19 @@ const UpdateCompany = ({ data, handleClose }: { data: any; handleClose?: () => v
         <div className='flex flex-col gap-6 is-full  sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-0 sm:mbs-14 md:mbs-0 '>
           <Formik
             initialValues={{
-              name: data?.name || ''
+              budget: data?.campaignBudget || '',
+              state: data?.campaignState || ''
             }}
+            validationSchema={campaginSchema}
             onSubmit={onSubmit}
           >
             {() => (
               <Form className='space-y-5 w-full pb-4'>
-                <FormikTextField name='name' label='Company Name' fullWidth />
+                <FormikTextField name='budget' label='Budget' fullWidth />
+                <FormikTextField name='state' label='State' fullWidth />
 
                 <Button fullWidth variant='contained' type='submit'>
-                  Update Company
+                  Update Campagin
                 </Button>
               </Form>
             )}
@@ -93,4 +97,4 @@ const UpdateCompany = ({ data, handleClose }: { data: any; handleClose?: () => v
   )
 }
 
-export default UpdateCompany
+export default UpdateCampagin

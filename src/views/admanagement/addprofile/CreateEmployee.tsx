@@ -66,7 +66,6 @@ const CreateEmployee = ({ handleClose }: { handleClose?: () => void }) => {
         },
         onSuccess: data => {
           toast.dismiss()
-          toast.success('Employee created successfully')
           resetForm()
           handleClose?.()
           !handleClose && router.push('/employees')

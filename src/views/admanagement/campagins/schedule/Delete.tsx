@@ -21,7 +21,7 @@ export default function Delete({ id }: any) {
         onSuccess: data => {
           toast.dismiss()
 
-          toast.success('Delete successfully!')
+          // toast.success('Delete successfully!')
           toast.dismiss()
           setOpen(false)
         }

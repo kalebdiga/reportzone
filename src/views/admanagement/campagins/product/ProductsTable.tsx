@@ -232,18 +232,7 @@ const ProductsTable = ({ data: CampaginData, handleClose }: { data?: any; handle
   return (
     <>
       <div className='flex flex-wrap justify-end gap-4 p-6 w-full'>
-        <div className='flex flex-wrap items-center max-sm:flex-col gap-4 max-sm:is-full is-auto'>
-          <CustomTextField
-            select
-            value={table.getState().pagination.pageSize}
-            onChange={e => table.setPageSize(Number(e.target.value))}
-            className='flex-auto is-[70px] max-sm:is-full'
-          >
-            <MenuItem value='10'>10</MenuItem>
-            <MenuItem value='25'>25</MenuItem>
-            <MenuItem value='50'>50</MenuItem>
-          </CustomTextField>
-        </div>
+        <div className='flex flex-wrap items-center max-sm:flex-col gap-4 max-sm:is-full is-auto'></div>
       </div>
       <div className='overflow-x-auto w-full'>
         <table className={tableStyles.table}>

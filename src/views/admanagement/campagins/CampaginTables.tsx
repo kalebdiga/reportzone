@@ -65,6 +65,10 @@ import ScedulesTable from './schedule/ScedulesTable'
 import { Checkbox, Skeleton } from '@mui/material'
 import ProductsTable from './product/ProductsTable'
 import { formatUSD } from '@/utils/usdFormat'
+import CampaginLogModal, { lol } from './modals/CampaginLogModal'
+import { useCampaignLogModal } from './modals/hook'
+import UpdateCampagin from './UpdateCampagin'
+import CampaginKeyModal from './keys/CampaginKeyModal'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -160,6 +164,8 @@ const CampaginTables = () => {
   const searchParams = useSearchParams()
   const { user, companyUsers: fromeStore } = useUserStore()
   const session = useSession()
+  const { trigger, menuOption, dialog } = useCampaignLogModal()
+
   const { companyUsers } = useUserStore()
 
   const id = searchParams.get('profileId')
@@ -172,6 +178,7 @@ const CampaginTables = () => {
   const [resultsPerPage, setResultsPerPage] = useState(10)
   const [openProductTable, setOpenProductTable] = useState(false)
   const [openSceduleTable, setOpenSceduleTable] = useState(false)
+  const [openUpdateCampagin, setOpenUpdateCampagin] = useState(false)
 
   const [OpenEmplyeePassword, setOpenEmplyeePassword] = useState(false)
   const [openCreateEployee, setOpenCreateEployee] = useState(false)
@@ -259,11 +266,11 @@ const CampaginTables = () => {
       }),
       columnHelper.accessor('totalKeywords', {
         header: 'Keywords',
-        cell: ({ row }) => <Typography fontSize={'.75rem'}>{row.original.totalKeywords}</Typography>
+        cell: ({ row }) => <CampaginKeyModal data={row} />
       }),
 
       columnHelper.accessor('campaignScedule', {
-        header: 'Scedule',
+        header: 'Schedule',
         cell: ({ row }) => (
           <Typography
             onClick={() => {
@@ -312,38 +319,43 @@ const CampaginTables = () => {
 
       columnHelper.accessor('actions', {
         header: 'Actions',
-        cell: ({ row }) => (
-          <div className='flex items-center'>
-            <IconButton>
-              <i className='tabler-report text-textSecondary' />
-            </IconButton>
-            <OptionMenu
-              iconButtonProps={{ size: 'medium' }}
-              iconClassName='text-textSecondary'
-              options={[
-                {
-                  text: 'Scedule',
-                  icon: 'tabler-calendar-plus',
+        cell: ({ row }) => {
+          // const rowData = row
 
-                  menuItemProps: {
-                    onClick: () => {
-                      setSingleCampaginData(row.original)
-                      setOpenSceduleTable(true)
+          return (
+            <div className='flex items-center'>
+              {trigger(row)}
+
+              <OptionMenu
+                iconButtonProps={{ size: 'medium' }}
+                iconClassName='text-textSecondary'
+                options={[
+                  {
+                    text: 'Schedule',
+                    icon: 'tabler-calendar-plus',
+                    menuItemProps: {
+                      onClick: () => {
+                        setSingleCampaginData(row.original)
+                        setOpenSceduleTable(true)
+                      }
+                    }
+                  },
+                  menuOption(row), // Logs with data
+                  {
+                    text: 'Edit',
+                    icon: 'tabler-edit',
+                    menuItemProps: {
+                      onClick: () => {
+                        setSingleCampaginData(row.original)
+                        setOpenUpdateCampagin(true)
+                      }
                     }
                   }
-                },
-                {
-                  text: 'Logs',
-                  icon: 'tabler-report'
-                },
-                {
-                  text: 'Edit',
-                  icon: 'tabler-edit'
-                }
-              ]}
-            />
-          </div>
-        ),
+                ]}
+              />
+            </div>
+          )
+        },
         enableSorting: false
       })
     ],
@@ -394,7 +406,8 @@ const CampaginTables = () => {
     `/advertising/profiles`
   )
 
-  console.log('Selected Data:', table.getSelectedRowModel().rows)
+  console.log('Selected Data:', profileId)
+  const [selectedProfile, setSelectedProfile] = useState('') // holds the JSON string
 
   return (
     <>
@@ -405,26 +418,26 @@ const CampaginTables = () => {
             <CustomTextField
               select
               fullWidth
-              defaultValue=''
               label='Select Profile'
               id='custom-select'
-              value={profileId}
+              value={selectedProfile}
               onChange={e => {
-                const parsedValue = JSON.parse(e.target.value)
+                const value = e.target.value
+                const parsedValue = JSON.parse(value)
+                setSelectedProfile(value) // store full JSON string
                 setProfileId(parsedValue?.pi)
                 setCompany_id(parsedValue?.ci)
               }}
             >
               {addProfileData?.profiles?.length > 0 ? (
-                addProfileData.profiles.map((item: any, index: number) => (
-                  <MenuItem
-                    key={index}
-                    value={JSON.stringify({ pi: item?.id, ci: item?.companyId })}
-                    className='text-gray-950'
-                  >
-                    {item?.countryCode || 'Unknown Country'}/{item?.accountName || 'Unknown Account'}
-                  </MenuItem>
-                ))
+                addProfileData.profiles.map((item: any, index: number) => {
+                  const optionValue = JSON.stringify({ pi: item?.id, ci: item?.companyId })
+                  return (
+                    <MenuItem key={index} value={optionValue} className='text-gray-950'>
+                      {item?.countryCode || 'Unknown Country'}/{item?.accountName || 'Unknown Account'}
+                    </MenuItem>
+                  )
+                })
               ) : (
                 <MenuItem disabled>No Profiles Available</MenuItem>
               )}
@@ -462,7 +475,7 @@ const CampaginTables = () => {
                   setOpenCreateScedule(true)
                 }}
               >
-                <span className='max-md:hidden'>Add Schedule</span>
+                <span className='max-md:hidden'>Add schedule</span>
               </Button>
             )}
             <DebouncedInput
@@ -579,7 +592,7 @@ const CampaginTables = () => {
         open={openProductTable}
         handleClose={() => setOpenProductTable(false)}
         data={singleCampaginData}
-        maxWidth='xl'
+        maxWidth='md'
         title={`Campaign Products ( ${singleCampaginData?.campaignName})
       `}
       >
@@ -604,10 +617,22 @@ const CampaginTables = () => {
         handleClose={() => setOpenSceduleTable(false)}
         data={singleCampaginData}
         maxWidth='md'
-        title='Scedule'
+        title='schedule'
       >
         {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
           <ScedulesTable Campagindata={data} handleClose={handleClose} />
+        )}
+      </DialogComponent>
+
+      <DialogComponent
+        open={openUpdateCampagin}
+        handleClose={() => setOpenUpdateCampagin(false)}
+        data={singleCampaginData}
+        maxWidth='sm'
+        title='Update campagin'
+      >
+        {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
+          <UpdateCampagin data={data} handleClose={handleClose} />
         )}
       </DialogComponent>
 
@@ -622,6 +647,7 @@ const CampaginTables = () => {
           <CreateCampaginSchedule data={data} handleClose={handleClose} />
         )}
       </DialogComponent>
+      {dialog}
     </>
   )
 }

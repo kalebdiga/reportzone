@@ -20,7 +20,6 @@ import DialogComponent from '@/components/layout/shared/DialogsSizes'
 
 const handleCopy = (text: string) => {
   copy(text)
-  toast.success('Email Copied to Clipboard')
 }
 
 const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {

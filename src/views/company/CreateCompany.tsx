@@ -45,7 +45,6 @@ const CreateCompany = ({ id, handleClose }: { id: any; handleClose?: () => void 
         invalidateKey: [['companyData']],
         onSuccess: data => {
           toast.dismiss()
-          toast.success('Company created successfully')
           resetForm()
           handleClose?.()
           !handleClose && router.push('/employees')

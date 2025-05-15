@@ -32,14 +32,18 @@ export default auth(req => {
   // Allow all other routes
   return NextResponse.next()
 })
-
 export const config = {
   matcher: [
-    '/add-management/addprofile',
     '/login',
+    '/add-management/addprofile',
+    '/add-management/addprofile/(.*)',
     '/companies',
+    '/companies/(.*)',
     '/add-management/campagines',
+    '/add-management/campagines/(.*)',
     '/seller-accounts',
-    '/employees'
+    '/seller-accounts/(.*)',
+    '/employees',
+    '/employees/(.*)'
   ]
 }

@@ -43,6 +43,7 @@
     "react-dom": "18.3.1",
     "react-loading-indicators": "^1.0.1",
     "react-perfect-scrollbar": "1.5.8",
+    "react-spinners": "^0.17.0",
     "react-toastify": "^11.0.5",
     "react-use": "17.6.0",
     "server-only": "0.0.1",

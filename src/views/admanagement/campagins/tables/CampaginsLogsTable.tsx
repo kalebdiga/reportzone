@@ -55,10 +55,8 @@ import { useSession } from 'next-auth/react'
 import { useFetchData } from '@/apihandeler/useFetchData'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
 import { UserData } from '@/typs/user.type'
-import UpdateCampaginSchedule from './UpdateCampaginSchedule'
-import CreateCampaginSchedule from './CreateCampaginSchedule'
-import ChangeStatus from './ChangeStatus'
-import Delete from './Delete'
+import { Tooltip } from '@mui/material'
+import { formatUSD } from '@/utils/usdFormat'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -150,42 +148,90 @@ const columnHelper = createColumnHelper<ProductWithActionsType>()
 
 // Update the column definitions and data mapping logic
 
-const OverView = ({ data: campaginData }: { data?: any; handleClose?: () => void }) => {
-  const [openUpdateScedule, setOpenUpdateScedule] = useState(false)
+const CampaginsLogsTable = ({ data: campaginData }: { data?: any; handleClose?: () => void }) => {
+  const { data: CampaginLog, isLoading } = useFetchData(
+    ['campaginlog', campaginData?.original?.id],
+    `/companies/logs/list?entity_id=${campaginData?.original?.id}&entity_type=CAMPAIGN`
+  )
+
   console.log(campaginData, 'campaginData')
   const [rowSelection, setRowSelection] = useState({})
-  const [data, setData] = useState(campaginData || [])
+  const [data, setData] = useState(CampaginLog?.logs || [])
   const [globalFilter, setGlobalFilter] = useState('')
 
   // Update the column definitions and data mapping logic
+  console.log(CampaginLog, 'overview of campagin')
 
   const columns = useMemo<ColumnDef<any, any>[]>(
     () => [
-      columnHelper.accessor('campaignName', {
+      columnHelper.accessor('entityName', {
         header: 'Campaign Name',
-        cell: ({ row }) => <Typography>{row.original.original.campaignName}</Typography>
+        cell: ({ row }) => <Typography>{row.original.entityName}</Typography>
       }),
-
-      columnHelper.accessor('campaignBudget', {
-        header: 'Budget',
-        cell: ({ row }) => <Typography>${row.original.original.campaignBudget}</Typography>
-      }),
-      columnHelper.accessor('campaignState', {
-        header: 'Campaign State',
+      columnHelper.accessor('action', {
+        header: 'Action',
         cell: ({ row }) => (
           <Chip
-            label={row.original.original.campaignState}
-            color={row.original.original.campaignState === 'PAUSED' ? 'warning' : 'success'}
+            label={row.original.action}
+            color={
+              row.original.action === 'update' ? 'primary' : row.original.action === 'create' ? 'success' : 'warning'
+            }
             variant='tonal'
             size='small'
           />
         )
-      })
+      }),
 
-      // columnHelper.accessor('totalAdGroups', {
-      //   header: 'Ad Groups',
-      //   cell: ({ row }) => <Typography>{row.original.totalAdGroups}</Typography>
+      // columnHelper.accessor('description', {
+      //   header: 'Description',
+      //   cell: ({ row }) => <Typography>{row.original.description}</Typography>
       // }),
+      columnHelper.accessor('oldValue', {
+        header: 'Old Value',
+        cell: ({ row }) => {
+          const old = row.original.oldValue
+          const content = `State: ${old?.state ?? '-'} | Budget: ${formatUSD(old?.budget ?? '-')}`
+
+          return (
+            <Tooltip title={content}>
+              <Typography className='truncate max-w-[150px]'>
+                {
+                  <IconButton>
+                    <i className='tabler-eye text-textSecondary' />
+                  </IconButton>
+                }
+              </Typography>
+            </Tooltip>
+          )
+        }
+      }),
+      columnHelper.accessor('newValue', {
+        header: 'New Value',
+        cell: ({ row }) => {
+          const newVal = row.original.newValue
+          const content = `State: ${newVal?.state ?? '-'} | Budget: ${formatUSD(newVal?.budget ?? '-')}`
+          return (
+            <Tooltip title={content}>
+              <Typography className='truncate max-w-[150px]'>
+                {
+                  <IconButton>
+                    <i className='tabler-eye text-textSecondary' />
+                  </IconButton>
+                }
+              </Typography>
+            </Tooltip>
+          )
+        }
+      }),
+      columnHelper.accessor('actionByName', {
+        header: 'Updated By',
+        cell: ({ row }) => <Typography>{row.original.actionByName}</Typography>
+      }),
+
+      columnHelper.accessor('createdAt', {
+        header: 'Date',
+        cell: ({ row }) => <Typography>{convertToDateOnly(row.original.createdAt)}</Typography>
+      })
     ],
     []
   )
@@ -219,10 +265,10 @@ const OverView = ({ data: campaginData }: { data?: any; handleClose?: () => void
   })
 
   useEffect(() => {
-    if (campaginData) {
-      setData(campaginData)
+    if (CampaginLog?.logs) {
+      setData(CampaginLog?.logs)
     }
-  }, [campaginData])
+  }, [CampaginLog?.logs])
 
   return (
     <>
@@ -287,4 +333,4 @@ const OverView = ({ data: campaginData }: { data?: any; handleClose?: () => void
   )
 }
 
-export default OverView
+export default CampaginsLogsTable

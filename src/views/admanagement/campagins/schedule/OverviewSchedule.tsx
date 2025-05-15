@@ -12,7 +12,6 @@ import SadowlessTable from '@/components/layout/shared/table/SadowlessTable'
 
 const handleCopy = (text: string) => {
   copy(text)
-  toast.success('Email Copied to Clipboard')
 }
 const OverviewSchedule = ({ data }: { data?: any; handleClose?: () => void }) => {
   const [page, setPage] = useState(1)

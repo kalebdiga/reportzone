@@ -133,7 +133,6 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
           })
 
           if (res?.ok) {
-            toast.success('Login successful')
             setloading(false)
             router.push('/add-management/addprofile')
             toast.dismiss()
@@ -141,13 +140,15 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
           } else {
             console.log('error')
             toast.error('Authentication failed')
+            setloading(false)
           }
         }
       })
     } catch (err) {
       console.log(err)
+      setloading(false)
     } finally {
-      // setIsLoading(false);
+      setloading(false)
     }
   }
 

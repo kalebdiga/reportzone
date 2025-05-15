@@ -32,7 +32,6 @@ const ChangeStatus = ({ row }: any) => {
       invalidateKey: [['updateScedule'], ['capaignData']],
       onSuccess: data => {
         toast.dismiss()
-        toast.success('Status updated successfully')
       },
       onError: error => {
         console.error('Error updating status:', error)

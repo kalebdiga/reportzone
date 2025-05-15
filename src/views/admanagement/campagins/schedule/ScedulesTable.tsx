@@ -60,6 +60,7 @@ import CreateCampaginSchedule from './CreateCampaginSchedule'
 import ChangeStatus from './ChangeStatus'
 import Delete from './Delete'
 import { Skeleton } from '@mui/material'
+import { formatUSD } from '@/utils/usdFormat'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -183,7 +184,7 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
   const columns = useMemo<ColumnDef<any, any>[]>(
     () => [
       columnHelper.accessor('Date', {
-        header: 'Scedule',
+        header: 'schedule',
         cell: ({ row }) => <Typography>{formatDayTime(row.original)}</Typography>
       }),
       columnHelper.accessor('state', {
@@ -201,7 +202,7 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
       }),
       columnHelper.accessor('budget', {
         header: 'Budget',
-        cell: ({ row }) => <Typography>${row.original.budget}</Typography>
+        cell: ({ row }) => <Typography>{formatUSD(row.original.budget)}</Typography>
       }),
 
       columnHelper.accessor('active', {
@@ -279,20 +280,21 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
       <div className=' w-[100%]'>
         <div className=' w-[100%] max-md:w-[100%]'>
           <div className=' w-full flex items-center gap-3'>
-            <p className=' text-[1.2rem] max-md:text-[0.7rem]'>Name: {Campagindata?.campaignName}</p>
+            <Typography>Name: {Campagindata?.campaignName}</Typography>
           </div>
           <div className=' w-full flex items-center gap-3'>
-            <p className=' text-[1.2rem] max-md:text-[0.7rem]'>Budget: {Campagindata?.campaignBudget}</p>
+            <Typography>Budget: {formatUSD(Campagindata?.campaignBudget)}</Typography>
           </div>
           <div className=' w-full flex items-center gap-3'>
-            <p className=' text-[1.2rem] max-md:text-[0.7rem]'>
+            <Typography>
               Status:{' '}
               <Chip
                 label={Campagindata.campaignState}
                 color={Campagindata.campaignState === 'ENABLED' ? 'success' : 'warning'}
                 variant='tonal'
+                size='small'
               />
-            </p>
+            </Typography>
           </div>
         </div>
       </div>

@@ -52,7 +52,6 @@ const UpdatePassword = ({ handleClose }: { handleClose?: () => void }) => {
 
         onSuccess: data => {
           toast.dismiss()
-          toast.success('Password changed successfully')
           router.push('/employees')
           handleClose && handleClose()
         }

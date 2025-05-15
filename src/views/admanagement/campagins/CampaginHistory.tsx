@@ -19,7 +19,7 @@ import SadowlessTable from '@/components/layout/shared/table/SadowlessTable'
 const handleCopy = (text: string) => {
   copy(text)
 
-  toast.success('Email Copied to Clipboard')
+  // toast.success('Email Copied to Clipboard')
 }
 
 const mockdata = [

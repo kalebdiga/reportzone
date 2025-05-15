@@ -60,6 +60,7 @@ import CreateCampaginSchedule from './CreateCampaginSchedule'
 import ChangeStatus from './ChangeStatus'
 import Delete from './Delete'
 import { Skeleton } from '@mui/material'
+import Notice from '@/components/Notice'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -182,7 +183,7 @@ const ValidationTable = ({ data: SceduleList, handleClose }: { data: any; handle
   const columns = useMemo<ColumnDef<any, any>[]>(
     () => [
       columnHelper.accessor('Date', {
-        header: 'Scedule',
+        header: 'schedule',
         cell: ({ row }) => <Typography>{formatDayTime(row.original)}</Typography>
       }),
       columnHelper.accessor('verified', {
@@ -282,11 +283,13 @@ const ValidationTable = ({ data: SceduleList, handleClose }: { data: any; handle
       </div>
       <div className=' px-[4%]'>
         {SceduleList?.filtered?.length !== 0 ? (
-          <Typography>
-            You&apos;re about to submit only the valid schedules. Are you sure you want to proceed?
-          </Typography>
+          <Notice content="You're about to submit only the valid schedules. Are you sure you want to proceed?" />
         ) : (
-          <Typography>Oops! Every entry has a conflict. Please adjust your schedules before submitting.</Typography>
+          <Notice
+            backgroundColor='#fee2e2'
+            color='#7f1d1d'
+            content='Oops! Every entry has a conflict. Please adjust your schedules before submitting.'
+          />
         )}
       </div>
       {/* </Card> */}

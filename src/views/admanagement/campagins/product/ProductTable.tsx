@@ -18,7 +18,6 @@ import Image from 'next/image'
 
 const handleCopy = (text: string) => {
   copy(text)
-  toast.success('Email Copied to Clipboard')
 }
 const ProductTable = ({ data, handleClose }: { data?: any; handleClose?: () => void }) => {
   const id = data?.id

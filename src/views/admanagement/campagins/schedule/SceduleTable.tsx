@@ -28,7 +28,6 @@ import ChangeStatus from './ChangeStatus'
 
 const handleCopy = (text: string) => {
   copy(text)
-  toast.success('Email Copied to Clipboard')
 }
 const SceduleTable = ({ data, handleClose }: { data?: any; handleClose?: () => void }) => {
   const id = data?.id

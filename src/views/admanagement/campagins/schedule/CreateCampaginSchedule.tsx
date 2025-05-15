@@ -86,7 +86,6 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
       })
 
       toast.dismiss()
-      toast.success('Schedules submitted successfully!')
       handleClose?.()
     } catch (err) {
       console.error('Error creating schedules:', err)
@@ -155,7 +154,6 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
 
         if (filtered.length === 0) {
           toast.dismiss()
-          toast.error('All entries have conflicts. Nothing to submit.')
           setOpenConfirmation(true)
 
           return
@@ -387,7 +385,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
         handleClose={() => setOpenSceduleTable(false)}
         data={data}
         maxWidth='sm'
-        title='Scedule'
+        title='schedule'
       >
         {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
           <OverView data={data} handleClose={handleClose} />

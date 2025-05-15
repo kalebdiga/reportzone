@@ -55,7 +55,6 @@ const UpdateEmployeePassword = ({ data, handleClose }: { data: UserData; handleC
 
         onSuccess: data => {
           toast.dismiss()
-          toast.success('Password changed successfully')
           handleClose && handleClose()
         }
       })

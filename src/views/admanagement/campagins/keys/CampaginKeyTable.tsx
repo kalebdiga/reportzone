@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 // Next Imports
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -13,6 +13,7 @@ import CardHeader from '@mui/material/CardHeader'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
+import Switch from '@mui/material/Switch'
 import MenuItem from '@mui/material/MenuItem'
 import TablePagination from '@mui/material/TablePagination'
 import Typography from '@mui/material/Typography'
@@ -49,16 +50,13 @@ import TablePaginationComponent from '@components/TablePaginationComponent'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
-import { convertToDateOnly, formatDayTime } from '@/utils/dateConverter'
+import { convertToDateOnly } from '@/utils/dateConverter'
 import { useUserStore } from '@/lib/store/userProfileStore'
 import { useSession } from 'next-auth/react'
 import { useFetchData } from '@/apihandeler/useFetchData'
-import DialogComponent from '@/components/layout/shared/DialogsSizes'
-import { UserData } from '@/typs/user.type'
-import UpdateCampaginSchedule from './UpdateCampaginSchedule'
-import CreateCampaginSchedule from './CreateCampaginSchedule'
-import ChangeStatus from './ChangeStatus'
-import Delete from './Delete'
+import TableFilters from '@/components/TableFilters'
+import { Skeleton } from '@mui/material'
+import { formatUSD } from '@/utils/usdFormat'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -80,7 +78,7 @@ type ProductCategoryType = {
   }
 }
 
-type productStatusType = {
+type keywordstatusType = {
   [key: string]: {
     title: string
     color: ThemeColor
@@ -139,55 +137,60 @@ const productCategoryObj: ProductCategoryType = {
   Games: { icon: 'tabler-device-gamepad-2', color: 'secondary' }
 }
 
-const productStatusObj: productStatusType = {
-  Scheduled: { title: 'Scheduled', color: 'warning' },
-  Published: { title: 'Publish', color: 'success' },
-  Inactive: { title: 'Inactive', color: 'error' }
-}
-
 // Column Definitions
 const columnHelper = createColumnHelper<ProductWithActionsType>()
 
 // Update the column definitions and data mapping logic
 
-const OverView = ({ data: campaginData }: { data?: any; handleClose?: () => void }) => {
-  const [openUpdateScedule, setOpenUpdateScedule] = useState(false)
-  console.log(campaginData, 'campaginData')
-  const [rowSelection, setRowSelection] = useState({})
-  const [data, setData] = useState(campaginData || [])
-  const [globalFilter, setGlobalFilter] = useState('')
+const CampaginKeyTable = ({ data: CampaginData, handleClose }: { data?: any; handleClose?: () => void }) => {
+  const { companyUsers } = useUserStore()
+  const session = useSession()
+  const router = useRouter()
+  const id = CampaginData?.data?.original.id
+  const [page, setPage] = useState(1)
+  const [resultsPerPage, setResultsPerPage] = useState(10)
 
-  // Update the column definitions and data mapping logic
+  const { data: ProductData, isLoading } = useFetchData(
+    ['keywords', session?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage, id],
+    `/advertising/campaigns/${id}/keywords`
+  )
+
+  console.log(CampaginData)
+
+  // States
+  const [rowSelection, setRowSelection] = useState({})
+  const [data, setData] = useState(ProductData?.keywords ?? [])
+  const [globalFilter, setGlobalFilter] = useState('')
 
   const columns = useMemo<ColumnDef<any, any>[]>(
     () => [
-      columnHelper.accessor('campaignName', {
-        header: 'Campaign Name',
-        cell: ({ row }) => <Typography>{row.original.original.campaignName}</Typography>
+      columnHelper.accessor('keyword', {
+        header: 'keyword',
+        cell: ({ row }) => <Typography>{row.original.keyword}</Typography>
       }),
 
-      columnHelper.accessor('campaignBudget', {
-        header: 'Budget',
-        cell: ({ row }) => <Typography>${row.original.original.campaignBudget}</Typography>
+      columnHelper.accessor('Match Type', {
+        header: 'matchType',
+        cell: ({ row }) => <Typography>{row.original.matchType}</Typography>
       }),
-      columnHelper.accessor('campaignState', {
-        header: 'Campaign State',
+      columnHelper.accessor('bid', {
+        header: 'bid',
+        cell: ({ row }) => <Typography>{formatUSD(row.original.bid)}</Typography>
+      }),
+
+      columnHelper.accessor('state', {
+        header: 'State',
         cell: ({ row }) => (
           <Chip
-            label={row.original.original.campaignState}
-            color={row.original.original.campaignState === 'PAUSED' ? 'warning' : 'success'}
+            label={row.original.state}
+            color={row.original.state === 'ENABLED' ? 'success' : 'warning'}
             variant='tonal'
             size='small'
           />
         )
       })
-
-      // columnHelper.accessor('totalAdGroups', {
-      //   header: 'Ad Groups',
-      //   cell: ({ row }) => <Typography>{row.original.totalAdGroups}</Typography>
-      // }),
     ],
-    []
+    [data]
   )
 
   const table = useReactTable({
@@ -219,17 +222,15 @@ const OverView = ({ data: campaginData }: { data?: any; handleClose?: () => void
   })
 
   useEffect(() => {
-    if (campaginData) {
-      setData(campaginData)
+    if (ProductData?.keywords) {
+      setData(ProductData?.keywords)
     }
-  }, [campaginData])
-
+  }, [ProductData?.keywords, data])
   return (
     <>
-      {/* <Card>
-        <CardHeader title='Filters' /> */}
-      <div className=' w-[100%]'></div>
-
+      <div className='flex flex-wrap justify-end gap-4 p-6 w-full'>
+        <div className='flex flex-wrap items-center max-sm:flex-col gap-4 max-sm:is-full is-auto'></div>
+      </div>
       <div className='overflow-x-auto w-full'>
         <table className={tableStyles.table}>
           <thead>
@@ -257,7 +258,20 @@ const OverView = ({ data: campaginData }: { data?: any; handleClose?: () => void
               </tr>
             ))}
           </thead>
-          {table.getFilteredRowModel().rows?.length === 0 ? (
+
+          {isLoading ? (
+            <tbody>
+              {[...Array(7)].map((_, rowIndex) => (
+                <tr key={rowIndex}>
+                  {[...Array(3)].map((_, colIndex) => (
+                    <td key={colIndex}>
+                      <Skeleton variant='text' />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          ) : table?.getFilteredRowModel()?.rows?.length === 0 ? (
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
@@ -281,10 +295,8 @@ const OverView = ({ data: campaginData }: { data?: any; handleClose?: () => void
           )}
         </table>
       </div>
-
-      {/* </Card> */}
     </>
   )
 }
 
-export default OverView
+export default CampaginKeyTable

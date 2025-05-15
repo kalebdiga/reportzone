@@ -24,7 +24,6 @@ import { MenuItem } from '@/components/Menu'
 
 const handleCopy = (text: string) => {
   copy(text)
-  toast.success('Email Copied to Clipboard')
 }
 const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
   const id = data?.id

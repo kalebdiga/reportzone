@@ -25,7 +25,6 @@ import { debounce } from 'lodash'
 
 const handleCopy = (text: string) => {
   copy(text)
-  toast.success('Email Copied to Clipboard')
 }
 const CampaginTable = ({ data, handleClose }: { data?: any; handleClose?: () => void }) => {
   console.log(data, 'data of add profile')

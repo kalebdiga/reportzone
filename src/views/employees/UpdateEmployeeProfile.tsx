@@ -67,7 +67,6 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
           invalidateKey: [['employeeData']],
           onSuccess: data => {
             toast.dismiss()
-            toast.success('Profile updated successfully')
             handleClose && handleClose()
           }
         })
@@ -86,7 +85,6 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
 
           onSuccess: data => {
             toast.dismiss()
-            toast.success('Role updated successfully')
             handleClose && handleClose()
           }
         })

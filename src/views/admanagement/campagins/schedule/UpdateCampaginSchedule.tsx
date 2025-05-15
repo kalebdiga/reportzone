@@ -103,7 +103,6 @@ const UpdateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
 
         onSuccess: () => {
           toast.dismiss()
-          toast.success('Schedules updated successfully!')
           handleClose?.()
         }
       })

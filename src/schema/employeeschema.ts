@@ -37,6 +37,11 @@ export const profileSchema = Yup.object().shape({
   account_status: Yup.string().nullable().optional()
 })
 
+export const campaginSchema = Yup.object().shape({
+  budget: Yup.string().required('required'),
+  state: Yup.string().required('required')
+})
+
 export const passwordSchema = Yup.object().shape({
   password: Yup.string()
     .required('Password is required')

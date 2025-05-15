@@ -1,174 +1,367 @@
 'use client'
-import Table from '@/components/layout/shared/table/Table'
-import { Button } from '@mui/material'
-import React, { useState } from 'react'
-const data = [
-  {
-    id: '1',
-    type: 'Campaign',
-    name: 'Holiday Promo',
-    action: 'insert',
-    oldValue: '',
-    newValue: 'Budget: 2000',
-    description: 'Initial creation of campaign',
-    changeMadeBy: 'Lemi',
-    createdAt: '2024-10-01',
-    updatedAt: '2024-10-01'
-  },
-  {
-    id: '2',
-    type: 'User',
-    name: 'John Doe',
-    action: 'update',
-    oldValue: 'Role: user',
-    newValue: 'Role: admin',
-    description: 'Promoted user to admin',
-    changeMadeBy: 'Lemi',
-    createdAt: '2024-10-05',
-    updatedAt: '2024-10-06'
-  },
-  {
-    id: '3',
-    type: 'Order',
-    name: 'Order #1234',
-    action: 'delete',
-    oldValue: 'Status: pending',
-    newValue: '',
-    description: 'Cancelled order',
-    changeMadeBy: 'Per',
-    createdAt: '2024-09-01',
-    updatedAt: '2024-09-01'
-  },
-  {
-    id: '4',
-    type: 'Product',
-    name: 'Laptop',
-    action: 'insert',
-    oldValue: '',
-    newValue: 'Price: 1500',
-    description: 'Added new product',
-    changeMadeBy: 'Anna',
-    createdAt: '2024-08-15',
-    updatedAt: '2024-08-15'
-  },
-  {
-    id: '5',
-    type: 'Campaign',
-    name: 'Summer Sale',
-    action: 'update',
-    oldValue: 'Discount: 10%',
-    newValue: 'Discount: 15%',
-    description: 'Updated campaign discount',
-    changeMadeBy: 'Lemi',
-    createdAt: '2024-07-20',
-    updatedAt: '2024-07-21'
-  },
-  {
-    id: '6',
-    type: 'User',
-    name: 'Jane Smith',
-    action: 'delete',
-    oldValue: 'Role: admin',
-    newValue: '',
-    description: 'Removed user from the system',
-    changeMadeBy: 'Per',
-    createdAt: '2024-06-10',
-    updatedAt: '2024-06-10'
-  },
-  {
-    id: '7',
-    type: 'Order',
-    name: 'Order #5678',
-    action: 'insert',
-    oldValue: '',
-    newValue: 'Status: pending',
-    description: 'Created new order',
-    changeMadeBy: 'Anna',
-    createdAt: '2024-05-05',
-    updatedAt: '2024-05-05'
-  },
-  {
-    id: '8',
-    type: 'Product',
-    name: 'Smartphone',
-    action: 'update',
-    oldValue: 'Price: 800',
-    newValue: 'Price: 750',
-    description: 'Reduced product price',
-    changeMadeBy: 'Lemi',
-    createdAt: '2024-04-15',
-    updatedAt: '2024-04-16'
-  },
-  {
-    id: '9',
-    type: 'Campaign',
-    name: 'Black Friday',
-    action: 'insert',
-    oldValue: '',
-    newValue: 'Budget: 5000',
-    description: 'Created Black Friday campaign',
-    changeMadeBy: 'Per',
-    createdAt: '2024-03-01',
-    updatedAt: '2024-03-01'
-  },
-  {
-    id: '10',
-    type: 'User',
-    name: 'Michael Brown',
-    action: 'update',
-    oldValue: 'Role: employee',
-    newValue: 'Role: manager',
-    description: 'Promoted user to manager',
-    changeMadeBy: 'Anna',
-    createdAt: '2024-02-10',
-    updatedAt: '2024-02-11'
+
+// React Imports
+import { useEffect, useMemo, useState } from 'react'
+
+// Next Imports
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+
+// MUI Imports
+import Card from '@mui/material/Card'
+import CardHeader from '@mui/material/CardHeader'
+import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
+import IconButton from '@mui/material/IconButton'
+import MenuItem from '@mui/material/MenuItem'
+import TablePagination from '@mui/material/TablePagination'
+import Typography from '@mui/material/Typography'
+import type { TextFieldProps } from '@mui/material/TextField'
+
+// Third-party Imports
+import classnames from 'classnames'
+import { rankItem } from '@tanstack/match-sorter-utils'
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  getFilteredRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFacetedMinMaxValues,
+  getPaginationRowModel,
+  getSortedRowModel
+} from '@tanstack/react-table'
+import type { ColumnDef, FilterFn } from '@tanstack/react-table'
+import type { RankingInfo } from '@tanstack/match-sorter-utils'
+
+// Type Imports
+import type { ThemeColor } from '@core/types'
+
+// Component Imports
+import CustomAvatar from '@core/components/mui/Avatar'
+import CustomTextField from '@core/components/mui/TextField'
+import OptionMenu from '@core/components/option-menu'
+import TablePaginationComponent from '@components/TablePaginationComponent'
+
+// Util Imports
+
+// Style Imports
+import tableStyles from '@core/styles/table.module.css'
+import { convertToDateOnly, formatDayTime } from '@/utils/dateConverter'
+import { useUserStore } from '@/lib/store/userProfileStore'
+import { useSession } from 'next-auth/react'
+import { useFetchData } from '@/apihandeler/useFetchData'
+import DialogComponent from '@/components/layout/shared/DialogsSizes'
+import { UserData } from '@/typs/user.type'
+import { Skeleton, Tooltip } from '@mui/material'
+import { formatUSD } from '@/utils/usdFormat'
+
+declare module '@tanstack/table-core' {
+  interface FilterFns {
+    fuzzy: FilterFn<unknown>
   }
-]
-const headers = [
-  { label: 'Name', key: 'name' },
+  interface FilterMeta {
+    itemRank: RankingInfo
+  }
+}
 
-  { label: 'Type', key: 'type' },
-  { label: 'Action', key: 'action', render: (row: any) => <StatusAction row={row} /> },
+type ProductWithActionsType = any & {
+  actions?: string
+}
 
-  { label: 'Old Value', key: 'oldValue' },
-  { label: 'New Value', key: 'newValue' },
-  { label: 'Changed By', key: 'changeMadeBy' },
-  { label: 'Updated At', key: 'createdAt' }
-]
-function Logs() {
-  const [page, setPage] = useState(1)
-  const [resultsPerPage, setResultsPerPage] = useState(10)
-  const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
+type ProductCategoryType = {
+  [key: string]: {
+    icon: string
+    color: ThemeColor
+  }
+}
+
+type productStatusType = {
+  [key: string]: {
+    title: string
+    color: ThemeColor
+  }
+}
+
+const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+  // Rank the item
+  const itemRank = rankItem(row.getValue(columnId), value)
+
+  // Store the itemRank info
+  addMeta({
+    itemRank
+  })
+
+  // Return if the item should be filtered in/out
+  return itemRank.passed
+}
+
+const DebouncedInput = ({
+  value: initialValue,
+  onChange,
+  debounce = 500,
+  ...props
+}: {
+  value: string | number
+  onChange: (value: string | number) => void
+  debounce?: number
+} & Omit<TextFieldProps, 'onChange'>) => {
+  // States
+  const [value, setValue] = useState(initialValue)
+
+  useEffect(() => {
+    setValue(initialValue)
+  }, [initialValue])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onChange(value)
+    }, debounce)
+
+    return () => clearTimeout(timeout)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
+
+  return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
+}
+
+// Vars
+const productCategoryObj: ProductCategoryType = {
+  Accessories: { icon: 'tabler-headphones', color: 'error' },
+  'Home Decor': { icon: 'tabler-smart-home', color: 'info' },
+  Electronics: { icon: 'tabler-device-laptop', color: 'primary' },
+  Shoes: { icon: 'tabler-shoe', color: 'success' },
+  Office: { icon: 'tabler-briefcase', color: 'warning' },
+  Games: { icon: 'tabler-device-gamepad-2', color: 'secondary' }
+}
+
+const productStatusObj: productStatusType = {
+  Scheduled: { title: 'Scheduled', color: 'warning' },
+  Published: { title: 'Publish', color: 'success' },
+  Inactive: { title: 'Inactive', color: 'error' }
+}
+
+// Column Definitions
+const columnHelper = createColumnHelper<ProductWithActionsType>()
+
+const Logs = ({ data: campaginData }: { data?: any; handleClose?: () => void }) => {
+  const [entityType, setEntityType] = useState('')
+
+  const { data: CampaginLog, isLoading } = useFetchData(
+    ['campaginlog'],
+    `/companies/logs/list${entityType ? `?entity_type==${entityType}` : ''}`
+  )
+
+  console.log(campaginData, 'campaginData')
+  const [rowSelection, setRowSelection] = useState({})
+  const [data, setData] = useState(CampaginLog?.logs || [])
+  const [globalFilter, setGlobalFilter] = useState('')
+
+  // Update the column definitions and data mapping logic
+  console.log(CampaginLog, 'overview of campagin')
+
+  const columns = useMemo<ColumnDef<any, any>[]>(
+    () => [
+      columnHelper.accessor('entityName', {
+        header: 'Name',
+        cell: ({ row }) => <Typography>{row.original.entityName}</Typography>
+      }),
+      columnHelper.accessor('entityType', {
+        header: 'Type',
+        cell: ({ row }) => <Typography>{row.original.entityType}</Typography>
+      }),
+      columnHelper.accessor('action', {
+        header: 'Action',
+        cell: ({ row }) => (
+          <Chip
+            label={row.original.action}
+            color={
+              row.original.action === 'update' ? 'primary' : row.original.action === 'create' ? 'success' : 'warning'
+            }
+            variant='tonal'
+            size='small'
+          />
+        )
+      }),
+
+      // columnHelper.accessor('description', {
+      //   header: 'Description',
+      //   cell: ({ row }) => <Typography>{row.original.description}</Typography>
+      // }),
+      columnHelper.accessor('oldValue', {
+        header: 'Old Value',
+        cell: ({ row }) => {
+          const old = row.original.oldValue
+          const content = `State: ${old?.state ?? '-'} | Budget: ${formatUSD(old?.budget ?? '-')}`
+
+          return (
+            <Tooltip title={content}>
+              <Typography className='truncate max-w-[150px]'>
+                {
+                  <IconButton>
+                    <i className='tabler-eye text-textSecondary' />
+                  </IconButton>
+                }
+              </Typography>
+            </Tooltip>
+          )
+        }
+      }),
+      columnHelper.accessor('newValue', {
+        header: 'New Value',
+        cell: ({ row }) => {
+          const newVal = row.original.newValue
+          const content = `State: ${formatUSD(newVal?.state ?? '-')} | Budget: ${newVal?.budget ?? '-'}`
+          return (
+            <Tooltip title={content}>
+              <Typography className='truncate max-w-[150px]'>
+                {
+                  <IconButton>
+                    <i className='tabler-eye text-textSecondary' />
+                  </IconButton>
+                }
+              </Typography>
+            </Tooltip>
+          )
+        }
+      }),
+      columnHelper.accessor('actionByName', {
+        header: 'Updated By',
+        cell: ({ row }) => <Typography>{row.original.actionByName}</Typography>
+      }),
+
+      columnHelper.accessor('createdAt', {
+        header: 'Date',
+        cell: ({ row }) => <Typography>{convertToDateOnly(row.original.createdAt)}</Typography>
+      })
+    ],
+    []
+  )
+
+  const table = useReactTable({
+    data: data,
+    columns,
+    filterFns: {
+      fuzzy: fuzzyFilter
+    },
+    state: {
+      rowSelection,
+      globalFilter
+    },
+    initialState: {
+      pagination: {
+        pageSize: 10
+      }
+    },
+    enableRowSelection: true,
+    globalFilterFn: fuzzyFilter,
+    onRowSelectionChange: setRowSelection,
+    getCoreRowModel: getCoreRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedMinMaxValues: getFacetedMinMaxValues()
+  })
+
+  useEffect(() => {
+    if (CampaginLog?.logs) {
+      setData(CampaginLog?.logs)
+    }
+  }, [CampaginLog?.logs])
 
   return (
-    <Table
-      headers={headers}
-      csv={true}
-      data={data}
-      action={false}
-      addNew={<></>}
-      tableTitle='Logs'
-      number={data.length}
-      page={page}
-      setPage={setPage}
-      resultsPerPage={resultsPerPage}
-      setResultsPerPage={setResultsPerPage}
-      loading={false}
-      setLoading={() => {}}
-      dropdownVisible={dropdownVisible}
-      setDropdownVisible={setDropdownVisible}
-    />
+    <>
+      <Card>
+        <CardHeader title='Filters' />
+        <div className='flex flex-wrap  gap-4 p-6'>
+          <div className='w-[30%]'>
+            <CustomTextField
+              select
+              fullWidth
+              defaultValue=''
+              label='Select Type'
+              id='custom-select'
+              value={entityType}
+              onChange={e => {
+                setEntityType(e.target.value)
+              }}
+            >
+              {['', 'ENABLED', 'PAUSED', 'ARCHIVED']?.map((item: any, index: number) => (
+                <MenuItem key={index} value={item} className='text-gray-950'>
+                  {item}
+                </MenuItem>
+              ))}
+            </CustomTextField>
+          </div>
+        </div>
+        <div className='overflow-x-auto w-full'>
+          <table className={tableStyles.table}>
+            <thead>
+              {table.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    <th key={header.id}>
+                      {header.isPlaceholder ? null : (
+                        <div
+                          className={classnames({
+                            'flex items-center': header.column.getIsSorted(),
+                            'cursor-pointer select-none': header.column.getCanSort()
+                          })}
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {{
+                            asc: <i className='tabler-chevron-up text-xl' />,
+                            desc: <i className='tabler-chevron-down text-xl' />
+                          }[header.column.getIsSorted() as 'asc' | 'desc'] ?? null}
+                        </div>
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            {isLoading ? (
+              <tbody>
+                {[...Array(7)].map((_, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {[...Array(7)].map((_, colIndex) => (
+                      <td key={colIndex}>
+                        <Skeleton variant='text' />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            ) : table.getFilteredRowModel().rows?.length === 0 ? (
+              <tbody>
+                <tr>
+                  <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
+                    No data available
+                  </td>
+                </tr>
+              </tbody>
+            ) : (
+              <tbody>
+                {table.getRowModel().rows.map(row => (
+                  <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
+                    {row.getVisibleCells().map(cell => (
+                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            )}
+          </table>
+        </div>
+      </Card>
+    </>
   )
 }
 
 export default Logs
-
-const StatusAction = ({ row }: any) => {
-  return (
-    <span
-      className={`${row.action === 'insert' ? 'text-green-500' : row.action === 'update' ? ' text-yellow-500' : 'text-red-500'}`}
-    >
-      {row.action}
-    </span>
-  )
-}
