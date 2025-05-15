@@ -213,7 +213,7 @@ const Logs = ({ data: campaginData }: { data?: any; handleClose?: () => void }) 
         header: 'New Value',
         cell: ({ row }) => {
           const newVal = row.original.newValue
-          const content = `State: ${formatUSD(newVal?.state ?? '-')} | Budget: ${newVal?.budget ?? '-'}`
+          const content = `State: ${newVal?.state ?? '-'} | Budget: ${formatUSD(newVal?.budget ?? '-')}`
           return (
             <Tooltip title={content}>
               <Typography className='truncate max-w-[150px]'>
