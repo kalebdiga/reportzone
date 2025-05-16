@@ -202,7 +202,7 @@ const OverView = ({ data: campaginData }: { data?: any; handleClose?: () => void
     },
     initialState: {
       pagination: {
-        pageSize: 10
+        pageSize: 100
       }
     },
     enableRowSelection: true,

@@ -1,6 +1,5 @@
 'use client'
 import React from 'react'
-import AddProfileTable from './AddProfileTable'
 import AdsTable from './AdsTable'
 import { useFetchData } from '@/apihandeler/useFetchData'
 import { useUserStore } from '@/lib/store/userProfileStore'

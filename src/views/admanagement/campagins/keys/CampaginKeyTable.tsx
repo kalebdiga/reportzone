@@ -3,21 +3,11 @@
 // React Imports
 import { useEffect, useMemo, useState } from 'react'
 
-// Next Imports
-import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
-
 // MUI Imports
-import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
-import Button from '@mui/material/Button'
+
 import Chip from '@mui/material/Chip'
-import IconButton from '@mui/material/IconButton'
-import Switch from '@mui/material/Switch'
-import MenuItem from '@mui/material/MenuItem'
-import TablePagination from '@mui/material/TablePagination'
+
 import Typography from '@mui/material/Typography'
-import type { TextFieldProps } from '@mui/material/TextField'
 
 // Third-party Imports
 import classnames from 'classnames'
@@ -40,21 +30,11 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Type Imports
 import type { ThemeColor } from '@core/types'
 
-// Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-import CustomTextField from '@core/components/mui/TextField'
-import OptionMenu from '@core/components/option-menu'
-import TablePaginationComponent from '@components/TablePaginationComponent'
-
-// Util Imports
-
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
-import { convertToDateOnly } from '@/utils/dateConverter'
 import { useUserStore } from '@/lib/store/userProfileStore'
 import { useSession } from 'next-auth/react'
 import { useFetchData } from '@/apihandeler/useFetchData'
-import TableFilters from '@/components/TableFilters'
 import { Skeleton } from '@mui/material'
 import { formatUSD } from '@/utils/usdFormat'
 
@@ -71,20 +51,6 @@ type ProductWithActionsType = any & {
   actions?: string
 }
 
-type ProductCategoryType = {
-  [key: string]: {
-    icon: string
-    color: ThemeColor
-  }
-}
-
-type keywordstatusType = {
-  [key: string]: {
-    title: string
-    color: ThemeColor
-  }
-}
-
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   // Rank the item
   const itemRank = rankItem(row.getValue(columnId), value)
@@ -98,45 +64,6 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   return itemRank.passed
 }
 
-const DebouncedInput = ({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  ...props
-}: {
-  value: string | number
-  onChange: (value: string | number) => void
-  debounce?: number
-} & Omit<TextFieldProps, 'onChange'>) => {
-  // States
-  const [value, setValue] = useState(initialValue)
-
-  useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange(value)
-    }, debounce)
-
-    return () => clearTimeout(timeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
-
-  return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
-}
-
-// Vars
-const productCategoryObj: ProductCategoryType = {
-  Accessories: { icon: 'tabler-headphones', color: 'error' },
-  'Home Decor': { icon: 'tabler-smart-home', color: 'info' },
-  Electronics: { icon: 'tabler-device-laptop', color: 'primary' },
-  Shoes: { icon: 'tabler-shoe', color: 'success' },
-  Office: { icon: 'tabler-briefcase', color: 'warning' },
-  Games: { icon: 'tabler-device-gamepad-2', color: 'secondary' }
-}
-
 // Column Definitions
 const columnHelper = createColumnHelper<ProductWithActionsType>()
 
@@ -145,13 +72,11 @@ const columnHelper = createColumnHelper<ProductWithActionsType>()
 const CampaginKeyTable = ({ data: CampaginData, handleClose }: { data?: any; handleClose?: () => void }) => {
   const { companyUsers } = useUserStore()
   const session = useSession()
-  const router = useRouter()
   const id = CampaginData?.data?.original.id
   const [page, setPage] = useState(1)
-  const [resultsPerPage, setResultsPerPage] = useState(10)
 
   const { data: ProductData, isLoading } = useFetchData(
-    ['keywords', session?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage, id],
+    ['keywords', session?.data?.user?.accessToken, companyUsers[0]?.companyId, page, id],
     `/advertising/campaigns/${id}/keywords`
   )
 
@@ -205,7 +130,7 @@ const CampaginKeyTable = ({ data: CampaginData, handleClose }: { data?: any; han
     },
     initialState: {
       pagination: {
-        pageSize: 10
+        pageSize: 100
       }
     },
     enableRowSelection: true,
@@ -258,12 +183,11 @@ const CampaginKeyTable = ({ data: CampaginData, handleClose }: { data?: any; han
               </tr>
             ))}
           </thead>
-
           {isLoading ? (
             <tbody>
               {[...Array(7)].map((_, rowIndex) => (
                 <tr key={rowIndex}>
-                  {[...Array(4)].map((_, colIndex) => (
+                  {[...Array(11)].map((_, colIndex) => (
                     <td key={colIndex}>
                       <Skeleton variant='text' />
                     </td>
@@ -271,7 +195,7 @@ const CampaginKeyTable = ({ data: CampaginData, handleClose }: { data?: any; han
                 </tr>
               ))}
             </tbody>
-          ) : table?.getFilteredRowModel()?.rows?.length === 0 ? (
+          ) : table.getFilteredRowModel().rows?.length === 0 ? (
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
@@ -281,16 +205,13 @@ const CampaginKeyTable = ({ data: CampaginData, handleClose }: { data?: any; han
             </tbody>
           ) : (
             <tbody>
-              {table
-                .getRowModel()
-                .rows.slice(0, table.getState().pagination.pageSize)
-                .map(row => (
-                  <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
-                    {row.getVisibleCells().map(cell => (
-                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                    ))}
-                  </tr>
-                ))}
+              {table.getRowModel().rows.map(row => (
+                <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           )}
         </table>

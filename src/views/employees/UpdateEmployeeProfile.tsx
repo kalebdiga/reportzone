@@ -8,10 +8,8 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 
 // MUI Imports
-import { styled, useTheme } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
+
 import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
 
 // Third-party Imports
 import { Form, Formik } from 'formik'

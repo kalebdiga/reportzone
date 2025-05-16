@@ -57,9 +57,9 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
       minute: 0,
       am: true,
       budget: null,
-      budgetNoChange: false,
+      budgetChange: true,
       state: '',
-      stateNoChange: false
+      stateChange: true
     }
     setSchedules(newItems)
   }
@@ -115,7 +115,8 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
         budget: item.budgetNoChange ? undefined : item.budget,
         campaignState: item.stateNoChange ? null : item.state?.toUpperCase() || null,
         index: idx,
-        name: campaign?.campaignName
+        name: campaign?.campaignName,
+        active: true
       }))
     )
 
@@ -213,7 +214,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
               }}
               variant='contained'
             >
-              Schedules
+              {data?.length} Schedules
             </Button>
           )}
         </div>
@@ -353,7 +354,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
               </div>
               <div className=' mt-[4%]'>
                 <IconButton onClick={() => clearScheduleItem(index)} className=' text-blue-900'>
-                  <i className='tabler-x text-textSecondary' />
+                  <i className='tabler-restore text-textSecondary' />
                 </IconButton>
 
                 {index > 0 && (

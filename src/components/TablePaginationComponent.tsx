@@ -39,7 +39,7 @@ const TablePaginationComponent = ({
             <MenuItem value={10}>10</MenuItem>
             <MenuItem value={25}>25</MenuItem>
             <MenuItem value={50}>50</MenuItem>
-            <MenuItem value={70}>70</MenuItem>
+            <MenuItem value={100}>100</MenuItem>
           </CustomTextField>
         </div>
         <div className='w-[100%] flex justify-end'>

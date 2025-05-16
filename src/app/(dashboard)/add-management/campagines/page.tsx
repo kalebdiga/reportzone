@@ -1,4 +1,3 @@
-import CampaginTable from '@/views/admanagement/campagins/CampaginTable'
 import CampaginTables from '@/views/admanagement/campagins/CampaginTables'
 import React from 'react'
 

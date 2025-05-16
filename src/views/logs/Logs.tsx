@@ -3,18 +3,10 @@
 // React Imports
 import { useEffect, useMemo, useState } from 'react'
 
-// Next Imports
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
-
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
-import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
-import IconButton from '@mui/material/IconButton'
 import MenuItem from '@mui/material/MenuItem'
-import TablePagination from '@mui/material/TablePagination'
 import Typography from '@mui/material/Typography'
 import type { TextFieldProps } from '@mui/material/TextField'
 
@@ -49,13 +41,13 @@ import TablePaginationComponent from '@components/TablePaginationComponent'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
-import { convertToDateOnly, formatDayTime } from '@/utils/dateConverter'
+import { convertToDateOnly, convertUtcToNewYorkFormatted, formatDayTime } from '@/utils/dateConverter'
 import { useUserStore } from '@/lib/store/userProfileStore'
 import { useSession } from 'next-auth/react'
 import { useFetchData } from '@/apihandeler/useFetchData'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
 import { UserData } from '@/typs/user.type'
-import { Skeleton, Tooltip } from '@mui/material'
+import { Chip, Skeleton, Tooltip } from '@mui/material'
 import { formatUSD } from '@/utils/usdFormat'
 
 declare module '@tanstack/table-core' {
@@ -197,15 +189,10 @@ const Logs = ({ data: campaginData }: { data?: any; handleClose?: () => void }) 
           const content = `State: ${old?.state ?? '-'} | Budget: ${formatUSD(old?.budget ?? '-')}`
 
           return (
-            <Tooltip title={content}>
-              <Typography className='truncate max-w-[150px]'>
-                {
-                  <IconButton>
-                    <i className='tabler-eye text-textSecondary' />
-                  </IconButton>
-                }
-              </Typography>
-            </Tooltip>
+            <div>
+              <Typography>State: {old?.state ?? '-'} </Typography>
+              <Typography>Budget: {formatUSD(old?.budget ?? '-')}</Typography>
+            </div>
           )
         }
       }),
@@ -215,15 +202,10 @@ const Logs = ({ data: campaginData }: { data?: any; handleClose?: () => void }) 
           const newVal = row.original.newValue
           const content = `State: ${newVal?.state ?? '-'} | Budget: ${formatUSD(newVal?.budget ?? '-')}`
           return (
-            <Tooltip title={content}>
-              <Typography className='truncate max-w-[150px]'>
-                {
-                  <IconButton>
-                    <i className='tabler-eye text-textSecondary' />
-                  </IconButton>
-                }
-              </Typography>
-            </Tooltip>
+            <div>
+              <Typography>State: {newVal?.state ?? '-'} </Typography>
+              <Typography>Budget: {formatUSD(newVal?.budget ?? '-')}</Typography>
+            </div>
           )
         }
       }),
@@ -234,7 +216,7 @@ const Logs = ({ data: campaginData }: { data?: any; handleClose?: () => void }) 
 
       columnHelper.accessor('createdAt', {
         header: 'Date',
-        cell: ({ row }) => <Typography>{convertToDateOnly(row.original.createdAt)}</Typography>
+        cell: ({ row }) => <Typography>{convertUtcToNewYorkFormatted(row.original.createdAt)}</Typography>
       })
     ],
     []

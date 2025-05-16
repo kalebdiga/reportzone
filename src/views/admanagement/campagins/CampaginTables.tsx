@@ -12,7 +12,6 @@ import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
-import IconButton from '@mui/material/IconButton'
 import MenuItem from '@mui/material/MenuItem'
 import TablePagination from '@mui/material/TablePagination'
 import Typography from '@mui/material/Typography'
@@ -53,19 +52,14 @@ import { convertToDateOnly } from '@/utils/dateConverter'
 import { useUserStore } from '@/lib/store/userProfileStore'
 import { useSession } from 'next-auth/react'
 import { useFetchData } from '@/apihandeler/useFetchData'
-import TableFilters from '@/components/TableFilters'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
-import UpdateEmployeePassword from '../addprofile/UpdateEmployeePassword'
-import CreateEmployee from '../addprofile/CreateEmployee'
-import ProductTable from './product/ProductTable'
+
 import CampaginHistory from './CampaginHistory'
-import SceduleTable from './schedule/SceduleTable'
 import CreateCampaginSchedule from './schedule/CreateCampaginSchedule'
 import ScedulesTable from './schedule/ScedulesTable'
 import { Checkbox, Skeleton } from '@mui/material'
 import ProductsTable from './product/ProductsTable'
 import { formatUSD } from '@/utils/usdFormat'
-import CampaginLogModal, { lol } from './modals/CampaginLogModal'
 import { useCampaignLogModal } from './modals/hook'
 import UpdateCampagin from './UpdateCampagin'
 import CampaginKeyModal from './keys/CampaginKeyModal'
@@ -180,7 +174,7 @@ const CampaginTables = () => {
   const [openSceduleTable, setOpenSceduleTable] = useState(false)
   const [openUpdateCampagin, setOpenUpdateCampagin] = useState(false)
 
-  const [OpenEmplyeePassword, setOpenEmplyeePassword] = useState(false)
+  const [OpenEmplyeePassword] = useState(false)
   const [openCreateEployee, setOpenCreateEployee] = useState(false)
   const [singleCampaginData, setSingleCampaginData] = useState<any>(null as any)
   const [openCampaginHistory, setOpenCampaginHistory] = useState(false)
@@ -201,7 +195,7 @@ const CampaginTables = () => {
     ],
     searchInput
       ? `/advertising/search/campaigns?${profileId ? `profile_id=${profileId}&` : ''}search=${searchInput}`
-      : `/advertising/stats/campaigns?${user?.globalRole ? `company_id=${company_id ? `${company_id}` : ''}` : ''}${profileId ? `&profile_id=${profileId}` : ''}&page=${page}&page_size=${resultsPerPage}${state ? `&state=${state}` : ''}`
+      : `/advertising/stats/campaigns?${user?.globalRole ? `${company_id ? `company_id=${company_id}&` : ''}sort_by=active_schedules_count&sort_order=desc` : ''}${profileId ? `&profile_id=${profileId}` : ''}&page=${page}&page_size=${resultsPerPage}${state ? `&state=${state}` : ''}`
   )
 
   const tableData = searchInput ? combinedData?.campaigns : combinedData?.campaigns
@@ -239,15 +233,15 @@ const CampaginTables = () => {
       },
       columnHelper.accessor('campaignName', {
         header: 'Campaign Name',
-        cell: ({ row }) => <Typography fontSize={'.75rem'}>{row.original.campaignName}</Typography>
+        cell: ({ row }) => <Typography>{row.original.campaignName}</Typography>
       }),
       columnHelper.accessor('campaignType', {
         header: 'Campaign Type',
-        cell: ({ row }) => <Typography fontSize={'.75rem'}>{row.original.campaignType}</Typography>
+        cell: ({ row }) => <Typography>{row.original.campaignType}</Typography>
       }),
       columnHelper.accessor('campaignBudget', {
         header: 'Budget',
-        cell: ({ row }) => <Typography fontSize={'.75rem'}>{formatUSD(row.original.campaignBudget)}</Typography>
+        cell: ({ row }) => <Typography>{formatUSD(row.original.campaignBudget)}</Typography>
       }),
 
       columnHelper.accessor('totalProducts', {
@@ -298,17 +292,15 @@ const CampaginTables = () => {
       }),
       columnHelper.accessor('campaignStartDate', {
         header: 'Start Date',
-        cell: ({ row }) => (
-          <Typography fontSize={'.75rem'}>{convertToDateOnly(row.original.campaignStartDate)}</Typography>
-        )
+        cell: ({ row }) => <Typography>{convertToDateOnly(row.original.campaignStartDate)}</Typography>
       }),
       columnHelper.accessor('campaignEndDate', {
         header: 'End Date',
         cell: ({ row }) =>
           row.original.campaignEndDate === '0001-01-01T00:00:00Z' ? (
-            <Typography fontSize={'.75rem'}>Ongoing</Typography>
+            <Typography>Ongoing</Typography>
           ) : (
-            <Typography fontSize={'.75rem'}>{convertToDateOnly(row.original.campaignEndDate)}</Typography>
+            <Typography>{convertToDateOnly(row.original.campaignEndDate)}</Typography>
           )
       }),
 
@@ -359,7 +351,7 @@ const CampaginTables = () => {
         enableSorting: false
       })
     ],
-    [data, tableData?.profiles, combinedData]
+    [data, tableData?.profiles, combinedData, page, resultsPerPage]
   )
 
   const table = useReactTable({
@@ -374,7 +366,7 @@ const CampaginTables = () => {
     },
     initialState: {
       pagination: {
-        pageSize: resultsPerPage
+        pageSize: 100
       }
     },
     enableRowSelection: true,
@@ -396,18 +388,18 @@ const CampaginTables = () => {
     }
   }, [tableData, page, resultsPerPage])
 
-  const handleLogSelectedData = () => {
-    const selectedRows = table.getSelectedRowModel().rows
-    const selectedData = selectedRows.map(row => row.original) // Access the original data of selected rows
-  }
-
   const { data: addProfileData, isLoading: ProfileDataLoading } = useFetchData(
     ['addProfileData'],
     `/advertising/profiles`
   )
 
   console.log('Selected Data:', profileId)
-  const [selectedProfile, setSelectedProfile] = useState('') // holds the JSON string
+  const [selectedProfile, setSelectedProfile] = useState(
+    JSON.stringify({
+      pi: id,
+      ci: companyId
+    })
+  ) // holds the JSON string
 
   return (
     <>
@@ -424,6 +416,7 @@ const CampaginTables = () => {
               onChange={e => {
                 const value = e.target.value
                 const parsedValue = JSON.parse(value)
+                console.log(parsedValue)
                 setSelectedProfile(value) // store full JSON string
                 setProfileId(parsedValue?.pi)
                 setCompany_id(parsedValue?.ci)
@@ -558,7 +551,7 @@ const CampaginTables = () => {
                 setPage(newPage)
               }}
               onRowsPerPageChange={e => {
-                const newRowsPerPage = parseInt(e.target.value, 10)
+                const newRowsPerPage = parseInt(e.target.value)
                 setResultsPerPage(newRowsPerPage)
                 setPage(1)
               }}
@@ -574,20 +567,6 @@ const CampaginTables = () => {
         />
       </Card>
 
-      <DialogComponent
-        open={OpenEmplyeePassword}
-        handleClose={() => setOpenEmplyeePassword(false)}
-        data={singleCampaginData}
-      >
-        {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
-          <UpdateEmployeePassword data={data} handleClose={handleClose} />
-        )}
-      </DialogComponent>
-      <DialogComponent open={openCreateEployee} handleClose={() => setOpenCreateEployee(false)} data={id}>
-        {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
-          <CreateEmployee handleClose={handleClose} />
-        )}
-      </DialogComponent>
       <DialogComponent
         open={openProductTable}
         handleClose={() => setOpenProductTable(false)}

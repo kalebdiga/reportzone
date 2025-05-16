@@ -158,7 +158,7 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
 
   console.log(id, 'from employee table')
   const [page, setPage] = useState(1)
-  const [resultsPerPage, setResultsPerPage] = useState(10)
+  const [resultsPerPage, setResultsPerPage] = useState(100)
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
   const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
   const [openCreateScedule, setOpenCreateScedule] = useState(false)
@@ -237,7 +237,7 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
         enableSorting: false
       })
     ],
-    [data]
+    [data, page, resultsPerPage]
   )
   const table = useReactTable({
     data: data,
@@ -271,7 +271,7 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
     if (SceduleData) {
       setData(SceduleData)
     }
-  }, [SceduleData])
+  }, [SceduleData, page, resultsPerPage])
 
   return (
     <>
@@ -287,7 +287,7 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
           </div>
           <div className=' w-full flex items-center gap-3'>
             <Typography>
-              Status:{' '}
+              State:{' '}
               <Chip
                 label={Campagindata.campaignState}
                 color={Campagindata.campaignState === 'ENABLED' ? 'success' : 'warning'}
@@ -362,44 +362,18 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
             </tbody>
           ) : (
             <tbody>
-              {table
-                .getRowModel()
-                .rows.slice(0, table.getState().pagination.pageSize)
-                .map(row => (
-                  <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
-                    {row.getVisibleCells().map(cell => (
-                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                    ))}
-                  </tr>
-                ))}
+              {table.getRowModel().rows.map(row => (
+                <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           )}
         </table>
       </div>
-      <TablePagination
-        component={() => (
-          <TablePaginationComponent
-            count={SceduleData?.meta?.totalRecords || 0}
-            rowsPerPage={resultsPerPage}
-            page={page - 1}
-            onPageChange={(_, newPage) => {
-              setPage(newPage)
-            }}
-            onRowsPerPageChange={e => {
-              const newRowsPerPage = parseInt(e.target.value, 10)
-              setResultsPerPage(newRowsPerPage)
-              setPage(1)
-            }}
-            setResultsPerPage={setResultsPerPage}
-          />
-        )}
-        count={SceduleData?.meta?.totalRecords || 0}
-        rowsPerPage={resultsPerPage}
-        page={page - 1}
-        onPageChange={(_, newPage) => {
-          setPage(newPage + 1)
-        }}
-      />
+
       {/* </Card> */}
 
       <DialogComponent

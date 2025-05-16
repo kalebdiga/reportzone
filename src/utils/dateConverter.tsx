@@ -188,3 +188,19 @@ export const getNearestValidTime = (hour: number, minute: number): string => {
   // Format as "H:mm" to match 0:30, 9:15, etc.
   return nyTime.toFormat('H:mm')
 }
+
+type TimeOverrideOptions = {
+  hour?: number
+  minute?: number
+}
+
+export function convertUtcToNewYorkFormatted(utcIsoString: string, options: TimeOverrideOptions = {}): string {
+  const utcDate = DateTime.fromISO(utcIsoString, { zone: 'utc' })
+  let newYorkDate = utcDate.setZone('America/New_York')
+
+  if (typeof options.hour === 'number' && typeof options.minute === 'number') {
+    newYorkDate = newYorkDate.set({ hour: options.hour, minute: options.minute })
+  }
+
+  return newYorkDate.toFormat("cccc 'at' h:mm a")
+}

@@ -1,17 +1,14 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
 
 // Next Imports
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 
 // MUI Imports
-import { styled, useTheme } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
+
 import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
 
 // Third-party Imports
 import { Form, Formik } from 'formik'
@@ -24,11 +21,9 @@ import useDynamicMutation from '@/apihandeler/usePostData'
 
 // Validation Schema
 
-import { type UserData } from '@/typs/user.type'
 import FormikDropdown from '@/lib/form/FormikDropDown'
-import { campaginSchema, profileSchema } from '@/schema/employeeschema'
-import { IconButton } from '@mui/material'
-import { X } from 'lucide-react'
+import { campaginSchema } from '@/schema/employeeschema'
+
 const UpdateCampagin = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
   // Hooks
   const router = useRouter()
@@ -83,7 +78,16 @@ const UpdateCampagin = ({ data, handleClose }: { data: any; handleClose?: () => 
             {() => (
               <Form className='space-y-5 w-full pb-4'>
                 <FormikTextField name='budget' label='Budget' fullWidth />
-                <FormikTextField name='state' label='State' fullWidth />
+                {/* <FormikTextField name='state' label='State' fullWidth /> */}
+
+                <FormikDropdown
+                  name='state'
+                  label='State'
+                  options={[
+                    { value: 'PAUSED', label: 'PAUSED' },
+                    { value: 'ENABLED', label: 'ENABLED' }
+                  ]}
+                />
 
                 <Button fullWidth variant='contained' type='submit'>
                   Update Campagin

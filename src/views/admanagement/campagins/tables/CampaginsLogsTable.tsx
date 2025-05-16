@@ -49,7 +49,12 @@ import TablePaginationComponent from '@components/TablePaginationComponent'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
-import { convertToDateOnly, formatDayTime } from '@/utils/dateConverter'
+import {
+  convertToDateOnly,
+  convertUtcToNewYorkFormatted,
+  formatDayTime,
+  formatDayTimeNewYork
+} from '@/utils/dateConverter'
 import { useUserStore } from '@/lib/store/userProfileStore'
 import { useSession } from 'next-auth/react'
 import { useFetchData } from '@/apihandeler/useFetchData'
@@ -193,15 +198,10 @@ const CampaginsLogsTable = ({ data: campaginData }: { data?: any; handleClose?: 
           const content = `State: ${old?.state ?? '-'} | Budget: ${formatUSD(old?.budget ?? '-')}`
 
           return (
-            <Tooltip title={content}>
-              <Typography className='truncate max-w-[150px]'>
-                {
-                  <IconButton>
-                    <i className='tabler-eye text-textSecondary' />
-                  </IconButton>
-                }
-              </Typography>
-            </Tooltip>
+            <div className=' flex flex-col gap-[8px]'>
+              <Typography>State: {old?.state ?? '-'} </Typography>
+              <Typography>Budget: {formatUSD(old?.budget ?? '-')}</Typography>
+            </div>
           )
         }
       }),
@@ -211,15 +211,10 @@ const CampaginsLogsTable = ({ data: campaginData }: { data?: any; handleClose?: 
           const newVal = row.original.newValue
           const content = `State: ${newVal?.state ?? '-'} | Budget: ${formatUSD(newVal?.budget ?? '-')}`
           return (
-            <Tooltip title={content}>
-              <Typography className='truncate max-w-[150px]'>
-                {
-                  <IconButton>
-                    <i className='tabler-eye text-textSecondary' />
-                  </IconButton>
-                }
-              </Typography>
-            </Tooltip>
+            <div className=' flex flex-col gap-[8px]'>
+              <Typography>State: {newVal?.state ?? '-'} </Typography>
+              <Typography>Budget: {formatUSD(newVal?.budget ?? '-')}</Typography>
+            </div>
           )
         }
       }),
@@ -230,7 +225,7 @@ const CampaginsLogsTable = ({ data: campaginData }: { data?: any; handleClose?: 
 
       columnHelper.accessor('createdAt', {
         header: 'Date',
-        cell: ({ row }) => <Typography>{convertToDateOnly(row.original.createdAt)}</Typography>
+        cell: ({ row }) => <Typography>{convertUtcToNewYorkFormatted(row.original.createdAt)}</Typography>
       })
     ],
     []

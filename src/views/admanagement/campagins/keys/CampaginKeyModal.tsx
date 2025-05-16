@@ -12,7 +12,6 @@ function CampaginKeyModal(data: any) {
         onClick={() => {
           setOpenModal(true)
         }}
-        fontSize={'.75rem'}
         className=' text-blue-900 cursor-pointer'
       >
         {data?.data?.original?.totalKeywords}
