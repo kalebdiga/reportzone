@@ -451,14 +451,14 @@ export default CreateCampaginSchedule
 // Days of the week
 export const days = [
   // { value: , title: 'Sunday' },
+  { value: 7, title: 'Everyday' },
   { value: 1, title: 'Monday' },
   { value: 2, title: 'Tuesday' },
   { value: 3, title: 'Wednesday' },
   { value: 4, title: 'Thursday' },
   { value: 5, title: 'Friday' },
   { value: 6, title: 'Saturday' },
-  { value: 0, title: 'Sunday' },
-  { value: 7, title: 'Sunday' }
+  { value: 0, title: 'Sunday' }
 ]
 
 // States for the schedule
