@@ -108,15 +108,28 @@ const ProductsTable = ({ data: CampaginData, handleClose }: { data?: any; handle
   const columns = useMemo<ColumnDef<any, any>[]>(
     () => [
       columnHelper.accessor('image', {
-        header: 'Product image',
+        header: 'Product ',
         cell: ({ row }) => (
-          <Image src={row.original.image ?? ProductPlaceHolder} width={45} height={45} alt='Product image' />
+          <div className='flex items-center gap-4'>
+            <Image
+              src={row.original.image ?? ProductPlaceHolder}
+              width={38}
+              height={38}
+              className='rounded bg-actionHover'
+              alt='Product image'
+            />
+
+            <div className='flex flex-col '>
+              <Typography>{row.original.name.slice(0, 32)}...</Typography>
+            </div>
+          </div>
         )
       }),
-      columnHelper.accessor('AdProduct', {
-        header: 'Product Name',
-        cell: ({ row }) => <Typography>{row.original.name}</Typography>
-      }),
+
+      // columnHelper.accessor('AdProduct', {
+      //   header: 'Product Name',
+      //   cell: ({ row }) => <Typography>{row.original.name}</Typography>
+      // }),
 
       columnHelper.accessor('sku', {
         header: 'SKU',
