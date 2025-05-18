@@ -9,8 +9,6 @@ import { useSession } from 'next-auth/react'
 export default function AdManagement() {
   const { data: session, status } = useSession()
   const { user, setUserData, setCompanyUsers } = useUserStore()
-  console.log(session, 'session')
-  console.log(status, 'status')
   const accessToken = session?.user?.accessToken
   const shouldFetch = status === 'authenticated' && !!accessToken
 

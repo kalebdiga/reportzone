@@ -1,14 +1,11 @@
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
-import { MenuItem } from '@/components/Menu'
-import { Button, IconButton, ListItemIcon, ListItemText } from '@mui/material'
+import { Button, IconButton, ListItemIcon } from '@mui/material'
 import { useState } from 'react'
-import OverviewSchedule from './OverviewSchedule'
 import useDynamicMutation from '@/apihandeler/usePostData'
 import { toast } from 'react-toastify'
 
 export default function Delete({ id }: any) {
   const postMutation = useDynamicMutation({ type: 'Json' })
-  console.log(id)
   const [open, setOpen] = useState(false)
   const handleSubmit = async (id: any) => {
     try {
@@ -21,7 +18,6 @@ export default function Delete({ id }: any) {
         onSuccess: data => {
           toast.dismiss()
 
-          // toast.success('Delete successfully!')
           toast.dismiss()
           setOpen(false)
         }

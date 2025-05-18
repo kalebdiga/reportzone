@@ -153,7 +153,7 @@ const columnHelper = createColumnHelper<ProductWithActionsType>()
 // Update the column definitions and data mapping logic
 
 const ValidationTable = ({ data: SceduleList, handleClose }: { data: any; handleClose?: () => void }) => {
-  console.log('data', SceduleList)
+  //('data', SceduleList)
 
   function mergeWithVerification(unfiltered: any[], filtered: any[]) {
     const isMatch = (a: any, b: any) =>
@@ -176,7 +176,7 @@ const ValidationTable = ({ data: SceduleList, handleClose }: { data: any; handle
     return mergeWithVerification(SceduleList.unfiltered, SceduleList.filtered)
   }, [SceduleList])
 
-  console.log(SceduleList, 'scedule list')
+  //(SceduleList, 'scedule list')
 
   // Update the column definitions and data mapping logic
 

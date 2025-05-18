@@ -5,27 +5,21 @@ import React, { useState, useEffect } from 'react'
 
 // MUI Imports
 import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
 import { Checkbox, MenuItem, IconButton, Chip } from '@mui/material'
 
 // Utility Imports
 import { toast } from 'react-toastify'
 import { convertNewYorkHourToUtc, getNearestValidTime } from '@/utils/dateConverter'
-import { formatUSD } from '@/utils/usdFormat'
 
 import CustomTextField from '@/@core/components/mui/TextField'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import DialogComponent from '@/components/layout/shared/DialogsSizes'
-import OverviewSchedule from './OverviewSchedule'
 import useDynamicMutation from '@/apihandeler/usePostData'
-import { DateTime } from 'luxon'
+import { type CampaignSchedule } from '@/typs/campagin.type'
 
-const UpdateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
+const UpdateCampaginSchedule = ({ data, handleClose }: { data: CampaignSchedule[]; handleClose?: () => void }) => {
   const postMutation = useDynamicMutation({ type: 'Json' })
-  const [openSceduleTable, setOpenSceduleTable] = useState(false)
 
   const [schedules, setSchedules] = useState<any[]>([])
-  console.log('data of scedule', data)
   useEffect(() => {
     if (data) {
       setSchedules(
@@ -129,26 +123,10 @@ const UpdateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
   return (
     <>
       <div className='flex justify-between items-center w-full'>
-        <div className='w-[60%]'>
-          {data?.length > 1 && (
-            <Button
-              onClick={() => {
-                setOpenSceduleTable(true)
-              }}
-              variant='contained'
-            >
-              Schedules
-            </Button>
-          )}
-        </div>
+        <div className='w-[60%]'></div>
       </div>
       <div className='flex flex-col gap-6 justify-start w-full'>
         {schedules.map((item, index) => {
-          console.log(
-            item.hour !== undefined && item.minute !== undefined
-              ? `${item.hour}:${item.minute.toString().padStart(2, '0')}`
-              : ''
-          )
           return (
             <div key={index} className='schedule-row items-center flex gap-4'>
               <div className='w-[20%]  mt-[2.3%]'>
@@ -188,7 +166,6 @@ const UpdateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                     <em>None</em>
                   </MenuItem>
                   {hoursWithMinutes.map(time => {
-                    console.log(`${time.hour}:${time.minute.toString().padStart(2, '0')}`)
                     return (
                       <MenuItem key={time.label} value={`${time.hour}:${time.minute.toString().padStart(2, '0')}`}>
                         {time.label}
@@ -280,18 +257,6 @@ const UpdateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
           </Button>
         </div>
       </div>
-
-      <DialogComponent
-        open={openSceduleTable}
-        handleClose={() => setOpenSceduleTable(false)}
-        data={data}
-        maxWidth='xl'
-        title='Schedule'
-      >
-        {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
-          <OverviewSchedule data={data} handleClose={handleClose} />
-        )}
-      </DialogComponent>
     </>
   )
 }
@@ -322,27 +287,3 @@ export const hoursWithMinutes = Array.from({ length: 24 }, (_, hour) =>
     label: `${hour % 12 === 0 ? 12 : hour % 12}:${minute.toString().padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`
   }))
 ).flat()
-
-// export const getNearestValidTime = (hour: number, minute: number): string => {
-//   const validMinutes = [0, 15, 30, 45]
-//   const closestMinute = validMinutes.reduce((prev, curr) =>
-//     Math.abs(curr - minute) < Math.abs(prev - minute) ? curr : prev
-//   )
-
-//   // Create a UTC DateTime with nearest valid minute
-//   const utcTime = DateTime.fromObject({ hour, minute: closestMinute }, { zone: 'UTC' })
-
-//   // Convert to New York time
-//   const nyTime = utcTime.setZone('America/New_York')
-
-//   // Format: 12-hour clock with AM/PM
-//   return nyTime.toFormat('hh:mm a') // e.g., "09:15 AM"
-// }
-
-// export const hoursWithMinutes = Array.from({ length: 24 }, (_, hour) =>
-//   Array.from({ length: 12 }, (_, i) => i * 5).map(minute => ({
-//     hour,
-//     minute,
-//     label: `${hour % 12 === 0 ? 12 : hour % 12}:${minute.toString().padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`
-//   }))
-// ).flat()

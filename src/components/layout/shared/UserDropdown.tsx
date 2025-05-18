@@ -53,7 +53,6 @@ const UserDropdown = () => {
   const router = useRouter()
 
   const { user, companyUsers } = useUserStore()
-  console.log(user, companyUsers, 'useeer')
   const { settings } = useSettings()
 
   const handleDropdownOpen = () => {

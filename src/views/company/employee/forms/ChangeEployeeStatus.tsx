@@ -4,27 +4,29 @@ import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 
 const ChangeEployeeStatus = ({ row }: any) => {
-  const [status, setStatus] = useState(row?.status !== 'suspended')
+  const [status, setStatus] = useState(row?.user?.accountStatus !== 'suspended')
   const patchMutation = useDynamicMutation({ type: 'Json' })
+
   const handleUpdate = (id: string) => {
     if (!id) return
 
     setStatus(prevStatus => !prevStatus)
 
     patchMutation.mutate({
-      url: `/companies`,
+      url: `/users/${id}`,
       method: 'PATCH',
       body: {
-        companyName: null,
-        companyId: row?.id,
+        fname: null,
+        lname: null,
+        email: null,
         account_status: status ? 'suspended' : 'active'
       },
-      invalidateKey: [['companyData']],
+      invalidateKey: [['employeeData'], ['CompanyEmployees']],
       onSuccess: data => {
-        toast.dismiss()
         toast.dismiss()
       },
       onError: error => {
+        toast.dismiss()
         console.error('Error updating status:', error)
         setStatus(prevStatus => !prevStatus)
       }
@@ -33,7 +35,7 @@ const ChangeEployeeStatus = ({ row }: any) => {
 
   return (
     <div>
-      <Switch checked={status} onChange={() => handleUpdate(row?.id)} color='primary' />
+      <Switch checked={status} onChange={() => handleUpdate(row?.user?.id)} color='primary' />
     </div>
   )
 }

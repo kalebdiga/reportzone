@@ -28,7 +28,7 @@ const UpdateCampagin = ({ data, handleClose }: { data: any; handleClose?: () => 
   // Hooks
   const router = useRouter()
 
-  console.log(data, 'admin data')
+  //(data, 'admin data')
 
   // Mutation Hook
 

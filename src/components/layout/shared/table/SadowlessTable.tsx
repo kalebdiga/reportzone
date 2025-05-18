@@ -125,7 +125,7 @@ const SadowlessTable: React.FC<CustomTableProps> = ({
 }) => {
   // const { openModal, Modal, filteredData, setFilterFields } = UseFilterModal();
 
-  console.log('object', data)
+  //('object', data)
   const [selectedRows, setSelectedRows] = useState<any[]>([])
   const [csvData, setcsvData] = useState<any[]>([])
 
@@ -240,7 +240,6 @@ const SadowlessTable: React.FC<CustomTableProps> = ({
       }
     }
   }, [selectedRows, data])
-  console.log('CSV Data:', data)
   return (
     <>
       <div className='w-[100%] pl-[1%] flex justify-between items-center bg-transparent  py-[1%] pr-[1%] '>

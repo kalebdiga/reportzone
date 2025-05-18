@@ -16,10 +16,8 @@ import { useFetchData } from '@/apihandeler/useFetchData'
 import { useEffect } from 'react'
 
 const NavbarContent = () => {
-  // const data = useSession()
   const { user, companyUsers } = useUserStore()
   const { data: Company } = useFetchData([], `/companies/${companyUsers?.[0]?.companyId}`)
-  console.log(Company, 'company')
   return (
     <div className={classnames(verticalLayoutClasses.navbarContent, 'flex items-center justify-between gap-4 is-full')}>
       <h1 className=' text-[1rem] font-normal  hidden md:block'>

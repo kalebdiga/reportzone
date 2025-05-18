@@ -8,7 +8,7 @@ export function useCampaignLogModal() {
   const [modalData, setModalData] = useState<any>(null)
 
   const trigger = (rowData: any) => {
-    console.log(rowData, 'rowData')
+    //(rowData, 'rowData')
     return (
       <IconButton
         onClick={() => {

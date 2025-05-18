@@ -8,11 +8,11 @@ import { useFetchData } from '@/apihandeler/useFetchData'
 import { useSession } from 'next-auth/react'
 import { convertToDateOnly } from '@/utils/dateConverter'
 import TableSkeleton from '@/utils/TableSkleton'
-import UpdateEmployeeProfile from './UpdateEmployeeProfile'
-import UpdateEmployeePassword from './UpdateEmployeePassword'
+import UpdateEmployeeProfile from './forms/UpdateEmployeeProfile'
+import UpdateEmployeePassword from './forms/UpdateEmployeePassword'
 import { type UserData } from '@/typs/user.type'
-import CreateEmployee from './CreateEmployee'
-import ChangeEployeeStatus from '../../employees/ChangeEployeeStatus'
+import CreateEmployee from './forms/CreateEmployee'
+import ChangeEployeeStatus from '../../employees/forms/ChangeEployeeStatus'
 import Link from 'next/link'
 import copy from 'copy-to-clipboard'
 import { toast } from 'sonner'
@@ -24,7 +24,6 @@ const handleCopy = (text: string) => {
 
 const CompanyEmployeesTable = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
   const id = data?.id
-  console.log(data)
   const [page, setPage] = useState(1)
   const [resultsPerPage, setResultsPerPage] = useState(10)
   const [sortKey, setSortKey] = useState('date')

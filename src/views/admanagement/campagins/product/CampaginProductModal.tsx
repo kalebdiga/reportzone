@@ -2,8 +2,8 @@ import DialogComponent from '@/components/layout/shared/DialogsSizes'
 import { IconButton, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import CampaginsLogsTable from '../tables/CampaginsLogsTable'
-import CampaginKeyTable from './CampaginKeyTable'
-function CampaginKeyModal(data: any) {
+import ProductsTable from './ProductsTable'
+function CampaginProductModal(data: any) {
   const [openModal, setOpenModal] = useState(false)
   return (
     <>
@@ -13,7 +13,7 @@ function CampaginKeyModal(data: any) {
         }}
         className=' text-blue-900 cursor-pointer'
       >
-        {data?.data?.original?.totalKeywords}
+        {data?.data?.original?.totalProducts}
       </Typography>
 
       <DialogComponent
@@ -21,12 +21,14 @@ function CampaginKeyModal(data: any) {
         handleClose={() => setOpenModal(false)}
         data={data}
         maxWidth='md'
-        title={`Keywords of ${data?.data?.original?.campaignName}`}
+        title={`Products of ${data?.data?.original?.campaignName}`}
       >
-        {({ data, handleClose }: { data: any; handleClose?: () => void }) => <CampaginKeyTable data={data} />}
+        {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
+          <ProductsTable data={data?.data?.original} />
+        )}
       </DialogComponent>
     </>
   )
 }
 
-export default CampaginKeyModal
+export default CampaginProductModal

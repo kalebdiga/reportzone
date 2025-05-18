@@ -14,7 +14,7 @@ function AddProfile() {
     `/advertising/profiles`
   )
 
-  console.log('new profile data', addProfileData?.profiles)
+  //('new profile data', addProfileData?.profiles)
 
   return <AdsTable />
 }

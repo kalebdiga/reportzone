@@ -33,7 +33,7 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
   // Hooks
   const router = useRouter()
 
-  console.log(data, 'employee data')
+  //(data, 'employee data')
 
   // Mutation Hook
 

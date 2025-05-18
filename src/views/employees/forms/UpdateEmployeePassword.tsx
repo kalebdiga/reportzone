@@ -42,7 +42,6 @@ const UpdateEmployeePassword = ({ data, handleClose }: { data: UserData; handleC
 
   const onSubmit = (values: { password: string; confirm_password: string }) => {
     const companyId = (data?.companyUsers[0] as any).companyId
-    console.log({ companyId: companyId, userId: data?.user?.id })
     try {
       postMutation.mutate({
         url: '/users/change-password',

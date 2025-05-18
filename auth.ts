@@ -44,7 +44,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             companyUser: companyUserRaw ? JSON.parse(companyUserRaw) : []
           }
 
-          console.log('🔥🔥🔥🔥🔥🔥🔥🔥', user)
+          //('🔥🔥🔥🔥🔥🔥🔥🔥', user)
           return user as any // ✅ or cast to `as User` if you've extended the type
         } catch (err) {
           console.error('❌ Failed to parse companyUser:', err)

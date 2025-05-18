@@ -47,6 +47,7 @@ import OptionMenu from '@core/components/option-menu'
 import TablePaginationComponent from '@components/TablePaginationComponent'
 
 // Util Imports
+import ProductPlaceHolder from './../../../../../public/images/product.jpg'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
@@ -56,6 +57,7 @@ import { useSession } from 'next-auth/react'
 import { useFetchData } from '@/apihandeler/useFetchData'
 import TableFilters from '@/components/TableFilters'
 import { Skeleton } from '@mui/material'
+import Image from 'next/image'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -63,24 +65,6 @@ declare module '@tanstack/table-core' {
   }
   interface FilterMeta {
     itemRank: RankingInfo
-  }
-}
-
-type ProductWithActionsType = any & {
-  actions?: string
-}
-
-type ProductCategoryType = {
-  [key: string]: {
-    icon: string
-    color: ThemeColor
-  }
-}
-
-type productStatusType = {
-  [key: string]: {
-    title: string
-    color: ThemeColor
   }
 }
 
@@ -97,57 +81,13 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   return itemRank.passed
 }
 
-const DebouncedInput = ({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  ...props
-}: {
-  value: string | number
-  onChange: (value: string | number) => void
-  debounce?: number
-} & Omit<TextFieldProps, 'onChange'>) => {
-  // States
-  const [value, setValue] = useState(initialValue)
-
-  useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange(value)
-    }, debounce)
-
-    return () => clearTimeout(timeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
-
-  return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
-}
-
-// Vars
-const productCategoryObj: ProductCategoryType = {
-  Accessories: { icon: 'tabler-headphones', color: 'error' },
-  'Home Decor': { icon: 'tabler-smart-home', color: 'info' },
-  Electronics: { icon: 'tabler-device-laptop', color: 'primary' },
-  Shoes: { icon: 'tabler-shoe', color: 'success' },
-  Office: { icon: 'tabler-briefcase', color: 'warning' },
-  Games: { icon: 'tabler-device-gamepad-2', color: 'secondary' }
-}
-
-const productStatusObj: productStatusType = {
-  Scheduled: { title: 'Scheduled', color: 'warning' },
-  Published: { title: 'Publish', color: 'success' },
-  Inactive: { title: 'Inactive', color: 'error' }
-}
-
 // Column Definitions
-const columnHelper = createColumnHelper<ProductWithActionsType>()
+const columnHelper = createColumnHelper<any>()
 
 // Update the column definitions and data mapping logic
 
 const ProductsTable = ({ data: CampaginData, handleClose }: { data?: any; handleClose?: () => void }) => {
+  //('CampaginData', CampaginData)
   const { companyUsers } = useUserStore()
   const session = useSession()
   const router = useRouter()
@@ -167,9 +107,15 @@ const ProductsTable = ({ data: CampaginData, handleClose }: { data?: any; handle
 
   const columns = useMemo<ColumnDef<any, any>[]>(
     () => [
+      columnHelper.accessor('image', {
+        header: 'Product image',
+        cell: ({ row }) => (
+          <Image src={row.original.image ?? ProductPlaceHolder} width={45} height={45} alt='Product image' />
+        )
+      }),
       columnHelper.accessor('AdProduct', {
         header: 'Product Name',
-        cell: ({ row }) => <Typography>{row.original.AdProduct}</Typography>
+        cell: ({ row }) => <Typography>{row.original.name}</Typography>
       }),
 
       columnHelper.accessor('sku', {
@@ -266,7 +212,7 @@ const ProductsTable = ({ data: CampaginData, handleClose }: { data?: any; handle
             <tbody>
               {[...Array(7)].map((_, rowIndex) => (
                 <tr key={rowIndex}>
-                  {[...Array(3)].map((_, colIndex) => (
+                  {[...Array(4)].map((_, colIndex) => (
                     <td key={colIndex}>
                       <Skeleton variant='text' />
                     </td>
@@ -274,7 +220,7 @@ const ProductsTable = ({ data: CampaginData, handleClose }: { data?: any; handle
                 </tr>
               ))}
             </tbody>
-          ) : table?.getFilteredRowModel()?.rows?.length === 0 ? (
+          ) : table.getFilteredRowModel().rows?.length === 0 ? (
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
@@ -284,16 +230,13 @@ const ProductsTable = ({ data: CampaginData, handleClose }: { data?: any; handle
             </tbody>
           ) : (
             <tbody>
-              {table
-                .getRowModel()
-                .rows.slice(0, table.getState().pagination.pageSize)
-                .map(row => (
-                  <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
-                    {row.getVisibleCells().map(cell => (
-                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                    ))}
-                  </tr>
-                ))}
+              {table.getRowModel().rows.map(row => (
+                <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           )}
         </table>

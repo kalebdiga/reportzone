@@ -4,17 +4,9 @@
 import { useEffect, useMemo, useState } from 'react'
 
 // Next Imports
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 
 // MUI Imports
-import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
-import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
-import IconButton from '@mui/material/IconButton'
-import MenuItem from '@mui/material/MenuItem'
-import TablePagination from '@mui/material/TablePagination'
 import Typography from '@mui/material/Typography'
 import type { TextFieldProps } from '@mui/material/TextField'
 
@@ -40,25 +32,14 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
 import CustomTextField from '@core/components/mui/TextField'
-import OptionMenu from '@core/components/option-menu'
-import TablePaginationComponent from '@components/TablePaginationComponent'
 
 // Util Imports
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
-import { convertToDateOnly, formatDayTime } from '@/utils/dateConverter'
-import { useUserStore } from '@/lib/store/userProfileStore'
-import { useSession } from 'next-auth/react'
-import { useFetchData } from '@/apihandeler/useFetchData'
-import DialogComponent from '@/components/layout/shared/DialogsSizes'
-import { UserData } from '@/typs/user.type'
-import UpdateCampaginSchedule from './UpdateCampaginSchedule'
-import CreateCampaginSchedule from './CreateCampaginSchedule'
-import ChangeStatus from './ChangeStatus'
-import Delete from './Delete'
+import { type Campaign } from '@/typs/campagin.type'
+import { formatUSD } from '@/utils/usdFormat'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -66,24 +47,6 @@ declare module '@tanstack/table-core' {
   }
   interface FilterMeta {
     itemRank: RankingInfo
-  }
-}
-
-type ProductWithActionsType = any & {
-  actions?: string
-}
-
-type ProductCategoryType = {
-  [key: string]: {
-    icon: string
-    color: ThemeColor
-  }
-}
-
-type productStatusType = {
-  [key: string]: {
-    title: string
-    color: ThemeColor
   }
 }
 
@@ -129,32 +92,16 @@ const DebouncedInput = ({
   return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
 }
 
-// Vars
-const productCategoryObj: ProductCategoryType = {
-  Accessories: { icon: 'tabler-headphones', color: 'error' },
-  'Home Decor': { icon: 'tabler-smart-home', color: 'info' },
-  Electronics: { icon: 'tabler-device-laptop', color: 'primary' },
-  Shoes: { icon: 'tabler-shoe', color: 'success' },
-  Office: { icon: 'tabler-briefcase', color: 'warning' },
-  Games: { icon: 'tabler-device-gamepad-2', color: 'secondary' }
-}
-
-const productStatusObj: productStatusType = {
-  Scheduled: { title: 'Scheduled', color: 'warning' },
-  Published: { title: 'Publish', color: 'success' },
-  Inactive: { title: 'Inactive', color: 'error' }
-}
-
 // Column Definitions
-const columnHelper = createColumnHelper<ProductWithActionsType>()
+const columnHelper = createColumnHelper<any>()
 
 // Update the column definitions and data mapping logic
 
 const OverView = ({ data: campaginData }: { data?: any; handleClose?: () => void }) => {
+  const camapaginsOriginals: Campaign[] = campaginData?.map((item: any) => item.original)
   const [openUpdateScedule, setOpenUpdateScedule] = useState(false)
-  console.log(campaginData, 'campaginData')
   const [rowSelection, setRowSelection] = useState({})
-  const [data, setData] = useState(campaginData || [])
+  const [data, setData] = useState(camapaginsOriginals || [])
   const [globalFilter, setGlobalFilter] = useState('')
 
   // Update the column definitions and data mapping logic
@@ -163,19 +110,19 @@ const OverView = ({ data: campaginData }: { data?: any; handleClose?: () => void
     () => [
       columnHelper.accessor('campaignName', {
         header: 'Campaign Name',
-        cell: ({ row }) => <Typography>{row.original.original.campaignName}</Typography>
+        cell: ({ row }) => <Typography>{formatUSD(row.original.campaignName)}</Typography>
       }),
 
       columnHelper.accessor('campaignBudget', {
         header: 'Budget',
-        cell: ({ row }) => <Typography>${row.original.original.campaignBudget}</Typography>
+        cell: ({ row }) => <Typography>{formatUSD(row.original.campaignBudget)}</Typography>
       }),
       columnHelper.accessor('campaignState', {
         header: 'Campaign State',
         cell: ({ row }) => (
           <Chip
-            label={row.original.original.campaignState}
-            color={row.original.original.campaignState === 'PAUSED' ? 'warning' : 'success'}
+            label={row.original.campaignState}
+            color={row.original.campaignState === 'PAUSED' ? 'warning' : 'success'}
             variant='tonal'
             size='small'
           />
@@ -187,7 +134,7 @@ const OverView = ({ data: campaginData }: { data?: any; handleClose?: () => void
       //   cell: ({ row }) => <Typography>{row.original.totalAdGroups}</Typography>
       // }),
     ],
-    []
+    [data, camapaginsOriginals]
   )
 
   const table = useReactTable({
@@ -219,10 +166,10 @@ const OverView = ({ data: campaginData }: { data?: any; handleClose?: () => void
   })
 
   useEffect(() => {
-    if (campaginData) {
-      setData(campaginData)
+    if (camapaginsOriginals) {
+      setData(camapaginsOriginals)
     }
-  }, [campaginData])
+  }, [campaginData, camapaginsOriginals])
 
   return (
     <>

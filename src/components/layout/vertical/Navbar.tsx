@@ -22,7 +22,6 @@ const Navbar = () => {
       setUserData(ProfileData.user)
       setCompanyUsers(ProfileData.companyUsers)
     }
-    console.log(user, 'user')
   }, [ProfileData, setUserData, setCompanyUsers, isLoading])
 
   return (

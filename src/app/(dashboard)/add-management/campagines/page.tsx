@@ -1,4 +1,4 @@
-import CampaginTables from '@/views/admanagement/campagins/CampaginTables'
+import CampaginTables from '@/views/admanagement/campagins/tables/CampaginTables'
 import React from 'react'
 
 function Page() {

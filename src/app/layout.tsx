@@ -37,7 +37,6 @@ const RootLayout = async (props: ChildrenType) => {
   const systemMode = await getSystemMode()
   const direction = 'ltr'
   const session = await auth()
-  console.log(session, 'session from layout')
   return (
     <html id='__next' lang='en' dir={direction} suppressHydrationWarning>
       <body className='flex is-full min-bs-full flex-auto flex-col'>

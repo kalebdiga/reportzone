@@ -1,4 +1,4 @@
-import CreateEmployee from '@/views/employees/CreateEmployee'
+import CreateEmployee from '@/views/employees/forms/CreateEmployee'
 
 function page() {
   return (

@@ -6,10 +6,8 @@ import { toast } from 'react-toastify'
 const ChangeStatus = ({ row }: any) => {
   const [status, setStatus] = useState<boolean>(row?.active)
   const patchMutation = useDynamicMutation({ type: 'Json' })
-  console.log(row, 'row')
   const handleUpdate = (id: string) => {
     if (!id) return
-    console.log(row, 'roooooooooooooooooooow')
 
     setStatus(prevStatus => !prevStatus)
 

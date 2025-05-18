@@ -80,7 +80,7 @@ const CampaginKeyTable = ({ data: CampaginData, handleClose }: { data?: any; han
     `/advertising/campaigns/${id}/keywords`
   )
 
-  console.log(CampaginData)
+  //(CampaginData)
 
   // States
   const [rowSelection, setRowSelection] = useState({})

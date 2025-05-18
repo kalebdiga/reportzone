@@ -136,16 +136,14 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
             setloading(false)
             router.push('/add-management/addprofile')
             toast.dismiss()
-            console.log(res, 'res')
           } else {
-            console.log('error')
             toast.error('Authentication failed')
             setloading(false)
           }
         }
       })
     } catch (err) {
-      console.log(err)
+      //(err)
       setloading(false)
     } finally {
       setloading(false)

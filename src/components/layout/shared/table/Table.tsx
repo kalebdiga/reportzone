@@ -234,7 +234,6 @@ const Table: React.FC<CustomTableProps> = ({
       }
     }
   }, [selectedRows, data])
-  console.log('CSV Data:', data)
   return (
     <>
       <Card className=' '>

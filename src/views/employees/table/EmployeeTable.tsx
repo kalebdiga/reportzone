@@ -4,20 +4,15 @@
 import { useEffect, useMemo, useState } from 'react'
 
 // Next Imports
-import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 // MUI Imports
 import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
-import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
-import Switch from '@mui/material/Switch'
 import MenuItem from '@mui/material/MenuItem'
 import TablePagination from '@mui/material/TablePagination'
 import Typography from '@mui/material/Typography'
-import type { TextFieldProps } from '@mui/material/TextField'
 
 // Third-party Imports
 import classnames from 'classnames'
@@ -41,9 +36,7 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
 import CustomTextField from '@core/components/mui/TextField'
-import OptionMenu from '@core/components/option-menu'
 import TablePaginationComponent from '@components/TablePaginationComponent'
 
 // Util Imports
@@ -54,14 +47,16 @@ import { convertToDateOnly } from '@/utils/dateConverter'
 import { useUserStore } from '@/lib/store/userProfileStore'
 import { useSession } from 'next-auth/react'
 import { useFetchData } from '@/apihandeler/useFetchData'
-import TableFilters from '@/components/TableFilters'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
-import UpdateEmployeePassword from './UpdateEmployeePassword'
-import UpdateEmployeeProfile from './UpdateEmployeeProfile'
-import CreateEmployee from './CreateEmployee'
+import UpdateEmployeePassword from '../forms/UpdateEmployeePassword'
+import UpdateEmployeeProfile from '../forms/UpdateEmployeeProfile'
+import CreateEmployee from '../forms/CreateEmployee'
 import { type UserData } from '@/typs/user.type'
-import ChangeEployeeStatus from './ChangeEployeeStatus'
+import ChangeEployeeStatus from '../forms/ChangeEployeeStatus'
 import { Skeleton } from '@mui/material'
+import CreateSceduleModal from '../modal/CreateSceduleModal'
+import UpdateEmployeePasswordModal from '../modal/UpdateEmployeePasswordModal'
+import UpdateEmployeeProfileModal from '../modal/UpdateEmployeeProfileModal'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -69,24 +64,6 @@ declare module '@tanstack/table-core' {
   }
   interface FilterMeta {
     itemRank: RankingInfo
-  }
-}
-
-type ProductWithActionsType = any & {
-  actions?: string
-}
-
-type ProductCategoryType = {
-  [key: string]: {
-    icon: string
-    color: ThemeColor
-  }
-}
-
-type productStatusType = {
-  [key: string]: {
-    title: string
-    color: ThemeColor
   }
 }
 
@@ -103,53 +80,8 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   return itemRank.passed
 }
 
-const DebouncedInput = ({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  ...props
-}: {
-  value: string | number
-  onChange: (value: string | number) => void
-  debounce?: number
-} & Omit<TextFieldProps, 'onChange'>) => {
-  // States
-  const [value, setValue] = useState(initialValue)
-
-  useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange(value)
-    }, debounce)
-
-    return () => clearTimeout(timeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
-
-  return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
-}
-
-// Vars
-const productCategoryObj: ProductCategoryType = {
-  Accessories: { icon: 'tabler-headphones', color: 'error' },
-  'Home Decor': { icon: 'tabler-smart-home', color: 'info' },
-  Electronics: { icon: 'tabler-device-laptop', color: 'primary' },
-  Shoes: { icon: 'tabler-shoe', color: 'success' },
-  Office: { icon: 'tabler-briefcase', color: 'warning' },
-  Games: { icon: 'tabler-device-gamepad-2', color: 'secondary' }
-}
-
-const productStatusObj: productStatusType = {
-  Scheduled: { title: 'Scheduled', color: 'warning' },
-  Published: { title: 'Publish', color: 'success' },
-  Inactive: { title: 'Inactive', color: 'error' }
-}
-
 // Column Definitions
-const columnHelper = createColumnHelper<ProductWithActionsType>()
+const columnHelper = createColumnHelper<any>()
 
 // Update the column definitions and data mapping logic
 
@@ -167,14 +99,10 @@ const EmployeeTable = () => {
   )
 
   // States
-  // console.log('data', productData)
+  // //('data', productData)
   const [rowSelection, setRowSelection] = useState({})
   const [data, setData] = useState(EmployeeData?.users || [])
   const [globalFilter, setGlobalFilter] = useState('')
-  const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
-  const [OpenEmplyeePassword, setOpenEmplyeePassword] = useState(false)
-  const [openCreateEployee, setOpenCreateEployee] = useState(false)
-  const [singleEmployeeData, setSingleEmployeeData] = useState<UserData>(null as any)
 
   const columns = useMemo<ColumnDef<any, any>[]>(
     () => [
@@ -221,21 +149,9 @@ const EmployeeTable = () => {
         header: 'Actions',
         cell: ({ row }) => (
           <div className='flex items-center'>
-            <IconButton
-              onClick={() => {
-                setSingleEmployeeData(row.original)
-                setOpenEmplyeeProfile(true)
-              }}
-            >
-              <i className='tabler-edit text-textSecondary' />
-            </IconButton>{' '}
-            <IconButton
-              onClick={() => {
-                setOpenEmplyeePassword(true), setSingleEmployeeData(row.original)
-              }}
-            >
-              <i className='tabler-trash text-textSecondary' />
-            </IconButton>
+            {' '}
+            <UpdateEmployeeProfileModal data={row.original} />
+            <UpdateEmployeePasswordModal data={row.original} />
           </div>
         ),
         enableSorting: false
@@ -294,16 +210,7 @@ const EmployeeTable = () => {
               <MenuItem value='50'>50</MenuItem>
             </CustomTextField>
 
-            <Button
-              variant='contained'
-              className='max-sm:is-full is-auto'
-              onClick={() => {
-                setOpenCreateEployee(true)
-              }}
-              startIcon={<i className='tabler-plus' />}
-            >
-              <span className=' max-md:hidden'>Add Employee</span>
-            </Button>
+            <CreateSceduleModal />
           </div>
         </div>
         <div className='overflow-x-auto'>
@@ -395,37 +302,6 @@ const EmployeeTable = () => {
           }}
         />
       </Card>
-
-      <DialogComponent
-        open={OpenEmplyeeProfile}
-        handleClose={() => setOpenEmplyeeProfile(false)}
-        data={singleEmployeeData}
-        title='Update Employee Profile
-'
-      >
-        {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
-          <UpdateEmployeeProfile data={data} handleClose={handleClose} />
-        )}
-      </DialogComponent>
-      <DialogComponent
-        open={OpenEmplyeePassword}
-        handleClose={() => setOpenEmplyeePassword(false)}
-        data={singleEmployeeData}
-        title='Change Password
-'
-      >
-        {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
-          <UpdateEmployeePassword data={data} handleClose={handleClose} />
-        )}
-      </DialogComponent>
-      <DialogComponent
-        open={openCreateEployee}
-        handleClose={() => setOpenCreateEployee(false)}
-        maxWidth='md'
-        title='Create Employee'
-      >
-        {({ handleClose }) => <CreateEmployee handleClose={handleClose} />}
-      </DialogComponent>
     </>
   )
 }

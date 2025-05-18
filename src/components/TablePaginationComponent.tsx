@@ -22,7 +22,6 @@ const TablePaginationComponent = ({
 }: TablePaginationComponentProps) => {
   const start = count === 0 ? 0 : page * rowsPerPage + 1
   const end = Math.min((page + 1) * rowsPerPage, count)
-  console.log(count, rowsPerPage, page, onPageChange, onRowsPerPageChange)
   return (
     <div className='flex justify-between w-full items-center flex-wrap pli-6 border-bs bs-auto plb-[12.5px] gap-2'>
       <Typography color='text.disabled'>{`Showing ${start} to ${end} of ${count} entries`}</Typography>

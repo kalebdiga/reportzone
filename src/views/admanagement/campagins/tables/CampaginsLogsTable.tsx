@@ -159,13 +159,13 @@ const CampaginsLogsTable = ({ data: campaginData }: { data?: any; handleClose?: 
     `/companies/logs/list?entity_id=${campaginData?.original?.id}&entity_type=CAMPAIGN`
   )
 
-  console.log(campaginData, 'campaginData')
+  //(campaginData, 'campaginData')
   const [rowSelection, setRowSelection] = useState({})
   const [data, setData] = useState(CampaginLog?.logs || [])
   const [globalFilter, setGlobalFilter] = useState('')
 
   // Update the column definitions and data mapping logic
-  console.log(CampaginLog, 'overview of campagin')
+  //(CampaginLog, 'overview of campagin')
 
   const columns = useMemo<ColumnDef<any, any>[]>(
     () => [

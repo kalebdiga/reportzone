@@ -60,7 +60,7 @@ import { type UserData } from '@/typs/user.type'
 import CreateCompany from './CreateCompany'
 import UpdateCompany from './UpdateCompany'
 import ChangeStatus from './ChangeStatus'
-import CompanyEmployeeTable from './employee/CompanyEmployeeTable'
+import CompanyEmployeeTable from './employee/table/CompanyEmployeeTable'
 import { Skeleton } from '@mui/material'
 import { divide } from 'lodash'
 
@@ -158,7 +158,7 @@ const CompanyesTable = () => {
     `/companies?page_size=${resultsPerPage}&page=${page}`
   )
 
-  // console.log('data', productData)
+  // //('data', productData)
   const [rowSelection, setRowSelection] = useState({})
   const [data, setData] = useState(CompanyData?.companies || [])
   const [globalFilter, setGlobalFilter] = useState('')

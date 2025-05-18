@@ -146,13 +146,9 @@ const Logs = ({ data: campaginData }: { data?: any; handleClose?: () => void }) 
     `/companies/logs/list${entityType ? `?entity_type==${entityType}` : ''}`
   )
 
-  console.log(campaginData, 'campaginData')
   const [rowSelection, setRowSelection] = useState({})
   const [data, setData] = useState(CampaginLog?.logs || [])
   const [globalFilter, setGlobalFilter] = useState('')
-
-  // Update the column definitions and data mapping logic
-  console.log(CampaginLog, 'overview of campagin')
 
   const columns = useMemo<ColumnDef<any, any>[]>(
     () => [

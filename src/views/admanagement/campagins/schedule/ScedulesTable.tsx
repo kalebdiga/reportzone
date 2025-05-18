@@ -3,20 +3,11 @@
 // React Imports
 import { useEffect, useMemo, useState } from 'react'
 
-// Next Imports
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
-
 // MUI Imports
-import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
-import Button from '@mui/material/Button'
+
 import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
-import MenuItem from '@mui/material/MenuItem'
-import TablePagination from '@mui/material/TablePagination'
 import Typography from '@mui/material/Typography'
-import type { TextFieldProps } from '@mui/material/TextField'
 
 // Third-party Imports
 import classnames from 'classnames'
@@ -40,10 +31,7 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
 import CustomTextField from '@core/components/mui/TextField'
-import OptionMenu from '@core/components/option-menu'
-import TablePaginationComponent from '@components/TablePaginationComponent'
 
 // Util Imports
 
@@ -53,14 +41,12 @@ import { convertToDateOnly, formatDayTime } from '@/utils/dateConverter'
 import { useUserStore } from '@/lib/store/userProfileStore'
 import { useSession } from 'next-auth/react'
 import { useFetchData } from '@/apihandeler/useFetchData'
-import DialogComponent from '@/components/layout/shared/DialogsSizes'
-import { type UserData } from '@/typs/user.type'
-import UpdateCampaginSchedule from './UpdateCampaginSchedule'
-import CreateCampaginSchedule from './CreateCampaginSchedule'
 import ChangeStatus from './ChangeStatus'
 import Delete from './Delete'
 import { Skeleton } from '@mui/material'
 import { formatUSD } from '@/utils/usdFormat'
+import CreateSceduleModal from '../modals/CreateScedulesModal'
+import UpdateCampaginScheduleModal from './modal/UpdateCampaginScheduleModal'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -102,51 +88,6 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   return itemRank.passed
 }
 
-const DebouncedInput = ({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  ...props
-}: {
-  value: string | number
-  onChange: (value: string | number) => void
-  debounce?: number
-} & Omit<TextFieldProps, 'onChange'>) => {
-  // States
-  const [value, setValue] = useState(initialValue)
-
-  useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange(value)
-    }, debounce)
-
-    return () => clearTimeout(timeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
-
-  return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
-}
-
-// Vars
-const productCategoryObj: ProductCategoryType = {
-  Accessories: { icon: 'tabler-headphones', color: 'error' },
-  'Home Decor': { icon: 'tabler-smart-home', color: 'info' },
-  Electronics: { icon: 'tabler-device-laptop', color: 'primary' },
-  Shoes: { icon: 'tabler-shoe', color: 'success' },
-  Office: { icon: 'tabler-briefcase', color: 'warning' },
-  Games: { icon: 'tabler-device-gamepad-2', color: 'secondary' }
-}
-
-const productStatusObj: productStatusType = {
-  Scheduled: { title: 'Scheduled', color: 'warning' },
-  Published: { title: 'Publish', color: 'success' },
-  Inactive: { title: 'Inactive', color: 'error' }
-}
-
 // Column Definitions
 const columnHelper = createColumnHelper<ProductWithActionsType>()
 
@@ -154,27 +95,19 @@ const columnHelper = createColumnHelper<ProductWithActionsType>()
 
 const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; handleClose?: () => void }) => {
   const id = Campagindata?.id
-  console.log(typeof Campagindata, 'data of add profile')
 
-  console.log(id, 'from employee table')
+  //(id, 'from employee table')
   const [page, setPage] = useState(1)
   const [resultsPerPage, setResultsPerPage] = useState(100)
-  const [dropdownVisible, setDropdownVisible] = useState<number | null>(null)
-  const [OpenEmplyeeProfile, setOpenEmplyeeProfile] = useState(false)
-  const [openCreateScedule, setOpenCreateScedule] = useState(false)
-  const [singleSceduleData, setSingleSceduleData] = useState<UserData>(null as any)
-
-  const [openUpdateScedule, setOpenUpdateScedule] = useState(false)
 
   const { companyUsers } = useUserStore()
   const session = useSession()
-  const [singleData, setSingleData] = useState()
   const { data: SceduleData, isLoading } = useFetchData(
     ['updateScedule', session?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
     `/schedules?campaignId=${id}`
   )
 
-  // console.log('data', productData)
+  // //('data', productData)
   const [rowSelection, setRowSelection] = useState({})
   const [data, setData] = useState(SceduleData || [])
   const [globalFilter, setGlobalFilter] = useState('')
@@ -220,15 +153,7 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
           <div className='flex items-center'>
             <Delete id={row.original} />
 
-            <IconButton
-              onClick={() => {
-                //  setOpenCampaginHistory(true)
-                setOpenUpdateScedule(true)
-                setSingleData(row.original)
-              }}
-            >
-              <i className='tabler-edit text-textSecondary' />
-            </IconButton>
+            <UpdateCampaginScheduleModal data={row} />
             <IconButton>
               <i className='tabler-report text-textSecondary' />
             </IconButton>
@@ -300,7 +225,7 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
       </div>
       <div className=' w-full flex flex-wrap justify-end gap-4 p-6'>
         <div className='flex flex-wrap items-center max-sm:flex-col gap-4 max-sm:is-full is-auto w-full justify-end'>
-          <Button
+          {/* <Button
             onClick={() => {
               setOpenCreateScedule(true)
               setSingleSceduleData(Campagindata)
@@ -310,7 +235,9 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
             startIcon={<i className='tabler-plus' />}
           >
             <span className=' max-md:hidden'>Add Scedule</span>
-          </Button>
+          </Button> */}
+
+          <CreateSceduleModal data={[Campagindata]} />
         </div>
       </div>
       <div className='overflow-x-auto w-full'>
@@ -373,34 +300,6 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
           )}
         </table>
       </div>
-
-      {/* </Card> */}
-
-      <DialogComponent
-        open={openCreateScedule}
-        handleClose={() => setOpenCreateScedule(false)}
-        data={singleSceduleData}
-        title='Create Schedule'
-        maxWidth='md'
-      >
-        {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
-          <>
-            <CreateCampaginSchedule data={[data]} handleClose={handleClose} />
-          </>
-        )}
-      </DialogComponent>
-
-      <DialogComponent
-        open={openUpdateScedule}
-        handleClose={() => setOpenUpdateScedule(false)}
-        data={singleData}
-        title='Update Schedule'
-        maxWidth='md'
-      >
-        {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
-          <UpdateCampaginSchedule data={[data]} handleClose={handleClose} />
-        )}
-      </DialogComponent>
     </>
   )
 }

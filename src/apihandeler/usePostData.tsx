@@ -46,14 +46,13 @@ const useDynamicMutation = ({ type = 'Json' }: { type?: 'FormData' | 'Json' }) =
       }
 
       const invalidate = (key: QueryKey) => {
-        console.log('🟡 Invalidating key:', key)
+        //('🟡 Invalidating key:', key)
 
         // Debug current cache
         const allKeys = queryClient
           .getQueryCache()
           .getAll()
           .map(q => q.queryKey)
-        console.log('🔍 Current query keys in cache:', allKeys)
 
         // Invalidate and refetch
         queryClient.invalidateQueries({ queryKey: key, exact: false })

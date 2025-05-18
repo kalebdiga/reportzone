@@ -29,14 +29,14 @@ const UpdateCompany = ({ data, handleClose }: { data: any; handleClose?: () => v
   // Hooks
   const router = useRouter()
 
-  console.log(data, 'employee data')
+  //(data, 'employee data')
 
   // Mutation Hook
 
   const postMutation = useDynamicMutation({ type: 'Json' })
 
   const onSubmit = async (values: { name: string }) => {
-    console.log(data, 'data')
+    //(data, 'data')
     if (!data?.id) return
 
     try {

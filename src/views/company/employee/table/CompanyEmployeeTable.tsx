@@ -55,12 +55,13 @@ import { useSession } from 'next-auth/react'
 import { useFetchData } from '@/apihandeler/useFetchData'
 import TableFilters from '@/components/TableFilters'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
-import UpdateEmployeePassword from './UpdateEmployeePassword'
-import UpdateEmployeeProfile from './UpdateEmployeeProfile'
-import CreateEmployee from './CreateEmployee'
+import UpdateEmployeePassword from '../forms/UpdateEmployeePassword'
+import UpdateEmployeeProfile from '../forms/UpdateEmployeeProfile'
+import CreateEmployee from '../forms/CreateEmployee'
 import { type UserData } from '@/typs/user.type'
-import ChangeEployeeStatus from '@/views/employees/ChangeEployeeStatus'
+import ChangeEployeeStatus from '@/views/employees/forms/ChangeEployeeStatus'
 import { Skeleton } from '@mui/material'
+import CreateEmployeeForCompanyModal from '../modal/CreateSceduleModal'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -134,7 +135,7 @@ const CompanyEmployeeTable = ({ data: DataProps, handleClose }: { data: any; han
   )
 
   // States
-  // console.log('data', productData)
+  // //('data', productData)
   const [rowSelection, setRowSelection] = useState({})
   const [data, setData] = useState(EmployeeData?.users || [])
   const [globalFilter, setGlobalFilter] = useState('')
@@ -208,7 +209,7 @@ const CompanyEmployeeTable = ({ data: DataProps, handleClose }: { data: any; han
         enableSorting: false
       })
     ],
-    [data, EmployeeData?.users]
+    []
   )
 
   const table = useReactTable({
@@ -260,16 +261,7 @@ const CompanyEmployeeTable = ({ data: DataProps, handleClose }: { data: any; han
             <MenuItem value='50'>50</MenuItem>
           </CustomTextField>
 
-          <Button
-            variant='contained'
-            className='max-sm:is-full is-auto'
-            onClick={() => {
-              setOpenCreateEployee(true)
-            }}
-            startIcon={<i className='tabler-plus' />}
-          >
-            <span className=' max-md:hidden'>Add Employee</span>
-          </Button>
+          <CreateEmployeeForCompanyModal id={id as string} />
         </div>
       </div>
       <div className='overflow-x-auto w-full'>
@@ -381,17 +373,6 @@ const CompanyEmployeeTable = ({ data: DataProps, handleClose }: { data: any; han
       >
         {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
           <UpdateEmployeePassword data={data} handleClose={handleClose} />
-        )}
-      </DialogComponent>
-      <DialogComponent
-        open={openCreateEployee}
-        handleClose={() => setOpenCreateEployee(false)}
-        data={id}
-        title='Create Employee'
-        maxWidth='md'
-      >
-        {({ data, handleClose }: { data: UserData; handleClose?: () => void }) => (
-          <CreateEmployee handleClose={handleClose} id={data} />
         )}
       </DialogComponent>
     </>

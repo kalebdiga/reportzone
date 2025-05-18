@@ -4,13 +4,11 @@
 import { useEffect, useMemo, useState } from 'react'
 
 // Next Imports
-import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
-import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import MenuItem from '@mui/material/MenuItem'
 import TablePagination from '@mui/material/TablePagination'
@@ -54,15 +52,14 @@ import { useSession } from 'next-auth/react'
 import { useFetchData } from '@/apihandeler/useFetchData'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
 
-import CampaginHistory from './CampaginHistory'
-import CreateCampaginSchedule from './schedule/CreateCampaginSchedule'
-import ScedulesTable from './schedule/ScedulesTable'
 import { Checkbox, Skeleton } from '@mui/material'
-import ProductsTable from './product/ProductsTable'
 import { formatUSD } from '@/utils/usdFormat'
-import { useCampaignLogModal } from './modals/hook'
-import UpdateCampagin from './UpdateCampagin'
-import CampaginKeyModal from './keys/CampaginKeyModal'
+import { useCampaignLogModal } from '../modals/hook'
+import CampaginProductModal from '../product/CampaginProductModal'
+import CampaginKeyModal from '../keys/CampaginKeyModal'
+import CreateSceduleModal from '../modals/CreateScedulesModal'
+import ScedulesTable from '../schedule/ScedulesTable'
+import UpdateCampagin from '../UpdateCampagin'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -164,22 +161,15 @@ const CampaginTables = () => {
 
   const id = searchParams.get('profileId')
   const companyId = searchParams.get('companyId')
-  console.log(id, 'from employee table')
   const [page, setPage] = useState(1)
   const [profileId, setProfileId] = useState(id)
   const [state, setState] = useState('')
   const [company_id, setCompany_id] = useState(companyId)
   const [resultsPerPage, setResultsPerPage] = useState(10)
-  const [openProductTable, setOpenProductTable] = useState(false)
   const [openSceduleTable, setOpenSceduleTable] = useState(false)
   const [openUpdateCampagin, setOpenUpdateCampagin] = useState(false)
 
-  const [OpenEmplyeePassword] = useState(false)
-  const [openCreateEployee, setOpenCreateEployee] = useState(false)
   const [singleCampaginData, setSingleCampaginData] = useState<any>(null as any)
-  const [openCampaginHistory, setOpenCampaginHistory] = useState(false)
-  const [selcteData, setSelcteData] = useState([])
-  const [openCreateScedule, setOpenCreateScedule] = useState(false)
   const [searchInput, setSearchInput] = useState<string | number>('')
 
   const { data: combinedData, isLoading: combinedLoading } = useFetchData(
@@ -200,13 +190,13 @@ const CampaginTables = () => {
 
   const tableData = searchInput ? combinedData?.campaigns : combinedData?.campaigns
 
-  // console.log('data', productData)
+  // //('data', productData)
   const [rowSelection, setRowSelection] = useState({})
   const [data, setData] = useState(tableData?.profiles || [])
   const [globalFilter, setGlobalFilter] = useState('')
 
   // Update the column definitions and data mapping logic
-  console.log(combinedData?.meta?.totalRecords)
+  //(combinedData?.meta?.totalRecords)
   const columns = useMemo<ColumnDef<any, any>[]>(
     () => [
       {
@@ -246,17 +236,7 @@ const CampaginTables = () => {
 
       columnHelper.accessor('totalProducts', {
         header: 'Products',
-        cell: ({ row }) => (
-          <Typography
-            onClick={() => {
-              setSingleCampaginData(row.original)
-              setOpenProductTable(true)
-            }}
-            className=' text-blue-900 cursor-pointer'
-          >
-            {row.original.totalProducts}
-          </Typography>
-        )
+        cell: ({ row }) => <CampaginProductModal data={row} />
       }),
       columnHelper.accessor('totalKeywords', {
         header: 'Keywords',
@@ -393,7 +373,7 @@ const CampaginTables = () => {
     `/advertising/profiles`
   )
 
-  console.log('Selected Data:', profileId)
+  //('Selected Data:', profileId)
   const [selectedProfile, setSelectedProfile] = useState(
     JSON.stringify({
       pi: id,
@@ -412,11 +392,10 @@ const CampaginTables = () => {
               fullWidth
               label='Select Profile'
               id='custom-select'
-              value={selectedProfile}
+              value={selectedProfile ?? ''}
               onChange={e => {
                 const value = e.target.value
                 const parsedValue = JSON.parse(value)
-                console.log(parsedValue)
                 setSelectedProfile(value) // store full JSON string
                 setProfileId(parsedValue?.pi)
                 setCompany_id(parsedValue?.ci)
@@ -442,7 +421,7 @@ const CampaginTables = () => {
               select
               fullWidth
               defaultValue=''
-              label='Select Profile'
+              label='Status'
               id='custom-select'
               value={state}
               onChange={e => {
@@ -460,16 +439,7 @@ const CampaginTables = () => {
         <div className='flex flex-wrap justify-between gap-4 p-6'>
           <div className=' w-[50%] flex gap-[1rem]'>
             {table.getSelectedRowModel().rows.length > 0 && (
-              <Button
-                variant='contained'
-                className='max-sm:is-full is-auto'
-                startIcon={<i className='tabler-plus' />}
-                onClick={() => {
-                  setOpenCreateScedule(true)
-                }}
-              >
-                <span className='max-md:hidden'>Add schedule</span>
-              </Button>
+              <CreateSceduleModal data={table.getSelectedRowModel().rows} />
             )}
             <DebouncedInput
               value={globalFilter ?? ''}
@@ -568,30 +538,6 @@ const CampaginTables = () => {
       </Card>
 
       <DialogComponent
-        open={openProductTable}
-        handleClose={() => setOpenProductTable(false)}
-        data={singleCampaginData}
-        maxWidth='md'
-        title={`Campaign Products ( ${singleCampaginData?.campaignName})
-      `}
-      >
-        {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
-          <ProductsTable data={data} handleClose={handleClose} />
-        )}
-      </DialogComponent>
-      <DialogComponent
-        open={openCampaginHistory}
-        handleClose={() => setOpenCampaginHistory(false)}
-        data={singleCampaginData}
-        maxWidth='xl'
-        title='Campagin Logs'
-      >
-        {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
-          <CampaginHistory data={data} handleClose={handleClose} />
-        )}
-      </DialogComponent>
-
-      <DialogComponent
         open={openSceduleTable}
         handleClose={() => setOpenSceduleTable(false)}
         data={singleCampaginData}
@@ -615,17 +561,6 @@ const CampaginTables = () => {
         )}
       </DialogComponent>
 
-      <DialogComponent
-        open={openCreateScedule}
-        handleClose={() => setOpenCreateScedule(false)}
-        data={table.getSelectedRowModel().rows}
-        title='Create Schedule'
-        maxWidth='md'
-      >
-        {({ data, handleClose }: { data: any; handleClose?: () => void }) => (
-          <CreateCampaginSchedule data={data} handleClose={handleClose} />
-        )}
-      </DialogComponent>
       {dialog}
     </>
   )

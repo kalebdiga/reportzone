@@ -33,7 +33,7 @@ const UpdateProfile = ({ data, handleClose }: { data: any; handleClose?: () => v
   // Hooks
   const router = useRouter()
 
-  console.log(data?.lname, 'admin data')
+  // //(data?.lname, 'admin data')
 
   // Mutation Hook
 

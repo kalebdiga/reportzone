@@ -16,10 +16,7 @@ import { Checkbox, Chip, IconButton, MenuItem } from '@mui/material'
 
 import FormControlLabel from '@mui/material/FormControlLabel'
 import DialogComponent from '@/components/layout/shared/DialogsSizes'
-import OverviewSchedule from './OverviewSchedule'
 import useDynamicMutation from '@/apihandeler/usePostData'
-import UpdateCampaginSchedule from './UpdateCampaginSchedule'
-import { UserData } from '@/typs/user.type'
 import OverView from './OverView'
 import { formatUSD } from '@/utils/usdFormat'
 import ValidationTable from './ValidationTable'
@@ -136,7 +133,6 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
         }
       })
     })
-    console.log(scheduleCreationInputsForMultipleCampagin, 'scheduleCreationInputsForMultipleCampagin')
 
     try {
       const checkResponse = await postMutation.mutateAsync({
@@ -207,14 +203,14 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
               </div>
             </>
           )}
-          {data?.length > 1 && (
+          {data?.data?.length > 1 && (
             <Button
               onClick={() => {
                 setOpenSceduleTable(true)
               }}
               variant='contained'
             >
-              {data?.length} Schedules
+              {data?.data?.length} Schedules
             </Button>
           )}
         </div>
@@ -270,17 +266,6 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                     </MenuItem>
                   ))}
                 </CustomTextField>
-                {/* <div className='mt-[13%]'>
-                  <Button
-                    onClick={() => {
-                      const newItems = [...schedules]
-                      newItems[index].am = !newItems[index].am
-                      setSchedules(newItems)
-                    }}
-                  >
-                    {item.am ? 'AM' : 'PM'}
-                  </Button>
-                </div> */}
               </div>
               <div className='flex flex-col justify-start w-[15%]'>
                 <FormControlLabel
@@ -385,7 +370,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
       <DialogComponent
         open={openSceduleTable}
         handleClose={() => setOpenSceduleTable(false)}
-        data={data}
+        data={data.data}
         maxWidth='sm'
         title='schedule'
       >

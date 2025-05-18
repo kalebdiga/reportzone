@@ -31,8 +31,6 @@ const UpdateEmployeeProfile = ({ data, handleClose }: { data: UserData; handleCl
   // Hooks
   const router = useRouter()
 
-  console.log(data, 'employee data')
-
   // Mutation Hook
 
   const postMutation = useDynamicMutation({ type: 'Json' })
