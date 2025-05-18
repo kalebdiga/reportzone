@@ -8,9 +8,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 
 // MUI Imports
-import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
-import Button from '@mui/material/Button'
+
 import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
 import Switch from '@mui/material/Switch'
@@ -92,12 +90,13 @@ const ProductsTable = ({ data: CampaginData, handleClose }: { data?: any; handle
   const session = useSession()
   const router = useRouter()
   const id = CampaginData?.id
+  const company_id = CampaginData?.companyId
   const [page, setPage] = useState(1)
   const [resultsPerPage, setResultsPerPage] = useState(10)
 
   const { data: ProductData, isLoading } = useFetchData(
     ['products', session?.data?.user?.accessToken, companyUsers[0]?.companyId, page, resultsPerPage],
-    `/advertising/campaigns/${id}/products`
+    `/advertising/campaigns/${id}/products?company_id=${company_id}`
   )
 
   // States
