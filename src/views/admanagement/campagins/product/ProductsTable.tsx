@@ -119,7 +119,7 @@ const ProductsTable = ({ data: CampaginData, handleClose }: { data?: any; handle
             />
 
             <div className='flex flex-col '>
-              <Typography>{row.original.name.slice(0, 32)}...</Typography>
+              <Typography>{row.original.name.slice(0, 32) ?? '-'}...</Typography>
             </div>
           </div>
         )
