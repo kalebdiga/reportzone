@@ -385,72 +385,78 @@ const CampaginTables = () => {
     <>
       <Card>
         <CardHeader title='Filters' />
-        <div className='flex flex-wrap  gap-4 p-6'>
-          <div className=' w-[30%] '>
-            <CustomTextField
-              select
-              fullWidth
-              label='Select Profile'
-              id='custom-select'
-              value={selectedProfile ?? ''}
-              onChange={e => {
-                const value = e.target.value
-                const parsedValue = JSON.parse(value)
-                setSelectedProfile(value) // store full JSON string
-                setProfileId(parsedValue?.pi)
-                setCompany_id(parsedValue?.ci)
-              }}
-            >
-              {addProfileData?.profiles?.length > 0 ? (
-                addProfileData.profiles.map((item: any, index: number) => {
-                  const optionValue = JSON.stringify({ pi: item?.id, ci: item?.companyId })
-                  return (
-                    <MenuItem key={index} value={optionValue} className='text-gray-950'>
-                      {item?.countryCode || 'Unknown Country'}/{item?.accountName || 'Unknown Account'}
-                    </MenuItem>
-                  )
-                })
-              ) : (
-                <MenuItem disabled>No Profiles Available</MenuItem>
-              )}
-            </CustomTextField>
-          </div>
-
-          <div className='w-[30%]'>
-            <CustomTextField
-              select
-              fullWidth
-              defaultValue=''
-              label='Status'
-              id='custom-select'
-              value={state}
-              onChange={e => {
-                setState(e.target.value)
-              }}
-            >
-              {['', 'ENABLED', 'PAUSED', 'ARCHIVED']?.map((item: any, index: number) => (
-                <MenuItem key={index} value={item} className='text-gray-950'>
-                  {item}
-                </MenuItem>
-              ))}
-            </CustomTextField>
-          </div>
-        </div>
-        <div className='flex flex-wrap justify-between gap-4 p-6'>
-          <div className=' w-[50%] flex gap-[1rem]'>
-            {table.getSelectedRowModel().rows.length > 0 && (
+        <div className='flex flex-wrap items-center  gap-4 p-6'>
+          {table.getSelectedRowModel().rows.length > 0 && (
+            <div className=' w-[20%]'>
               <CreateSceduleModal data={table.getSelectedRowModel().rows} />
-            )}
-            <DebouncedInput
-              value={globalFilter ?? ''}
-              onChange={value => setSearchInput(value)}
-              placeholder='Search'
-              className='max-sm:is-full'
-            />
-          </div>
+            </div>
+          )}
 
-          <div className='flex flex-wrap items-center max-sm:flex-col gap-4 max-sm:is-full is-auto'></div>
+          <div className=' w-[70%] flex items-center  gap-[8px]'>
+            <div className=' w-[30%] flex gap-[1rem] '>
+              <DebouncedInput
+                value={globalFilter ?? ''}
+                onChange={value => setSearchInput(value)}
+                placeholder='Search'
+                label='search'
+                className='max-sm:is-full
+               h-full
+              '
+              />
+            </div>
+
+            <div className=' w-[30%] '>
+              <CustomTextField
+                select
+                fullWidth
+                label='Select Profile'
+                id='custom-select'
+                value={selectedProfile ?? ''}
+                onChange={e => {
+                  const value = e.target.value
+                  const parsedValue = JSON.parse(value)
+                  setSelectedProfile(value) // store full JSON string
+                  setProfileId(parsedValue?.pi)
+                  setCompany_id(parsedValue?.ci)
+                }}
+              >
+                {addProfileData?.profiles?.length > 0 ? (
+                  addProfileData.profiles.map((item: any, index: number) => {
+                    const optionValue = JSON.stringify({ pi: item?.id, ci: item?.companyId })
+                    return (
+                      <MenuItem key={index} value={optionValue} className='text-gray-950'>
+                        {item?.countryCode || 'Unknown Country'}/{item?.accountName || 'Unknown Account'}
+                      </MenuItem>
+                    )
+                  })
+                ) : (
+                  <MenuItem disabled>No Profiles Available</MenuItem>
+                )}
+              </CustomTextField>
+            </div>
+
+            <div className='w-[30%]'>
+              <CustomTextField
+                select
+                fullWidth
+                defaultValue=''
+                label='Status'
+                id='custom-select'
+                value={state}
+                onChange={e => {
+                  setState(e.target.value)
+                }}
+              >
+                {['', 'ENABLED', 'PAUSED', 'ARCHIVED']?.map((item: any, index: number) => (
+                  <MenuItem key={index} value={item} className='text-gray-950'>
+                    {item}
+                  </MenuItem>
+                ))}
+              </CustomTextField>
+            </div>
+          </div>
         </div>
+
         <div className='overflow-x-auto'>
           <table className={tableStyles.table}>
             <thead>
