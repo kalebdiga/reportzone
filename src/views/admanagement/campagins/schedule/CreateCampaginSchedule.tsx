@@ -226,7 +226,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
                   defaultValue=''
                   label='Day'
                   id='custom-select'
-                  value={item.day || ''}
+                  value={item.day ?? ''}
                   onChange={e => {
                     const newItems = [...schedules]
                     newItems[index].day = parseInt(e.target.value)

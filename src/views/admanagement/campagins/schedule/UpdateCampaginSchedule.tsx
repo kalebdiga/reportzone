@@ -15,6 +15,7 @@ import CustomTextField from '@/@core/components/mui/TextField'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import useDynamicMutation from '@/apihandeler/usePostData'
 import { type CampaignSchedule } from '@/typs/campagin.type'
+import { days, hoursWithMinutes, states } from './CreateCampaginSchedule'
 
 const UpdateCampaginSchedule = ({ data, handleClose }: { data: CampaignSchedule[]; handleClose?: () => void }) => {
   const postMutation = useDynamicMutation({ type: 'Json' })
@@ -133,8 +134,10 @@ const UpdateCampaginSchedule = ({ data, handleClose }: { data: CampaignSchedule[
                 <CustomTextField
                   select
                   fullWidth
+                  defaultValue=''
                   label='Day'
-                  value={item.day || ''}
+                  id='custom-select'
+                  value={item.day ?? ''}
                   onChange={e => {
                     const newItems = [...schedules]
                     newItems[index].day = parseInt(e.target.value)
@@ -262,28 +265,3 @@ const UpdateCampaginSchedule = ({ data, handleClose }: { data: CampaignSchedule[
 }
 
 export default UpdateCampaginSchedule
-
-// Days of the week
-export const days = [
-  // { value: , title: 'Sunday' },
-  { value: 1, title: 'Monday' },
-  { value: 2, title: 'Tuesday' },
-  { value: 3, title: 'Wednesday' },
-  { value: 4, title: 'Thursday' },
-  { value: 5, title: 'Friday' },
-  { value: 6, title: 'Saturday' },
-  { value: 0, title: 'Sunday' },
-  { value: 7, title: 'Sunday' }
-]
-
-// States for the schedule
-export const states = ['ENABLED', 'PAUSED', 'ARCHIVED']
-
-// Hours with minutes for time selection
-export const hoursWithMinutes = Array.from({ length: 24 }, (_, hour) =>
-  [0, 15, 30, 45].map(minute => ({
-    hour,
-    minute,
-    label: `${hour % 12 === 0 ? 12 : hour % 12}:${minute.toString().padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`
-  }))
-).flat()
