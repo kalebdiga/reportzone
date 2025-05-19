@@ -162,7 +162,7 @@ const ScedulesTable = ({ Campagindata, handleClose }: { Campagindata?: any; hand
         enableSorting: false
       })
     ],
-    [data, page, resultsPerPage]
+    []
   )
   const table = useReactTable({
     data: data,

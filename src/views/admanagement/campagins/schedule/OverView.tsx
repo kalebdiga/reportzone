@@ -134,7 +134,7 @@ const OverView = ({ data: campaginData }: { data?: any; handleClose?: () => void
       //   cell: ({ row }) => <Typography>{row.original.totalAdGroups}</Typography>
       // }),
     ],
-    [data, camapaginsOriginals]
+    []
   )
 
   const table = useReactTable({

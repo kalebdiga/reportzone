@@ -23,8 +23,7 @@ import ValidationTable from './ValidationTable'
 
 const CreateCampaginSchedule = ({ data: Camp, handleClose }: { data: any; handleClose?: () => void }) => {
   const postMutation = useDynamicMutation({ type: 'Json' })
-  let data = Camp.data
-  console.log('ccccc', data)
+  const data = Camp.data
 
   const [openSceduleTable, setOpenSceduleTable] = useState(false)
 

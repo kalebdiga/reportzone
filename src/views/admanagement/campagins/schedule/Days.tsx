@@ -87,10 +87,6 @@ const Days = ({ data: campaignData }: { data?: any[] }) => {
   const [globalFilter, setGlobalFilter] = useState('')
 
   const columns = useMemo<ColumnDef<any, any>[]>(() => {
-    function convertUtcToNewYork(time_window_start: any): import('react').ReactNode {
-      throw new Error('Function not implemented.')
-    }
-
     return [
       columnHelper.accessor('campaign_name', {
         header: 'campaign_name',
@@ -119,7 +115,7 @@ const Days = ({ data: campaignData }: { data?: any[] }) => {
 
       columnHelper.accessor('time_window_start', {
         header: 'time_window_start',
-        cell: ({ row }) => <Typography>{convertUtcToNewYork(row.original.time_window_start)}</Typography>
+        cell: ({ row }) => <Typography>{row.original.time_window_start}</Typography>
       })
     ]
   }, [])
