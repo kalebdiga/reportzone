@@ -7,6 +7,10 @@ COPY package.json package-lock.json ./
 RUN npm install
 
 COPY . .
+
+# Optional: generate icon bundle before build if needed
+# RUN npm run build:icons
+
 RUN npm run build
 
 # Stage 2: Production
