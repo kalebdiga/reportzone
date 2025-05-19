@@ -16,7 +16,7 @@ RUN npm install
 
 
 # Run the icon build step (make sure the path exists)
-RUN npm run build:icons
+# RUN npm run build:icons
 
 # Run Next.js production build
 RUN npm run build
