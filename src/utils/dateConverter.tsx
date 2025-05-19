@@ -205,15 +205,30 @@ export function convertUtcToNewYorkFormatted(utcIsoString: string, options: Time
   return newYorkDate.toFormat("cccc 'at' h:mm a")
 }
 
-export function convertUtcToNewYork(utcString: string, format: string = 'yyyy-MM-dd HH:mm ZZZZ'): string {
-  // Attempt ISO parsing (replace space with T if needed)
-  const isoString = utcString.includes('T') ? utcString : utcString.replace(' ', 'T')
-  let date = DateTime.fromISO(isoString, { zone: 'utc' })
+export function convertNewYorkToUtcTime(
+  hour: number,
+  isAm: boolean,
+  minute: number = 0
+): { hour: number; minute: number; day: number } {
+  // Normalize to 24-hour format
+  const hour24 = isAm ? (hour === 12 ? 0 : hour) : hour === 12 ? 12 : hour + 12
 
-  // Fallback if ISO parsing fails
-  if (!date.isValid) {
-    date = DateTime.fromFormat(utcString, 'yyyy-MM-dd HH:mm:ssZZ', { zone: 'utc' })
+  // Use current date in New York time
+  const now = DateTime.now().setZone('America/New_York')
+
+  // Build DateTime in NY zone with the given hour/minute
+  const nyTime = now.set({
+    hour: hour24,
+    minute,
+    second: 0,
+    millisecond: 0
+  })
+
+  const utcTime = nyTime.toUTC()
+
+  return {
+    hour: utcTime.hour,
+    minute: utcTime.minute,
+    day: utcTime.weekday % 7 // Map 1 (Monday)–7 (Sunday) to 0–6
   }
-
-  return date.isValid ? date.setZone('America/New_York').toFormat(format) : 'Invalid date'
 }

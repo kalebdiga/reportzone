@@ -78,7 +78,6 @@ const DebouncedInput = ({
 import DaysData from './../../../../data/data.json'
 import { Card, CardHeader, MenuItem } from '@mui/material'
 import Filters from './Filters'
-import { convertUtcToNewYork } from '@/utils/dateConverter'
 const columnHelper = createColumnHelper<any>()
 
 const Days = ({ data: campaignData }: { data?: any[] }) => {
@@ -88,6 +87,10 @@ const Days = ({ data: campaignData }: { data?: any[] }) => {
   const [globalFilter, setGlobalFilter] = useState('')
 
   const columns = useMemo<ColumnDef<any, any>[]>(() => {
+    function convertUtcToNewYork(time_window_start: any): import('react').ReactNode {
+      throw new Error('Function not implemented.')
+    }
+
     return [
       columnHelper.accessor('campaign_name', {
         header: 'campaign_name',

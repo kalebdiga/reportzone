@@ -73,11 +73,13 @@ const CampaginKeyTable = ({ data: CampaginData, handleClose }: { data?: any; han
   const { companyUsers } = useUserStore()
   const session = useSession()
   const id = CampaginData?.data?.original.id
+  const company_id = CampaginData?.data?.original.companyId
+
   const [page, setPage] = useState(1)
 
   const { data: ProductData, isLoading } = useFetchData(
     ['keywords', session?.data?.user?.accessToken, companyUsers[0]?.companyId, page, id],
-    `/advertising/campaigns/${id}/keywords`
+    `/advertising/campaigns/${id}/keywords?company_id=${company_id}`
   )
 
   //(CampaginData)

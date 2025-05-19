@@ -21,8 +21,10 @@ import OverView from './OverView'
 import { formatUSD } from '@/utils/usdFormat'
 import ValidationTable from './ValidationTable'
 
-const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?: () => void }) => {
+const CreateCampaginSchedule = ({ data: Camp, handleClose }: { data: any; handleClose?: () => void }) => {
   const postMutation = useDynamicMutation({ type: 'Json' })
+  let data = Camp.data
+  console.log('ccccc', data)
 
   const [openSceduleTable, setOpenSceduleTable] = useState(false)
 
@@ -107,7 +109,7 @@ const CreateCampaginSchedule = ({ data, handleClose }: { data: any; handleClose?
         campaignId: campaign.id || '',
         companyId: campaign.companyId || '',
         day: item.day || 0,
-        hour: convertNewYorkHourToUtc(item.hour || 0, item.am) || 0,
+        hour: item.hour || 0,
         minute: item.minute || 0,
         budget: item.budgetNoChange ? undefined : item.budget,
         campaignState: item.stateNoChange ? null : item.state?.toUpperCase() || null,
