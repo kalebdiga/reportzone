@@ -6,11 +6,13 @@ WORKDIR /app
 # Copy package files first to leverage Docker cache for dependencies
 COPY package.json package-lock.json ./
 
+# Copy all source files after installing dependencies
+COPY . .
+
 # Install all dependencies including devDependencies for build
 RUN npm install
 
-# Copy all source files after installing dependencies
-COPY . .
+
 
 # Run the icon build step (make sure the path exists)
 RUN npm run build:icons
