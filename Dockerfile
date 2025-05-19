@@ -10,6 +10,8 @@ COPY package.json package-lock.json ./
 COPY . .
 
 # Install all dependencies including devDependencies for build
+RUN npm run build:icons
+
 RUN npm install
 
 
