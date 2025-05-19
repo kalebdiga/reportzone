@@ -1,5 +1,10 @@
 # Stage 1: Build
-FROM node:20-bullseye AS builder
+FROM node:18-buster AS builder
+# ... rest of your Dockerfile
+
+FROM node:18-buster
+# ... rest of your Dockerfile
+
 
 WORKDIR /app
 
